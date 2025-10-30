@@ -41,7 +41,6 @@ export const User = new EntitySchema({
       nullable: false,
     },
 
-    
     created_at: {
       type: "timestamp",
       createDate: true,
