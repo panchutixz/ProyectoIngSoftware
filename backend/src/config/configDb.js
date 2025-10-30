@@ -23,3 +23,6 @@ export async function connectDB() {
     process.exit(1);
   }
 }
+
+//oli x2
+//olaaa

@@ -13,13 +13,35 @@ export const User = new EntitySchema({
       type: "varchar",
       length: 255,
       unique: true,
-      nullable: false,
     },
     password: {
       type: "varchar",
       length: 255,
       nullable: false,
     },
+    nombre: {
+      type: "varchar",
+      length: 255,
+      nullable: false,
+    },
+    apellido: {
+      type: "varchar",
+      length: 255,
+      nullable: false,
+    },
+    rut: {
+      type: "varchar",
+      length: 255,
+      unique: true,
+    },
+
+    rol: {
+      type: "varchar",
+      length: 255,
+      nullable: false,
+    },
+
+    
     created_at: {
       type: "timestamp",
       createDate: true,
@@ -32,3 +54,5 @@ export const User = new EntitySchema({
     },
   },
 });
+
+export default User;
