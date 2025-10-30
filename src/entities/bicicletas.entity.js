@@ -67,5 +67,5 @@ export const Bicicleta = new EntitySchema({
 
 
 });
-
+//ola
 export default Bicicleta;
