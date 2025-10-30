@@ -13,6 +13,7 @@ const domainEmailValidator = (value, helpers) => {
 
 
 const passwordRegex = /^[a-zA-Z0-9]+$/;
+const allowedRoles = ["Estudiante", "Funcionario", "Académico"];
 
 
 export const registerValidation = Joi.object({
@@ -72,10 +73,10 @@ export const registerValidation = Joi.object({
       "string.pattern.base": "El RUT debe tener formato xx.xxx.xxx-x.",
     }),
   rol: Joi.string()
-    .valid("Estudiante", "Funcionario", "Académico")
+    .valid(...allowedRoles)
     .required()
     .messages({
-      "any.only": "El rol debe ser Estudiante, Funcionario o Académico.",
+      "any.only": `El rol debe ser ${allowedRoles.join(", ")}.`,
       "string.empty": "El rol es obligatorio.",
     }),
 })
@@ -83,6 +84,39 @@ export const registerValidation = Joi.object({
   .messages({
     "object.unknown": "No se permiten campos adicionales",
   });
+
+  
+export async function validateRegister(data, checkEmailExists) {
+
+  const validated = await registerValidation.validateAsync(data, { abortEarly: false });
+
+  const email = validated.email.toLowerCase();
+  const role = validated.rol.toLowerCase();
+
+  
+  if (role === "Estudiante") {
+    if (!email.endsWith("@alumnos.ubiobio.cl")) {
+      throw new Error("Para el rol estudiante el correo debe terminar en @alumnos.ubiobio.cl.");
+    }
+  } else if (role === "Funcionario" || role === "Académico") {
+    if (!email.endsWith("@ubiobio.cl")) {
+      throw new Error(
+        "Para el rol funcionario o académico el correo debe terminar en @ubiobio.cl."
+      );
+    }
+  } else {
+    throw new Error("Rol no permitido.");
+  }
+
+  if (typeof checkEmailExists === "function") {
+    const exists = await checkEmailExists(email);
+    if (exists) {
+      throw new Error("El correo electrónico ya está registrado.");
+    }
+  }
+
+  return validated;
+}
 
 
 export const loginValidation = Joi.object({
