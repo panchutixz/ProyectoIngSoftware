@@ -42,6 +42,42 @@ export const registerValidation = Joi.object({
       "string.max": "La contraseña debe tener como máximo 26 caracteres.",
       "string.pattern.base": "La contraseña solo puede contener letras y números. No se permiten símbolos especiales.",
     }),
+  nombre: Joi.string()
+    .min(3)
+    .max(50)
+    .required()
+    .messages({
+      "string.empty": "El nombre es obligatorio.",
+      "string.min": "El nombre debe tener al menos 3 caracteres.",
+      "string.max": "El nombre no puede exceder los 50 caracteres.",
+    }),
+  apellido: Joi.string()
+    .min(3)
+    .max(50)
+    .required()
+    .messages({
+      "string.empty": "El apellido es obligatorio.",
+      "string.min": "El apellido debe tener al menos 3 caracteres.",
+      "string.max": "El apellido no puede exceder los 50 caracteres.",
+    }),
+  rut: Joi.string()
+    .min(9)
+    .max(12)
+    .pattern(/^\d{1,2}\.\d{3}\.\d{3}-[0-9kK]{1}$/) 
+    .required()
+    .messages({
+      "string.empty": "El RUT es obligatorio.",
+      "string.min": "El RUT debe tener al menos 9 caracteres.",
+      "string.max": "El RUT no puede exceder los 12 caracteres.",
+      "string.pattern.base": "El RUT debe tener formato xx.xxx.xxx-x.",
+    }),
+  rol: Joi.string()
+    .valid("Estudiante", "Funcionario", "Académico")
+    .required()
+    .messages({
+      "any.only": "El rol debe ser Estudiante, Funcionario o Académico.",
+      "string.empty": "El rol es obligatorio.",
+    }),
 })
   .unknown(false)
   .messages({
