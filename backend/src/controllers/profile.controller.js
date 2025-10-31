@@ -1,7 +1,7 @@
-import { handleSuccess, handleErrorClient, handleErrorServer } from "../Handlers/responseHandlers.js";
+import { handleSuccess, handleErrorClient, handleErrorServer } from "../handlers/responseHandlers.js";
 import bcrypt from "bcrypt";
 import { AppDataSource } from "../config/configDb.js";
-import { User } from "../entities/user.entity.js";
+import { UserEntity } from "../entities/user.entity.js";
 
 export function getPublicProfile(req, res) {
   handleSuccess(res, 200, "Perfil público obtenido exitosamente", {
@@ -12,7 +12,7 @@ export function getPublicProfile(req, res) {
 export async function getPrivateProfile(req, res) {
   const userFromToken = req.user;
   try {
-    const userRepository = AppDataSource.getRepository(User);
+    const userRepository = AppDataSource.getRepository(UserEntity);
     const user = await userRepository.findOneBy({ email: userFromToken.email });
     if (!user) {
       return handleErrorClient(res, 404, "Usuario no encontrado.");
@@ -38,7 +38,7 @@ export async function updatePrivateProfile(req, res) {
       return handleErrorClient(res, 400, "Debes proporcionar email y/o password para actualizar.");
     }
 
-    const userRepository = AppDataSource.getRepository(User);
+    const userRepository = AppDataSource.getRepository(UserEntity);
     const user = await userRepository.findOneBy({ id: userFromToken.sub });
     if (!user) {
       return handleErrorClient(res, 404, "Usuario no encontrado.");
@@ -62,7 +62,7 @@ export async function updatePrivateProfile(req, res) {
 export async function deletePrivateProfile(req, res) {
   try {
     const userFromToken = req.user;
-    const userRepository = AppDataSource.getRepository(User);
+    const userRepository = AppDataSource.getRepository(UserEntity);
     const user = await userRepository.findOneBy({ id: userFromToken.sub });
     if (!user) {
       return handleErrorClient(res, 404, "Usuario no encontrado.");
