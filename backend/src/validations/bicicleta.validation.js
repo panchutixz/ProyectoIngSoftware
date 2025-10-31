@@ -41,7 +41,7 @@ export const registerValidation = Joi.object({
     descripcion: Joi.string()
     .min(20)
     .max(100)
-    .pattern(/^[A-Za-z]+$/)
+    .pattern(/^[A-Za-z]+(?: [A-Za-z]+)*$/)
     .required()
     .messages({
         "string.pattern.base": "La descripción no debe contener números ni carácteres especiales",
