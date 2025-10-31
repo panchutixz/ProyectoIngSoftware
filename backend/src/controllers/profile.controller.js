@@ -1,4 +1,4 @@
-import { handleSuccess, handleErrorClient, handleErrorServer } from "../Handlers/responseHandlers.js";
+import { handleSuccess, handleErrorClient, handleErrorServer } from "../handlers/responseHandlers.js";
 import bcrypt from "bcrypt";
 import { AppDataSource } from "../config/configDb.js";
 import { User } from "../entities/user.entity.js";

@@ -1,6 +1,7 @@
+"use strict";
 import { EntitySchema } from "typeorm";
 
-export const User = new EntitySchema({
+export const UserEntity = new EntitySchema({
   name: "User",
   tableName: "users",
   columns: {
@@ -54,4 +55,4 @@ export const User = new EntitySchema({
   },
 });
 
-export default User;
+export default UserEntity;
