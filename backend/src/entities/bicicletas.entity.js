@@ -57,9 +57,9 @@ export const Bicicleta = new EntitySchema({
         bicicletero: {
             type: "one-to-one",
             target: "Bicicletero",
-            joinColumn: {name: "id"},
+            joinColumn: {name: "bicicletero_id"},
             eager: false,
-            nullable: false,
+            nullable: true, //true por ahora
 
         }
 

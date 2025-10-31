@@ -42,6 +42,7 @@ export async function registerBicycle(req, res){
         return handleSuccess(res, 200, "Bicicleta registrada correctamente");
 
     }catch (error){
+        console.error("Error al registrar la bicicleta:", error);
         return handleErrorServer(res, 500, "Error al registrar la bicicleta");
     }
 }

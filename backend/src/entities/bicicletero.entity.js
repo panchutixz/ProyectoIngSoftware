@@ -44,7 +44,6 @@ export const Bicicletero = new EntitySchema({
         users: {
             type: "one-to-many",
             target: "User",
-            // one-to-many shouldn't use JoinColumn and eager loading here may create circular eager loads
             eager: false,
             nullable: false,
 
@@ -52,12 +51,10 @@ export const Bicicletero = new EntitySchema({
         bicicletas:{
             type: "one-to-many",
             target: "Bicicleta",
-            // one-to-many shouldn't use JoinColumn and eager loading here may create circular eager loads
             eager: false,
             nullable: false,
         },
 
     },
 });
-//ola
 export default Bicicletero;
