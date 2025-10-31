@@ -42,3 +42,52 @@ export async function createBikeRack(req, res){
         return handleErrorServer(res, 500, "Error al registrar el bicicletero");
     }
 }
+
+//Obtener todos lo bicicleteros
+export async function getAllBikeRacks(req, res) {
+    const bikeRackRepository = AppDataSource.getRepository(Bicicletero);
+
+    try {
+        const bicicleteros = await bikeRackRepository.find();
+        return handleSuccess(res, 200, "Bicicleteros obtenidos correctamente", bicicleteros);
+    } catch (error) {
+        console.error("Error al obtener bicicleteros:", error);
+        return handleErrorServer(res, 500, "Error al obtener bicicleteros");
+    }
+}
+
+//Obtener bicicletero por Id
+export async function getBikeRackById(req, res) {
+    const bikeRackRepository = AppDataSource.getRepository(Bicicletero);
+    const { id } = req.query;
+
+    try {
+        const bicicletero = await bikeRackRepository.findOne({ where: { id: parseInt(id) } });
+        if (!bicicletero) {
+            return handleErrorClient(res, 404, `Bicicletero no encontrado ${id}`);
+        }
+        return handleSuccess(res, 200, "Bicicletero obtenido correctamente", bicicletero);
+    } catch (error) {
+        console.error("Error al obtener bicicletero:", error);
+    return handleErrorServer(res, 500, "Error al obtener bicicletero");
+    }
+}
+
+//Eliminar bicicletero
+export async function deleteBikeRack(req, res) {
+    const bikeRackRepository = AppDataSource.getRepository(Bicicletero);
+    const { id } = req.query;
+
+    try {
+        const bicicletero = await bikeRackRepository.findOne({ where: { id: parseInt(id) } });
+    if (!bicicletero) {
+        return handleErrorClient(res, 404, `Bicicletero no encontrado${id}`);
+    }
+
+    await bikeRackRepository.remove(bicicletero);
+    return handleSuccess(res, 200, `Bicicletero con id ${id} eliminado correctamente`);
+    } catch (error) {
+        console.error("Error al eliminar bicicletero:", error);
+        return handleErrorServer(res, 500, "Error al eliminar bicicletero");
+    }
+};
