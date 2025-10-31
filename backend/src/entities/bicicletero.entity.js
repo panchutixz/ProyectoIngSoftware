@@ -12,15 +12,17 @@ export const Bicicletero = new EntitySchema({
         nombre: {
             type: "varchar",
             length: 255,
+            unique: true,
             nullable: false,
         },
         capacidad: {
             type: "int",
-            generated: "increment",
+            nullable: false,
         },
         ubicacion: {
             type: "varchar",
             length: 255,
+            unique: true,
             nullable: false,
         },
         estado: {
@@ -41,18 +43,15 @@ export const Bicicletero = new EntitySchema({
         },
     },
     relations: {
-        users: {
+        user: {
             type: "one-to-many",
             target: "User",
-            eager: false,
-            nullable: false,
-
+            inverseSide: "bicicletero"
         },
         bicicletas:{
             type: "one-to-many",
             target: "Bicicleta",
-            eager: false,
-            nullable: false,
+            inverseSide: "bicicletero"
         },
 
     },

@@ -60,6 +60,14 @@ export const UserEntity = new EntitySchema({
         type: "one-to-many",
         target: "Bicicleta",
         inverseSide: "usuario"
+      },
+      bicicletero: {
+        type: "one-to-one",
+        target: "Bicicletero",
+        inverseSide: "usuario",
+        joinColumn: {name: "bicicletero_id"},
+        eager: false,
+        nullable: true
       }
     }
 });
