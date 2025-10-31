@@ -62,4 +62,15 @@ export const registerValidation = Joi.object({
         "string.max": "La descripción debe tener una extensión máxima de 10 carácteres",
         "string.empty": "El estado de la bicicleta es obligatoria",
     }),
+    rut: Joi.string()
+        .min(9)
+        .max(12)
+        .pattern(/^\d{1,2}\.\d{3}\.\d{3}-[0-9kK]{1}$/) 
+        .required()
+        .messages({
+            "string.empty": "El RUT es obligatorio.",
+            "string.min": "El RUT debe tener al menos 9 caracteres.",
+            "string.max": "El RUT no puede exceder los 12 caracteres.",
+            "string.pattern.base": "El RUT debe tener formato xx.xxx.xxx-x.",
+        }),
 })

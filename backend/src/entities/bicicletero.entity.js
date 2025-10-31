@@ -44,16 +44,16 @@ export const Bicicletero = new EntitySchema({
         users: {
             type: "one-to-many",
             target: "User",
-            JoinColumn: {name: "rut_user"},
-            eager: true,
+            // one-to-many shouldn't use JoinColumn and eager loading here may create circular eager loads
+            eager: false,
             nullable: false,
 
         },
         bicicletas:{
             type: "one-to-many",
             target: "Bicicleta",
-            JoinColumn: {name: "numero_serie"},
-            eager: true,
+            // one-to-many shouldn't use JoinColumn and eager loading here may create circular eager loads
+            eager: false,
             nullable: false,
         },
 

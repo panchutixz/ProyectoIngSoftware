@@ -47,18 +47,18 @@ export const Bicicleta = new EntitySchema({
         },
     },
     relations: {
-        users: {
-            type: "one-to-one",
+        usuario: {
+            type: "many-to-one",
             target: "User",
-            JoinColumn: {name: "rut_user"},
-            eager: true,
+            joinColumn: {name: "rut_user"},
+            eager: false,
             nullable: false,
         },
         bicicletero: {
             type: "one-to-one",
             target: "Bicicletero",
-            JoinColumn: {name: "id"},
-            eager: true,
+            joinColumn: {name: "id"},
+            eager: false,
             nullable: false,
 
         }
@@ -67,5 +67,5 @@ export const Bicicleta = new EntitySchema({
 
 
 });
-//ola
+
 export default Bicicleta;

@@ -1,28 +1,42 @@
 import { AppDataSource } from "../config/configDb.js";
 import { registerValidation } from "../validations/bicicleta.validation.js";
 import Bicicleta from "../entities/bicicletas.entity.js";
+import User from "../entities/user.entity.js"
 import { handleErrorClient, handleErrorServer, handleSuccess } from "../handlers/responseHandlers.js";
 
 // registro bicicletas
 export async function registerBicycle(req, res){
     const bicycleRepository = AppDataSource.getRepository(Bicicleta);
-    const { marca, color, numero_serie, descripcion, estado} = req.body;
+    const userRepository = AppDataSource.getRepository(User);
+
+    const { marca, color, numero_serie, descripcion, estado, rut} = req.body;
     const { error } = registerValidation.validate(req.body);
     if(error) return handleErrorClient(res, 400,{message: error.details[0].message});
 
+    //verficar si el usuario que desea ingresar ya existe
 
-    //verificar si la bicicleta que se quiere registrar ya se encuentra
-    //const existingBicycle = await bicycleRepository.find({ where: {rut, numero_serie}});
-   // if(existingBicycle){
-       // return handleErrorClient(res, 404, "Ya existe una bicicleta registrada con este RUT y número de serie");
-    //}
+    const usuario = await userRepository.findOne({ where: {rut}});
+    if(!usuario){
+        return handleErrorClient(res, 404, "No se encontró un usuario con ese RUT");
+    }
+
+    //verificar si la bicicleta que se quiere registrar ya se encuentra //FALTARA ENLAZAR CON BICICLETERO//
+    const existingBicycle = await bicycleRepository.findOne({
+        where: { 
+            numero_serie, usuario},
+    });
+
+    if(existingBicycle){
+    return handleErrorClient(res, 404, "Ya existe una bicicleta registrada con este RUT y número de serie");
+    }
     try{
         const newBicycle = await bicycleRepository.save({
             marca,
             color,
             numero_serie,
             descripcion,
-            estado
+            estado,
+            usuario
         });
 
         return handleSuccess(res, 200, "Bicicleta registrada correctamente");
