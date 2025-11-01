@@ -4,7 +4,7 @@ export const Bicicletero = new EntitySchema({
     name: "Bicicletero",
     tableName: "bicicletero",
     columns: {
-        id: {
+        id_bicicletero: {
             primary: true,
             type: "int",
             generated: "increment",
@@ -12,15 +12,17 @@ export const Bicicletero = new EntitySchema({
         nombre: {
             type: "varchar",
             length: 255,
+            unique: true,
             nullable: false,
         },
         capacidad: {
             type: "int",
-            generated: "increment",
+            nullable: false,
         },
         ubicacion: {
             type: "varchar",
             length: 255,
+            unique: true,
             nullable: false,
         },
         estado: {
@@ -41,23 +43,17 @@ export const Bicicletero = new EntitySchema({
         },
     },
     relations: {
-        users: {
-            type: "one-to-many",
+        user: {
+            type: "one-to-one",
             target: "User",
-            JoinColumn: {name: "rut_user"},
-            eager: true,
-            nullable: false,
-
+            inverseSide: "bicicletero"
         },
         bicicletas:{
             type: "one-to-many",
             target: "Bicicleta",
-            JoinColumn: {name: "numero_serie"},
-            eager: true,
-            nullable: false,
+            inverseSide: "bicicletero"
         },
 
     },
 });
-//ola
 export default Bicicletero;
