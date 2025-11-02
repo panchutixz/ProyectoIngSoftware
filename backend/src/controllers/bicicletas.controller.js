@@ -1,7 +1,7 @@
 import { AppDataSource } from "../config/configDb.js";
 import { registerValidation } from "../validations/bicicleta.validation.js";
 import Bicicleta from "../entities/bicicletas.entity.js";
-import User from "../entities/user.entity.js"
+import User, { UserEntity } from "../entities/user.entity.js"
 import { handleErrorClient, handleErrorServer, handleSuccess } from "../handlers/responseHandlers.js";
 import Bicicletero from "../entities/bicicletero.entity.js";
 
@@ -112,8 +112,38 @@ export async function getBicycle(req, res) {
 //eliminar bicicletas
 export async function retirarBicycle(req, res){
     try{
+        const {rut, guardiaRUT} = req.body;
 
-    }catch{
-        
+        const bicycleRepository = AppDataSource.getRepository(Bicicleta);
+        const userRepository = AppDataSource.getRepository(User);
+
+        const guardia = await userRepository.findOne({
+            where: {rut: guardiaRUT}
+        });
+
+        if(!guardia || guardia.rol !== guardia){
+            return handleErrorClient(res, 403, "Solo los guardias pueden eliminar bicicletas");
+        }
+        const usuario = await userRepository.findOne({
+            where : {rut},
+        });
+        if(!usuario){
+            return handleErrorClient(res, 404, "Usuario no encontrado");
+        }
+        if(usuario.bicicletero_id !== guardia.bicicletero_id){
+            return handleErrorClient(res, 404, "No puedes eliminar bicicletas de otro bicicletero");
+        }
+
+        const bicicletas = await bicycleRepository.find({
+            where: {usuario :{rut} }
+        });
+        if(bicicletas.length === 0){
+            return handleErrorClient(res, 404, "El usuario no tiene bicicleta registrada");
+        }
+
+        await Promise.all(bicicletas.map(bici => bicycleRepository.remove(bici)));
+        return handleSuccess(res, 200, `Se eliminaron ${bicicletas.length} bicicleta(s) del usuario ${rut}.`);
+    }catch(error){
+        return console.error("Error al eliminar bicicletas", error);
     }
 }

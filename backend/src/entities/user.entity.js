@@ -9,7 +9,7 @@ export const UserEntity= new EntitySchema({
       primary: true,
       type: "varchar",
       length: 255,
-      unique: true,
+      //unique: true,
     },
      nombre: {
       type: "varchar",
