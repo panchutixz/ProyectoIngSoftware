@@ -37,7 +37,11 @@ export async function registerBicycle(req, res){
     //verificar si la bicicleta que se quiere registrar ya se encuentra //FALTARA ENLAZAR CON BICICLETERO//
     const existingBicycle = await bicycleRepository.findOne({
         where: { 
-            numero_serie, usuario},
+            numero_serie, 
+            usuario: {id: usuario.id},
+            bicicletero: {id: bicicletero.id}
+        
+        },
     });
 
     if(existingBicycle){
@@ -61,14 +65,6 @@ export async function registerBicycle(req, res){
     }
 }
 
-//login bicicletas
-export async function loginBicycle(req, res){
-    try{
-
-    }catch{
-
-    }
-}
 
 //obtener bicicletas
 export async function getBicycle(req, res){
@@ -76,5 +72,14 @@ export async function getBicycle(req, res){
 
     }catch{
 
+    }
+}
+
+//eliminar bicicletas
+export async function retirarBicycle(req, res){
+    try{
+
+    }catch{
+        
     }
 }
