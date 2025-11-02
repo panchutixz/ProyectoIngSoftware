@@ -67,13 +67,41 @@ export async function registerBicycle(req, res){
 
 
 //obtener bicicletas
-export async function getBicycle(req, res){
-    try{
+export async function getBicycle(req, res) {
+    try {
+    const bicycleRepository = AppDataSource.getRepository(Bicicleta);
 
-    }catch{
+    if (!req.user) {
+        return handleErrorClient(res, 401, "Usuario no autenticado");
+    }
 
+    const { rol, bicicleteroId } = req.user;
+
+    if (rol === "administrador") {
+        const bicicletas = await bicycleRepository.find();
+        return handleSuccess(res, 200, {message: "Bicicletas encontradas", data: bicicletas});
+    }
+
+    if (rol === "guardia") {
+        if (!bicicleteroId) {
+        return handleErrorClient(res, 400, "Guardia sin bicicletero asignado");
+        }
+
+    const bicicletas = await bicycleRepository.find({
+        where: { bicicletero: { id: bicicleteroId } }
+    });
+
+        return handleSuccess(res, 200, {message: "Bicicletas encontradas",data: bicicletas});
+    }
+
+    return handleErrorClient(res, 403, "Rol no autorizado para ver bicicletas");
+    } catch (error) {
+    console.error("Error al obtener bicicletas:", error);
+    return handleErrorServer(res, 500, "Error al obtener bicicletas");
     }
 }
+
+
 
 //eliminar bicicletas
 export async function retirarBicycle(req, res){
