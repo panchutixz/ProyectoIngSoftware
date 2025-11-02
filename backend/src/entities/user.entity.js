@@ -52,7 +52,24 @@ export const UserEntity = new EntitySchema({
       updateDate: true,
       default: () => "CURRENT_TIMESTAMP",
     },
+
+    
   },
+  relations: {
+      bicicletas: {
+        type: "one-to-many",
+        target: "Bicicleta",
+        inverseSide: "usuario"
+      },
+      bicicletero: {
+        type: "one-to-one",
+        target: "Bicicletero",
+        inverseSide: "usuario",
+        joinColumn: {name: "bicicletero_id"},
+        eager: false,
+        nullable: true
+      }
+    }
 });
 
 export default UserEntity;

@@ -4,7 +4,7 @@ import { AppDataSource } from "../config/configDb.js";
 import { UserEntity } from "../entities/user.entity.js";
 import { registerValidation} from "../validations/usuario.validation.js";
 import { encryptPassword } from "../helpers/bcrypt.helper.js";
-
+import { registerBicycle } from "./bicicletas.controller.js";
 // Obtener todos los usuarios
 export async function getUsers(req, res) {
   try {
@@ -75,11 +75,17 @@ export async function createUser(req, res) {
     });
 
     const savedUser = await userRepository.save(newUser);
+
+    //APARTADO BICICLETAS//
+    if (req.body.bicicleta) {
+    const bicicletaData = {...req.body.bicicleta,rut: savedUser.rut};
+    }
     res.status(201).json({ message: "Usuario creado exitosamente.", data: savedUser });
   } catch (error) {
     console.error("Error en añadir nuevo usuario", error);
     res.status(500).json({ message: "Error interno del servidor." });
   }
+
 }
 // Actualizar un usuario por ID
 export async function updateUserById(req, res) {
