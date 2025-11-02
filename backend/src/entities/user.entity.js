@@ -1,11 +1,27 @@
+"use strict";
 import { EntitySchema } from "typeorm";
 
-export const User = new EntitySchema({
+export const UserEntity= new EntitySchema({
   name: "User",
   tableName: "users",
   columns: {
-    id: {
+     rut: {
       primary: true,
+      type: "varchar",
+      length: 255,
+      //unique: true,
+    },
+     nombre: {
+      type: "varchar",
+      length: 255,
+      nullable: false,
+    },
+    apellido: {
+      type: "varchar",
+      length: 255,
+      nullable: false,
+    },
+    id: {
       type: "int",
       generated: "increment",
     },
@@ -13,7 +29,6 @@ export const User = new EntitySchema({
       type: "varchar",
       length: 255,
       unique: true,
-      nullable: false,
     },
     password: {
       type: "varchar",
@@ -30,5 +45,26 @@ export const User = new EntitySchema({
       updateDate: true,
       default: () => "CURRENT_TIMESTAMP",
     },
+     bicicletero_id: {
+      type: "int",
+      nullable: true
+    },
   },
+  relations: {
+      bicicletas: {
+        type: "one-to-many",
+        target: "Bicicleta",
+        inverseSide: "usuario"
+      },
+      bicicletero: {
+        type: "many-to-one",
+        target: "Bicicletero",
+        inverseSide: "usuario",
+        joinColumn: {name: "bicicletero_id"},
+        eager: false,
+        nullable: true
+      }
+    }
 });
+
+export default UserEntity;
