@@ -138,3 +138,31 @@ export async function deleteUserById(req, res) {
     res.status(500).json({ message: "Error interno del servidor." });
   }
 }
+
+// Obtener el bicicletero de un usuario
+export async function getUserBicicletero(req, res) {
+    try {
+        const userRepository = AppDataSource.getRepository(UserEntity);
+        const { rut } = req.params;
+        
+        const user = await userRepository.findOne({ 
+            where: { rut },
+            relations: ['bicicletero']
+        });
+
+        if (!user) {
+            return res.status(404).json({ message: "Usuario no encontrado." });
+        }
+
+        return res.status(200).json({
+            message: "Bicicletero del usuario encontrado",
+            data: {
+                usuario: user.nombre,
+                bicicletero: user.bicicletero
+            }
+        });
+    } catch (error) {
+        console.error("Error al obtener bicicletero del usuario:", error);
+        return res.status(500).json({ message: "Error interno del servidor." });
+    }
+}

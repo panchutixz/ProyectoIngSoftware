@@ -10,4 +10,3 @@ export function routerApi(app) {
   router.use("/profile", profileRoutes);
   router.use("/users", userRoutes);
 }
-//ola
