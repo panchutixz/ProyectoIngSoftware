@@ -53,6 +53,11 @@ export const Bicicletero = new EntitySchema({
             target: "Bicicleta",
             inverseSide: "bicicletero"
         },
+        usuarios: {
+            type: "one-to-many",
+            target: "User",
+            inverseSide: "bicicletero"
+        },
 
     },
 });

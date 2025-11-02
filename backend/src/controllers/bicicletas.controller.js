@@ -43,7 +43,7 @@ export async function registerBicycle(req, res){
     if(existingBicycle){
     return handleErrorClient(res, 404, "Ya existe una bicicleta registrada con este RUT y número de serie");
     }
-    try{
+    try {
         const newBicycle = await bicycleRepository.save({
             marca,
             color,
@@ -54,8 +54,14 @@ export async function registerBicycle(req, res){
             bicicletero
         });
 
-        return handleSuccess(res, 200, "Bicicleta registrada correctamente");
-    }catch (error){
+        // Actualizar el bicicletero_id del usuario
+        await userRepository.update(
+            { rut: rut },
+            { bicicletero_id: id_bicicletero }
+        );
+
+        return handleSuccess(res, 200, "Bicicleta registrada correctamente y usuario actualizado");
+    } catch (error) {
         console.error("Error al registrar la bicicleta:", error);
         return handleErrorServer(res, 500, "Error al registrar la bicicleta");
     }
