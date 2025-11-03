@@ -4,7 +4,7 @@ export const Bicicletero = new EntitySchema({
     name: "Bicicletero",
     tableName: "bicicletero",
     columns: {
-        id: {
+        id_bicicletero: {
             primary: true,
             type: "int",
             generated: "increment",
@@ -44,13 +44,18 @@ export const Bicicletero = new EntitySchema({
     },
     relations: {
         user: {
-            type: "one-to-many",
+            type: "one-to-one",
             target: "User",
             inverseSide: "bicicletero"
         },
         bicicletas:{
             type: "one-to-many",
             target: "Bicicleta",
+            inverseSide: "bicicletero"
+        },
+        usuarios: {
+            type: "one-to-many",
+            target: "User",
             inverseSide: "bicicletero"
         },
 

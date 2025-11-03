@@ -5,8 +5,23 @@ export const UserEntity = new EntitySchema({
   name: "User",
   tableName: "users",
   columns: {
-    id: {
+     rut: {
       primary: true,
+      type: "varchar",
+      length: 255,
+      unique: true,
+    },
+     nombre: {
+      type: "varchar",
+      length: 255,
+      nullable: false,
+    },
+    apellido: {
+      type: "varchar",
+      length: 255,
+      nullable: false,
+    },
+    id: {
       type: "int",
       generated: "increment",
     },
@@ -20,28 +35,6 @@ export const UserEntity = new EntitySchema({
       length: 255,
       nullable: false,
     },
-    nombre: {
-      type: "varchar",
-      length: 255,
-      nullable: false,
-    },
-    apellido: {
-      type: "varchar",
-      length: 255,
-      nullable: false,
-    },
-    rut: {
-      type: "varchar",
-      length: 255,
-      unique: true,
-    },
-
-    rol: {
-      type: "varchar",
-      length: 255,
-      nullable: false,
-    },
-
     created_at: {
       type: "timestamp",
       createDate: true,
@@ -52,8 +45,10 @@ export const UserEntity = new EntitySchema({
       updateDate: true,
       default: () => "CURRENT_TIMESTAMP",
     },
-
-    
+     bicicletero_id: {
+      type: "int",
+      nullable: true
+    },
   },
   relations: {
       bicicletas: {
@@ -62,7 +57,7 @@ export const UserEntity = new EntitySchema({
         inverseSide: "usuario"
       },
       bicicletero: {
-        type: "one-to-one",
+        type: "many-to-one",
         target: "Bicicletero",
         inverseSide: "usuario",
         joinColumn: {name: "bicicletero_id"},

@@ -3,13 +3,15 @@ import { registerValidation } from "../validations/bicicleta.validation.js";
 import Bicicleta from "../entities/bicicletas.entity.js";
 import User from "../entities/user.entity.js"
 import { handleErrorClient, handleErrorServer, handleSuccess } from "../handlers/responseHandlers.js";
+import Bicicletero from "../entities/bicicletero.entity.js";
 
 // registro bicicletas
 export async function registerBicycle(req, res){
     const bicycleRepository = AppDataSource.getRepository(Bicicleta);
     const userRepository = AppDataSource.getRepository(User);
+    const bicicleteroRepository = AppDataSource.getRepository(Bicicletero);
 
-    const { marca, color, numero_serie, descripcion, estado, rut} = req.body;
+    const { marca, color, numero_serie, descripcion, estado, rut, id_bicicletero} = req.body;
     const { error } = registerValidation.validate(req.body);
     if(error) return handleErrorClient(res, 400,{message: error.details[0].message});
 
@@ -20,6 +22,18 @@ export async function registerBicycle(req, res){
         return handleErrorClient(res, 404, "No se encontró un usuario con ese RUT");
     }
 
+    if(!id_bicicletero){
+        return handleErrorClient(res, 404, "No se encontró un bicicletero asociado a este ID");
+    }
+    const bicicletero = await bicicleteroRepository.findOne({where: {id_bicicletero}});
+    if(!bicicletero){
+        return handleErrorClient(res, 404, "No se encontró un bicicletero con ese ID");
+    }
+    const bicicletasEnBicicletero = await bicycleRepository.count({ where: { bicicletero } });
+    if (bicicletasEnBicicletero >= bicicletero.capacidad) {
+    return handleErrorClient(res, 400, "El bicicletero está lleno");
+    }
+    
     //verificar si la bicicleta que se quiere registrar ya se encuentra //FALTARA ENLAZAR CON BICICLETERO//
     const existingBicycle = await bicycleRepository.findOne({
         where: { 
@@ -29,19 +43,25 @@ export async function registerBicycle(req, res){
     if(existingBicycle){
     return handleErrorClient(res, 404, "Ya existe una bicicleta registrada con este RUT y número de serie");
     }
-    try{
+    try {
         const newBicycle = await bicycleRepository.save({
             marca,
             color,
             numero_serie,
             descripcion,
             estado,
-            usuario
+            usuario,
+            bicicletero
         });
 
-        return handleSuccess(res, 200, "Bicicleta registrada correctamente");
+        // Actualizar el bicicletero_id del usuario
+        await userRepository.update(
+            { rut: rut },
+            { bicicletero_id: id_bicicletero }
+        );
 
-    }catch (error){
+        return handleSuccess(res, 200, "Bicicleta registrada correctamente y usuario actualizado");
+    } catch (error) {
         console.error("Error al registrar la bicicleta:", error);
         return handleErrorServer(res, 500, "Error al registrar la bicicleta");
     }

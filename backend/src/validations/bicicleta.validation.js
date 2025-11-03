@@ -73,4 +73,15 @@ export const registerValidation = Joi.object({
             "string.max": "El RUT no puede exceder los 12 caracteres.",
             "string.pattern.base": "El RUT debe tener formato xx.xxx.xxx-x.",
         }),
+    id_bicicletero: Joi.string()
+        .min(1)
+        .max(2)
+        .pattern(/^[0-9]+$/)
+        .required()
+        .messages({
+            "string.pattern.base": "Para registrar su bicicleta debe ingresar el ID del bicicletero",
+            "string.empty": "Para completar el registro de su bicicleta el ID es obligatorio",
+            "string.min": "El id del bicicletero debe ser <= 1",
+            "string.max": "Los id de los bicicleteros no son de 2 digitos"
+        }),
 })
