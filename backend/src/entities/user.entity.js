@@ -1,7 +1,7 @@
 "use strict";
 import { EntitySchema } from "typeorm";
 
-export const UserEntity = new EntitySchema({
+export const UserEntity= new EntitySchema({
   name: "User",
   tableName: "users",
   columns: {
@@ -9,7 +9,7 @@ export const UserEntity = new EntitySchema({
       primary: true,
       type: "varchar",
       length: 255,
-      unique: true,
+      //unique: true,
     },
      nombre: {
       type: "varchar",

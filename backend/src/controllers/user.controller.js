@@ -3,7 +3,7 @@
 import { AppDataSource } from "../config/configDb.js";
 import { UserEntity } from "../entities/user.entity.js";
 import { registerValidation} from "../validations/usuario.validation.js";
-import { encryptPassword } from "../helpers/bcrypt.helper.js";
+import { encryptPassword } from "../handlers/bcrypt.helper.js";
 import { registerBicycle } from "./bicicletas.controller.js";
 // Obtener todos los usuarios
 export async function getUsers(req, res) {

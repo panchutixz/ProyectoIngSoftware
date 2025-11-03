@@ -1,7 +1,7 @@
 import { AppDataSource } from "../config/configDb.js";
 import { registerValidation } from "../validations/bicicleta.validation.js";
 import Bicicleta from "../entities/bicicletas.entity.js";
-import User from "../entities/user.entity.js"
+import User, { UserEntity } from "../entities/user.entity.js"
 import { handleErrorClient, handleErrorServer, handleSuccess } from "../handlers/responseHandlers.js";
 import Bicicletero from "../entities/bicicletero.entity.js";
 
@@ -37,7 +37,11 @@ export async function registerBicycle(req, res){
     //verificar si la bicicleta que se quiere registrar ya se encuentra //FALTARA ENLAZAR CON BICICLETERO//
     const existingBicycle = await bicycleRepository.findOne({
         where: { 
-            numero_serie, usuario},
+            numero_serie, 
+            usuario: {id: usuario.id},
+            bicicletero: {id: bicicletero.id}
+        
+        },
     });
 
     if(existingBicycle){
@@ -67,20 +71,79 @@ export async function registerBicycle(req, res){
     }
 }
 
-//login bicicletas
-export async function loginBicycle(req, res){
-    try{
 
-    }catch{
+//obtener bicicletas
+export async function getBicycle(req, res) {
+    try {
+    const bicycleRepository = AppDataSource.getRepository(Bicicleta);
 
+    if (!req.user) {
+        return handleErrorClient(res, 401, "Usuario no autenticado");
+    }
+
+    const { rol, bicicleteroId } = req.user;
+
+    if (rol === "administrador") {
+        const bicicletas = await bicycleRepository.find();
+        return handleSuccess(res, 200, {message: "Bicicletas encontradas", data: bicicletas});
+    }
+
+    if (rol === "guardia") {
+        if (!bicicleteroId) {
+        return handleErrorClient(res, 400, "Guardia sin bicicletero asignado");
+        }
+
+    const bicicletas = await bicycleRepository.find({
+        where: { bicicletero: { id: bicicleteroId } }
+    });
+
+        return handleSuccess(res, 200, {message: "Bicicletas encontradas",data: bicicletas});
+    }
+
+    return handleErrorClient(res, 403, "Rol no autorizado para ver bicicletas");
+    } catch (error) {
+    console.error("Error al obtener bicicletas:", error);
+    return handleErrorServer(res, 500, "Error al obtener bicicletas");
     }
 }
 
-//obtener bicicletas
-export async function getBicycle(req, res){
+
+
+//eliminar bicicletas
+export async function retirarBicycle(req, res){
     try{
+        const {rut, guardiaRUT} = req.body;
 
-    }catch{
+        const bicycleRepository = AppDataSource.getRepository(Bicicleta);
+        const userRepository = AppDataSource.getRepository(User);
 
+        const guardia = await userRepository.findOne({
+            where: {rut: guardiaRUT}
+        });
+
+        if(!guardia || guardia.rol !== guardia){
+            return handleErrorClient(res, 403, "Solo los guardias pueden eliminar bicicletas");
+        }
+        const usuario = await userRepository.findOne({
+            where : {rut},
+        });
+        if(!usuario){
+            return handleErrorClient(res, 404, "Usuario no encontrado");
+        }
+        if(usuario.bicicletero_id !== guardia.bicicletero_id){
+            return handleErrorClient(res, 404, "No puedes eliminar bicicletas de otro bicicletero");
+        }
+
+        const bicicletas = await bicycleRepository.find({
+            where: {usuario :{rut} }
+        });
+        if(bicicletas.length === 0){
+            return handleErrorClient(res, 404, "El usuario no tiene bicicleta registrada");
+        }
+
+        await Promise.all(bicicletas.map(bici => bicycleRepository.remove(bici)));
+        return handleSuccess(res, 200, `Se eliminaron ${bicicletas.length} bicicleta(s) del usuario ${rut}.`);
+    }catch(error){
+        return console.error("Error al eliminar bicicletas", error);
     }
 }
