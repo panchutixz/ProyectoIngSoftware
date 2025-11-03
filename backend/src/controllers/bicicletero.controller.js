@@ -1,6 +1,8 @@
 import { AppDataSource } from "../config/configDb.js";
 import { createValidation } from "../validations/bicicletero.validation.js";
 import Bicicletero from "../entities/bicicletero.entity.js";
+import Bicicleta from "../entities/bicicletas.entity.js";
+import User from "../entities/user.entity.js";
 import { handleErrorClient, handleErrorServer, handleSuccess } from "../handlers/responseHandlers.js"
 
 //Crear bicicletero
@@ -12,8 +14,8 @@ export async function createBikeRack(req, res){
     const { error } = createValidation.validate(req.body);
     if(error) return handleErrorClient(res, 400,{message: error.details[0].message});
 
-    try {
     //Verficar duplicado por nombre
+    try {
     const existeNombre = await bikeRackRepository.findOne({ where: {nombre}});
     if(existeNombre){
         return handleErrorClient(res, 404, `Ya existe un bicicletero con el nombre "${nombre}".`);
@@ -25,7 +27,7 @@ export async function createBikeRack(req, res){
         return handleErrorClient(res, 400, { message: `Ya existe un bicicletero registrado en la ubicación "${ubicacion}".`});
     }
 
-    //Guardar nuevo bicicletero
+        //Guardar nuevo bicicletero
         const newBikeRack = await bikeRackRepository.create({
             nombre,
             capacidad,
@@ -34,9 +36,7 @@ export async function createBikeRack(req, res){
         });
         
         await bikeRackRepository.save(newBikeRack);
-        
         return handleSuccess(res, 200, "Bicicletero registrado correctamente");
-
     }catch (error){
         console.error("Error al registrar el bicicletero:", error);
         return handleErrorServer(res, 500, "Error al registrar el bicicletero");
@@ -59,12 +59,12 @@ export async function getAllBikeRacks(req, res) {
 //Obtener bicicletero por Id
 export async function getBikeRackById(req, res) {
     const bikeRackRepository = AppDataSource.getRepository(Bicicletero);
-    const { id } = req.query;
+    const { id_bicicletero } = req.query;
 
     try {
-        const bicicletero = await bikeRackRepository.findOne({ where: { id: parseInt(id) } });
+        const bicicletero = await bikeRackRepository.findOne({ where: { id_bicicletero: parseInt(id_bicicletero) } });
         if (!bicicletero) {
-            return handleErrorClient(res, 404, `Bicicletero no encontrado ${id}`);
+            return handleErrorClient(res, 404, `Bicicletero no encontrado ${id_bicicletero}`);
         }
         return handleSuccess(res, 200, "Bicicletero obtenido correctamente", bicicletero);
     } catch (error) {
@@ -73,19 +73,68 @@ export async function getBikeRackById(req, res) {
     }
 }
 
+//Actualizar bicicletero
+export async function updateBikeRack(req, res) {
+    const bikeRackRepository = AppDataSource.getRepository(Bicicletero);
+    const { id_bicicletero } = req.query;
+    const { nombre, capacidad, ubicacion, estado } = req.body;
+    // Validación de datos
+    const { error } = createValidation.validate(req.body);
+    if(error) return handleErrorClient(res, 400,{message: error.details[0].message});
+
+    try {
+        const bicicletero = await bikeRackRepository.findOne({ where: { id_bicicletero: parseInt(id_bicicletero) }, });
+
+    if (!bicicletero) {
+      return handleErrorClient(res, 404, `No existe un bicicletero con id: ${id_bicicletero}`);
+    }
+
+    // Actualizar campos
+    bicicletero.nombre = nombre;
+    bicicletero.capacidad = capacidad;
+    bicicletero.ubicacion = ubicacion;
+    bicicletero.estado = estado;
+
+    await bikeRackRepository.save(bicicletero);
+
+    return handleSuccess(res, 200, `Bicicletero con id ${id_bicicletero} actualizado correctamente`);
+  } catch (error) {
+    console.error("Error al actualizar bicicletero:", error);
+    return handleErrorServer(res, 500, "Error al actualizar bicicletero");
+  }
+}
+
 //Eliminar bicicletero
 export async function deleteBikeRack(req, res) {
     const bikeRackRepository = AppDataSource.getRepository(Bicicletero);
-    const { id } = req.query;
+    const bicycleRepository = AppDataSource.getRepository(Bicicleta);
+    const userRepository = AppDataSource.getRepository(User);
+    const { id_bicicletero } = req.query;
 
+//Verifica que el bicicletero exista
     try {
-        const bicicletero = await bikeRackRepository.findOne({ where: { id: parseInt(id) } });
+        const bicicletero = await bikeRackRepository.findOne({ where: { id_bicicletero: parseInt(id_bicicletero) } });
     if (!bicicletero) {
-        return handleErrorClient(res, 404, `Bicicletero no encontrado${id}`);
+        return handleErrorClient(res, 404, `No existe un bicicletero con id: ${id_bicicletero}`);
     }
 
+//Verifica que no tenga bicicletas asociadas
+    const bicicletas = await bicycleRepository.count({ where: { bicicletero: { id_bicicletero: parseInt(id_bicicletero) } }});
+
+    if (bicicletas > 0) {
+        return handleErrorClient(res, 400, `No es posible eliminar el bicicletero con id: ${id_bicicletero} porque tiene: ${bicicletas} bicicletas registradas.`);
+    }
+
+// Desasociar usuarios vinculados
+    await userRepository
+      .createQueryBuilder()
+      .update(User)
+      .set({ bicicletero: null })
+      .where("bicicletero = :id", { id: parseInt(id_bicicletero) })
+      .execute();
+
     await bikeRackRepository.remove(bicicletero);
-    return handleSuccess(res, 200, `Bicicletero con id ${id} eliminado correctamente`);
+    return handleSuccess(res, 200, `Bicicletero con id: ${id_bicicletero} eliminado correctamente`);
     } catch (error) {
         console.error("Error al eliminar bicicletero:", error);
         return handleErrorServer(res, 500, "Error al eliminar bicicletero");
