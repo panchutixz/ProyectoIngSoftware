@@ -77,9 +77,9 @@ export async function createUser(req, res) {
     const savedUser = await userRepository.save(newUser);
 
     //APARTADO BICICLETAS//
-    if (req.body.bicicleta) {
-    const bicicletaData = {...req.body.bicicleta,rut: savedUser.rut};
-    }
+   // if (req.body.bicicleta) {
+    //const bicicletaData = {...req.body.bicicleta,rut: savedUser.rut};
+   // }
     res.status(201).json({ message: "Usuario creado exitosamente.", data: savedUser });
   } catch (error) {
     console.error("Error en añadir nuevo usuario", error);

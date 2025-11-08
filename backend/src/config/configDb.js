@@ -9,7 +9,7 @@ export const AppDataSource = new DataSource({
   username: `${DB_USERNAME}`,
   password: `${DB_PASSWORD}`,
   database: `${DATABASE}`,
-  entities: ["src/entities/**/*.js"],
+  entities: ["src/entities/*.js"],
   synchronize: true, 
   logging: false,
 });
@@ -23,6 +23,3 @@ export async function connectDB() {
     process.exit(1);
   }
 }
-
-//oli x2
-//olaaa
