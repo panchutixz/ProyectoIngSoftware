@@ -83,12 +83,12 @@ export async function getBicycle(req, res) {
 
     const { rol, bicicleteroId } = req.user;
 
-    if (rol === "administrador") {
+    if (rol === "Administrador") {
         const bicicletas = await bicycleRepository.find();
         return handleSuccess(res, 200, {message: "Bicicletas encontradas", data: bicicletas});
     }
 
-    if (rol === "guardia") {
+    if (rol === "Guardia") {
         if (!bicicleteroId) {
         return handleErrorClient(res, 400, "Guardia sin bicicletero asignado");
         }
@@ -117,11 +117,11 @@ export async function retirarBicycle(req, res){
         const bicycleRepository = AppDataSource.getRepository(Bicicleta);
         const userRepository = AppDataSource.getRepository(User);
 
-        const guardia = await userRepository.findOne({
+        const Guardia = await userRepository.findOne({
             where: {rut: guardiaRUT}
         });
 
-        if(!guardia || guardia.rol !== guardia){
+        if(!Guardia || Guardia.rol !== Guardia){
             return handleErrorClient(res, 403, "Solo los guardias pueden eliminar bicicletas");
         }
         const usuario = await userRepository.findOne({

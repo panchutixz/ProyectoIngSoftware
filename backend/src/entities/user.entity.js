@@ -21,6 +21,11 @@ export const UserEntity= new EntitySchema({
       length: 255,
       nullable: false,
     },
+    rol: {
+      type: "varchar",
+      length: 100,
+      nullable: true,
+    },
     id: {
       type: "int",
       generated: "increment",

@@ -15,14 +15,16 @@ export async function createusers(){
                 rut: "12.345.678-9",
                 nombre: "Administrador",
                 apellido: "Sistema",
-                email: "admin@gmail.com",
+                email: "admin@ubiobio.cl",
+                rol: "Administrador",
                 password: await encryptPassword("admin123"),
             },
             {
                 rut: "98.765.432-1",
                 nombre: "Guardia",
                 apellido: "Principal",
-                email: "guardia@gmail.com",
+                email: "guardia@ubiobio.cl",
+                rol: "Guardia",
                 password: await encryptPassword("guardia123")
             }
         ]

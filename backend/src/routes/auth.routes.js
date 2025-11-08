@@ -9,7 +9,7 @@ const router = Router();
 router.post("/login", login);
 router.post("/register", register);
 router.post("/register/bicicletas", registerBicycle);
-router.get("/obtener/bicicletas", getBicycle, authMiddleware);
+router.get("/obtener/bicicletas", authMiddleware, getBicycle);
 router.delete("/retirar/bicicletas", retirarBicycle);
 router.post("/create/bicicletero", createBikeRack);
 router.get("/getAll/bicicletero", getAllBikeRacks);

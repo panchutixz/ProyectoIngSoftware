@@ -3,7 +3,7 @@ import express from "express";
 import cors from "cors";
 import morgan from "morgan";
 import { createusers } from "./config/initDb.js";
-import { AppDataSource, connectDB } from "./config/configDb.js";
+import { connectDB } from "./config/configDb.js";
 import { routerApi } from "./routes/index.routes.js";
 
 const app = express();
