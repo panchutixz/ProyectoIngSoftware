@@ -143,8 +143,8 @@ export async function retirarBicycle(req, res){
         if (!usuario) return handleErrorClient(res, 404, "Usuario no encontrado");
 
         // Comprobar que el guardia y el usuario pertenezcan al mismo bicicletero
-        const guardiaBicicleteroId = guardia.bicicleteroId ?? guardia.bicicletero_id ?? null;
-        const usuarioBicicleteroId = usuario.bicicletero_id ?? usuario.bicicleteroId ?? null;
+        const guardiaBicicleteroId = guardia.bicicleteroId || guardia.bicicletero_id || null;
+        const usuarioBicicleteroId = usuario.bicicletero_id || usuario.bicicleteroId || null;
 
         if (!guardiaBicicleteroId) return handleErrorClient(res, 400, "Guardia sin bicicletero asignado");
         if (guardiaBicicleteroId !== usuarioBicicleteroId) {
