@@ -1,9 +1,9 @@
-import { AppDataSource } from "../../config/configDB.js";
-import { HistorialBicicleta } from "../entities/historial_bicicleta.entity.js";
+import { AppDataSource } from "../config/configDb.js";
+import { Historial } from "../entities/historial_bicicleta.entity.js";
 import User from "../entities/user.entity.js";
 import { handleErrorClient, handleErrorServer, handleSuccess } from "../handlers/responseHandlers.js";
 
-const historialRepository = AppDataSource.getRepository(HistorialBicicleta);
+const historialRepository = AppDataSource.getRepository(Historial);
 
 // obtener todo el historial de bicicletas
 export async function getHistoryByUser(req, res) {
