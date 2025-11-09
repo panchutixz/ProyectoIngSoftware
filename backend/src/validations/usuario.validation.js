@@ -13,7 +13,7 @@ const domainEmailValidator = (value, helpers) => {
 
 
 const passwordRegex = /^[a-zA-Z0-9]+$/;
-const allowedRoles = ["Estudiante", "Funcionario", "Académico"];
+const allowedRoles = ["Estudiante", "Funcionario", "Academico"];
 
 
 export const registerValidation = Joi.object({
