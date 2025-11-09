@@ -30,17 +30,15 @@ export const Bicicletero = new EntitySchema({
             length: 200,
             nullable: false,
         },
-
         created_at: {
             type: "timestamp",
-            createDate: true,
             default: () => "CURRENT_TIMESTAMP",
         },
         updated_at: {
             type: "timestamp",
-            updateDate: true,
-        default: () => "CURRENT_TIMESTAMP",
-        },
+            default: () => "CURRENT_TIMESTAMP",
+            onUpdate: "CURRENT_TIMESTAMP"
+        }
     },
     relations: {
         user: {
@@ -48,7 +46,7 @@ export const Bicicletero = new EntitySchema({
             target: "User",
             inverseSide: "bicicletero"
         },
-        bicicletas:{
+        bicicletas: {
             type: "one-to-many",
             target: "Bicicleta",
             inverseSide: "bicicletero"

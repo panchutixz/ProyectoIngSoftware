@@ -7,13 +7,18 @@ export async function loginUser(email, password) {
   if (!user) {
     throw new Error("Credenciales incorrectas");
   }
-
-  const isMatch = bcrypt.compare(password, user.password);
+  const isMatch = await bcrypt.compare(password, user.password);
   if (!isMatch) {
     throw new Error("Credenciales incorrectas");
   }
 
-  const payload = { sub: user.id, email: user.email };
+  // Construir payload incluyendo rol y bicicleteroId si existen en el usuario
+  const payload = {
+    sub: user.id,
+    email: user.email,
+    rol: user.rol ?? user.role ?? null,
+    bicicleteroId: user.bicicletero_id ?? user.bicicleteroId ?? null,
+  };
   const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: "1h" });
 
   delete user.password;

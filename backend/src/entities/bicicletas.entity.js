@@ -24,6 +24,11 @@ export const Bicicleta = new EntitySchema({
             length: 100,
             unique: true,
         },
+        codigo: {
+            type: "varchar",
+            length: 50,
+            unique: true,
+        },
         descripcion: {
             type: "varchar",
             length: 100,

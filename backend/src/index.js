@@ -2,7 +2,8 @@ import "dotenv/config";
 import express from "express";
 import cors from "cors";
 import morgan from "morgan";
-import { AppDataSource, connectDB } from "./config/configDb.js";
+import { createusers } from "./config/initDb.js";
+import { connectDB } from "./config/configDb.js";
 import { routerApi } from "./routes/index.routes.js";
 
 const app = express();
@@ -20,6 +21,7 @@ app.get("/", (req, res) => {
 
 // Inicializa la conexión a la base de datos
 connectDB()
+  .then(() => createusers())
   .then(() => {
     // Carga todas las rutas de la aplicación
     routerApi(app);

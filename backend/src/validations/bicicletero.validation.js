@@ -4,13 +4,13 @@ import Joi from "joi";
 export const createValidation = Joi.object({
     nombre: Joi.string()
     .min(4)
-    .max(20)
+    .max(40)
     .pattern(/^(?=.*[A-Za-zÁÉÍÓÚáéíóúÑñ])[A-Za-zÁÉÍÓÚáéíóúÑñ ]+$/)
     .required()
     .messages({
         "string.min": "El nombre debe tener a lo menos 4 carácteres",
-        "string.max": "El nombre no puede tener más de 20 carácteres",
-        "string.pattern.base": "El nombre solo pueden contener carácteres y números",
+        "string.max": "El nombre no puede tener más de 40 carácteres",
+        "string.pattern.base": "El nombre solo puede contener carácteres, números y espacios",
         "string.empty": "Se debe ingresar el nombre del bicicletero"
     }),
 
@@ -20,11 +20,11 @@ export const createValidation = Joi.object({
     .max(500)
     .required()
     .messages({
-        "number.base": "La capacidad debe ser un número entero",
+        "any.required": "Ingresar la capacidad es obligatorio",
+        "number.base": "Se debe ingresar obligatoriamente un número entero correspondiente a la capacidad",
         "number.integer": "La capacidad debe ser un número entero",
         "number.min": "La capacidad mínima admitida es de 3 espacios",
-        "number.max": "La capacidad máxima admitida es de 500 espacios",
-        "any.required": "Ingresar la capacidad es obligatorio"
+        "number.max": "La capacidad máxima admitida es de 500 espacios"
     }),
 
     ubicacion: Joi.string()
