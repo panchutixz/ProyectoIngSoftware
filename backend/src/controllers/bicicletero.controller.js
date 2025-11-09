@@ -9,6 +9,14 @@ import { handleErrorClient, handleErrorServer, handleSuccess } from "../handlers
 export async function createBikeRack(req, res) {
     const bikeRackRepository = AppDataSource.getRepository(Bicicletero);
     const { nombre, capacidad, ubicacion, estado } = req.body;
+    // Validar autentificación de administrador
+    const admin = req.user;
+    if (!admin) return handleErrorClient(res, 401, "Usuario no autenticado");
+
+    const adminRol = (admin.rol || admin.role || "").toString().toLowerCase();
+    if (adminRol !== "administrador") {
+        return handleErrorClient(res, 403, "Solo los administradores pueden crear bicicleteros");
+    }
 
     const { error } = createValidation.validate(req.body);
     if (error) return handleErrorClient(res, 400, { message: error.details[0].message });
@@ -68,6 +76,14 @@ export async function updateBikeRack(req, res) {
     const bikeRackRepository = AppDataSource.getRepository(Bicicletero);
     const { id_bicicletero } = req.query;
     const { nombre, capacidad, ubicacion, estado } = req.body;
+    // Validar autentificación de administrador
+    const admin = req.user;
+    if (!admin) return handleErrorClient(res, 401, "Usuario no autenticado");
+
+    const adminRol = (admin.rol || admin.role || "").toString().toLowerCase();
+    if (adminRol !== "administrador") {
+        return handleErrorClient(res, 403, "Solo los administradores pueden actualizar bicicleteros");
+    }
 
     const { error } = createValidation.validate(req.body);
     if (error) return handleErrorClient(res, 400, { message: error.details[0].message });
@@ -97,6 +113,14 @@ export async function deleteBikeRack(req, res) {
     const bicycleRepository = AppDataSource.getRepository(Bicicleta);
     const userRepository = AppDataSource.getRepository(User);
     const { id_bicicletero } = req.query;
+    // Validar autentificación de administrador
+    const admin = req.user;
+    if (!admin) return handleErrorClient(res, 401, "Usuario no autenticado");
+
+    const adminRol = (admin.rol || admin.role || "").toString().toLowerCase();
+    if (adminRol !== "administrador") {
+        return handleErrorClient(res, 403, "Solo los administradores pueden eliminar bicicleteros");
+    }    
 
     try {
         const bicicletero = await bikeRackRepository.findOne({ where: { id_bicicletero: parseInt(id_bicicletero) } });
@@ -126,21 +150,21 @@ export async function deleteBikeRack(req, res) {
 
 // Asignar guardia a un bicicletero
 export async function asignarGuardia(req, res) {
+    // Validar autentificación de administrador
+    const admin = req.user;
+    if (!admin) return handleErrorClient(res, 401, "Usuario no autenticado");
+
+    const adminRol = (admin.rol || admin.role || "").toString().toLowerCase();
+    if (adminRol !== "administrador") {
+        return handleErrorClient(res, 403, "Solo los administradores pueden asignar guardias");
+    }
+
+    const { id_bicicletero, id } = req.body;
+    if (!id_bicicletero || !id) {
+        return handleErrorClient(res, 400, "Se requiere el id del bicicletero y el id del guardia");
+    }
+
     try {
-        // Validar autentificación de administrador
-        const admin = req.user;
-        if (!admin) return handleErrorClient(res, 401, "Usuario no autenticado");
-
-        const adminRol = (admin.rol || admin.role || "").toString().toLowerCase();
-        if (adminRol !== "administrador") {
-            return handleErrorClient(res, 403, "Solo los administradores pueden asignar guardias");
-        }
-
-        const { id_bicicletero, id } = req.body;
-        if (!id_bicicletero || !id) {
-            return handleErrorClient(res, 400, "Se requiere el id del bicicletero y el id del guardia");
-        }
-
         const bikeRackRepository = AppDataSource.getRepository(Bicicletero);
         const userRepository = AppDataSource.getRepository(User);
 
@@ -167,7 +191,7 @@ export async function asignarGuardia(req, res) {
         }
 
         // Verificar que el guardia no esté asignado a otro bicicletero
-        if ( guardia.bicicletero && guardia.bicicletero.id_bicicletero !== parseInt(id_bicicletero)) {
+        if (guardia.bicicletero && guardia.bicicletero.id_bicicletero !== parseInt(id_bicicletero)) {
             return handleErrorClient(res, 400, "Este guardia ya está asignado a otro bicicletero");
         }
 
@@ -184,22 +208,21 @@ export async function asignarGuardia(req, res) {
 // Desasignar guardia de bicicletero
 export async function desasignarGuardia(req, res) {
     const bikeRackRepository = AppDataSource.getRepository(Bicicletero);
+    // Validar autentificación de administrador
+    const admin = req.user;
+    if (!admin) return handleErrorClient(res, 401, "Usuario no autenticado");
+
+    const adminRol = (admin.rol || admin.role || "").toString().toLowerCase();
+    if (adminRol !== "administrador") {
+        return handleErrorClient(res, 403, "Solo los administradores pueden desasignar guardias");
+    }
+
+    const { id_bicicletero } = req.body;
+    if (!id_bicicletero) {
+        return handleErrorClient(res, 400, "Se requiere el id del bicicletero");
+    }
 
     try {
-        // Validar autentificación de administrador
-        const admin = req.user;
-        if (!admin) return handleErrorClient(res, 401, "Usuario no autenticado");
-
-        const adminRol = (admin.rol || admin.role || "").toString().toLowerCase();
-        if (adminRol !== "administrador") {
-            return handleErrorClient(res, 403, "Solo los administradores pueden desasignar guardias");
-        }
-
-        const { id_bicicletero } = req.body;
-        if (!id_bicicletero) {
-            return handleErrorClient(res, 400, "Se requiere el id del bicicletero");
-        }
-
         const bicicletero = await bikeRackRepository.findOne({ where: { id_bicicletero: parseInt(id_bicicletero) }, relations: ["usuarios"], });
 
         if (!bicicletero) {

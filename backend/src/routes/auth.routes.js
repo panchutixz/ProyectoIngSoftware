@@ -11,11 +11,11 @@ router.post("/register", register);
 router.post("/register/bicicletas", registerBicycle);
 router.get("/obtener/bicicletas", authMiddleware, getBicycle);
 router.delete("/retirar/bicicletas", authMiddleware, retirarBicycle);
-router.post("/create/bicicletero", createBikeRack);
+router.post("/create/bicicletero", authMiddleware, createBikeRack);
 router.get("/getAll/bicicletero", getAllBikeRacks);
 router.get("/get/bicicletero", getBikeRackById);
-router.patch("/update/bicicletero", updateBikeRack);
-router.delete("/delete/bicicletero", deleteBikeRack);
+router.patch("/update/bicicletero", authMiddleware, updateBikeRack);
+router.delete("/delete/bicicletero", authMiddleware, deleteBikeRack);
 router.post("/asignar/bicicletero", authMiddleware, asignarGuardia);
 router.patch("/desasignar/bicicletero", authMiddleware, desasignarGuardia);
 
