@@ -2,6 +2,7 @@ import { AppDataSource } from "../config/configDb.js";
 import { Historial } from "../entities/historial_bicicleta.entity.js";
 import User from "../entities/user.entity.js";
 import { handleErrorClient, handleErrorServer, handleSuccess } from "../handlers/responseHandlers.js";
+import { historialValidation } from "../validations/historial.validation.js";
 
 const historialRepository = AppDataSource.getRepository(Historial);
 
@@ -12,6 +13,12 @@ export async function getHistoryByUser(req, res) {
         const userRepository = AppDataSource.getRepository(User);
 
         const { rut } = req.params;
+
+         const { error } = historialValidation.validate({ rut });
+        if (error) {
+            return handleErrorClient(res, 400, error.details[0].message);
+        }
+
 
         const usuario = await userRepository.findOne({ where: { rut } });
 
