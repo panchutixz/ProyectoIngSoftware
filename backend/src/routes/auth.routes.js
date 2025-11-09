@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { login, register } from "../controllers/auth.controller.js";
 import { registerBicycle, getBicycle, retirarBicycle } from "../controllers/bicicletas.controller.js";
-import { getHistoryByUser } from "../controllers/history.controller.js";
+import { getHistoryByUser } from "../controllers/historial.controller.js";
 import { createBikeRack, getAllBikeRacks, getBikeRackById, updateBikeRack, deleteBikeRack, asignarGuardia, desasignarGuardia} from "../controllers/bicicletero.controller.js";
 import { authMiddleware } from "../middleware/auth.middleware.js";
 
