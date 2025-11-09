@@ -1,12 +1,13 @@
 import { Router } from "express";
-import { registerBicycle, getUserBicycles, getUserHistory, updateUserData,} from "../controllers/bicicletas.controller.js";
+import { registerBicycle, getBicycle , getUserBicycles, retirarBicycle  } from "../controllers/bicicletas.controller.js";
+import { authMiddleware } from "../middleware/auth.middleware.js";
 
 const router = Router();
 
 router.post("/bicicleta", registerBicycle);
+router.get("/obtener", authMiddleware, getBicycle);
 router.get("/usuario/:rut", getUserBicycles);
-router.get("/historial/:rut", getUserHistory);
-router.put("/usuario/:rut", updateUserData);
+router.delete("/retirar", authMiddleware, retirarBicycle);
 
 
 

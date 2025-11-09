@@ -1,4 +1,3 @@
-"use strict";
 import { EntitySchema } from "typeorm";
 
 export const UserEntity= new EntitySchema({
@@ -20,6 +19,11 @@ export const UserEntity= new EntitySchema({
       type: "varchar",
       length: 255,
       nullable: false,
+    },
+    rol: {
+      type: "varchar",
+      length: 100,
+      nullable: true,
     },
     id: {
       type: "int",
