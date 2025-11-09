@@ -149,7 +149,7 @@ export async function asignarGuardia(req, res) {
             return handleErrorClient(res, 404, "Bicicletero no encontrado");
         }
 
-        const guardia = await userRepository.findOne({ where: { id: parseInt(id), rol: "Guardia" } });
+        const guardia = await userRepository.findOne({ where: { id: parseInt(id), rol: "Guardia" }, relations: ["bicicletero"] });
         if (!guardia) {
             return handleErrorClient(res, 404, "Guardia no encontrado o no válido");
         }
@@ -167,7 +167,7 @@ export async function asignarGuardia(req, res) {
         }
 
         // Verificar que el guardia no esté asignado a otro bicicletero
-        if (guardia.bicicletero && guardia.bicicletero.id_bicicletero !== parseInt(id_bicicletero)) {
+        if ( guardia.bicicletero && guardia.bicicletero.id_bicicletero !== parseInt(id_bicicletero)) {
             return handleErrorClient(res, 400, "Este guardia ya está asignado a otro bicicletero");
         }
 
