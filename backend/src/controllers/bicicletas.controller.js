@@ -4,12 +4,14 @@ import Bicicleta from "../entities/bicicletas.entity.js";
 import User, { UserEntity } from "../entities/user.entity.js"
 import { handleErrorClient, handleErrorServer, handleSuccess } from "../handlers/responseHandlers.js";
 import Bicicletero from "../entities/bicicletero.entity.js";
+import { Historial } from "../entities/historial_bicicleta.entity.js";
 
 // registro bicicletas
 export async function registerBicycle(req, res){
     const bicycleRepository = AppDataSource.getRepository(Bicicleta);
     const userRepository = AppDataSource.getRepository(User);
     const bicicleteroRepository = AppDataSource.getRepository(Bicicletero);
+    const historialRepository = AppDataSource.getRepository(Historial);
 
     const { marca, color, numero_serie, descripcion, estado, rut, id_bicicletero} = req.body;
     const { error } = registerValidation.validate(req.body);
@@ -111,7 +113,7 @@ export async function getBicycle(req, res) {
         }
 
     const bicicletas = await bicycleRepository.find({
-        where: { bicicletero: { id: bicicleteroId } }
+        where: { bicicletero: { id_bicicletero: bicicleteroId } }
     });
 
         return handleSuccess(res, 200, {message: "Bicicletas encontradas",data: bicicletas});
@@ -202,7 +204,7 @@ export async function retirarBicycle(req, res){
             where: {
                 codigo,
                 usuario: { rut },
-                bicicletero: { id: guardiaBicicleteroId }
+                bicicletero: { id_bicicletero: guardiaBicicleteroId }
             }
         });
 
