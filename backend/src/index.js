@@ -6,6 +6,7 @@ import { createusers } from "./config/initDb.js";
 import { connectDB } from "./config/configDb.js";
 import { routerApi } from "./routes/index.routes.js";
 
+
 const app = express();
 app.use(express.json());
 app.use(morgan("dev"));

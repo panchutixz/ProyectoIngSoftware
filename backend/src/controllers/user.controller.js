@@ -4,7 +4,7 @@ import { AppDataSource } from "../config/configDb.js";
 import { UserEntity } from "../entities/user.entity.js";
 import { registerValidation} from "../validations/usuario.validation.js";
 import { encryptPassword } from "../handlers/bcrypt.helper.js";
-import { registerBicycle } from "./bicicletas.controller.js";
+
 // Obtener todos los usuarios
 export async function getUsers(req, res) {
   try {
@@ -166,3 +166,32 @@ export async function getUserBicicletero(req, res) {
         return res.status(500).json({ message: "Error interno del servidor." });
     }
 }
+
+// funcion para que el usuario pueda actualizar sus datos personales
+export async function updateUserData(req, res) {
+    try {
+        const userRepository = AppDataSource.getRepository(UserEntity);
+        const { rut } = req.params;
+        const { email, telefono } = req.body;
+
+        const user = await userRepository.findOne({ where: { rut } });
+
+        if (!user) {
+            return res.status(404).json({ message: "Usuario no encontrado." });
+        }
+
+        // Actualizar solamente los datos enviados
+        user.email = email ?? user.email;
+        user.telefono = telefono ?? user.telefono;
+
+        await userRepository.save(user);
+
+        return res.status(200).json({
+            message: "Datos personales actualizados correctamente.",
+            data: user
+        });
+    } catch (error) {
+        console.error("Error en updateUserData():", error);
+        return res.status(500).json({ message: "Error interno del servidor." });
+    }
+}    

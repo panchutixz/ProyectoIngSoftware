@@ -1,0 +1,42 @@
+import { AppDataSource } from "../../config/configDB.js";
+import { HistorialBicicleta } from "../entities/historial_bicicleta.entity.js";
+import User from "../entities/user.entity.js";
+import { handleErrorClient, handleErrorServer, handleSuccess } from "../handlers/responseHandlers.js";
+
+const historialRepository = AppDataSource.getRepository(HistorialBicicleta);
+
+// obtener todo el historial de bicicletas
+export async function getHistoryByUser(req, res) {
+    try {
+        const historialRepository = AppDataSource.getRepository(Historial);
+        const userRepository = AppDataSource.getRepository(User);
+
+        const { rut } = req.params;
+
+        const usuario = await userRepository.findOne({ where: { rut } });
+
+        if (!usuario) {
+            return handleErrorClient(res, 404, "Usuario no encontrado");
+        }
+
+        const historial = await historialRepository.find({
+            where: { usuario: { id: usuario.id } },
+            order: { fecha_ingreso: "DESC" }
+        });
+
+        if (historial.length === 0) {
+            return handleErrorClient(res, 404, "Este usuario no tiene historial registrado");
+        }
+
+        return handleSuccess(res, 200, {
+            message: "Historial encontrado",
+            data: historial
+        });
+
+    } catch (error) {
+        console.error("Error al obtener historial:", error);
+        return handleErrorServer(res, 500, "Error al obtener historial");
+    }
+}
+
+

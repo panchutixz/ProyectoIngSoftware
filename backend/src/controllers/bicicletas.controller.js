@@ -73,6 +73,13 @@ export async function registerBicycle(req, res){
             { rut: rut },
             { bicicletero_id: id_bicicletero }
         );
+          // Crear registro en el historial
+        await historialRepository.save({
+            bicicleta: newBicycle,
+            usuario,
+            fecha_ingreso: new Date(),
+        });
+
 
         return handleSuccess(res, 200, "Bicicleta registrada correctamente y usuario actualizado");
     } catch (error) {
@@ -116,6 +123,45 @@ export async function getBicycle(req, res) {
     return handleErrorServer(res, 500, "Error al obtener bicicletas");
     }
 }
+
+// funcion para que usarios normales vean sus bicicletas
+export async function getUserBicycles(req, res) {
+    try {
+        const bicycleRepository = AppDataSource.getRepository(Bicicleta);
+        const userRepository = AppDataSource.getRepository(User);
+
+        const { rut } = req.params;
+
+        const usuario = await userRepository.findOne({ where: { rut } });
+        if (!usuario) {
+            return handleErrorClient(res, 404, "Usuario no encontrado");
+        }
+
+        const bicicletas = await bicycleRepository.find({
+            where: { usuario: { id: usuario.id } },
+            relations: ["bicicletero"],
+        });
+
+        if (bicicletas.length === 0) {
+            return handleErrorClient(res, 404, "El usuario no tiene bicicletas registradas");
+        }
+
+        const resultado = bicicletas.map((bici) => ({
+            marca: bici.marca,
+            color: bici.color,
+            estado: bici.estado,
+            bicicletero: bici.bicicletero?.nombre || "No asignado",
+            ubicacion: bici.bicicletero?.ubicacion || "Desconocida",
+        }));
+
+        return handleSuccess(res, 200, { message: "Bicicletas del usuario", data: resultado });
+
+    } catch (error) {
+        console.error("Error al obtener bicicletas del usuario:", error);
+        return handleErrorServer(res, 500, "Error al obtener bicicletas del usuario");
+    }
+}
+
 
 
 
@@ -163,6 +209,13 @@ export async function retirarBicycle(req, res){
         if (!bicicleta) {
             return handleErrorClient(res, 404, "No se encontró una bicicleta con ese código para este usuario en este bicicletero");
         }
+
+         // Registra la salida en el historial
+        await historialRepository.save({
+            bicicleta,
+            usuario,
+            fecha_salida: new Date()
+        });
 
         // Eliminar la bicicleta específica
         await bicycleRepository.remove(bicicleta);
