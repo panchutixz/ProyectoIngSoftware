@@ -16,7 +16,7 @@ router.get("/getAll/bicicletero", getAllBikeRacks);
 router.get("/get/bicicletero", getBikeRackById);
 router.patch("/update/bicicletero", updateBikeRack);
 router.delete("/delete/bicicletero", deleteBikeRack);
-router.post("/asignar/bicicletero", asignarGuardia);
+router.post("/asignar/bicicletero", authMiddleware, asignarGuardia);
 
 
 

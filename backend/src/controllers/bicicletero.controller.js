@@ -124,13 +124,27 @@ export async function deleteBikeRack(req, res) {
     }
 }
 
-// Asignar guardia
+// Asignar guardia a un bicicletero
 export async function asignarGuardia(req, res) {
-    const bikeRackRepository = AppDataSource.getRepository(Bicicletero);
-    const userRepository = AppDataSource.getRepository(User);
-    const { id_bicicletero, id } = req.body;
-
     try {
+        // El administrador debe estar autenticado y su info viene en req.user (proporcionada por authMiddleware)
+        const admin = req.user;
+        if (!admin) return handleErrorClient(res, 401, "Usuario no autenticado");
+
+        // Validar rol de administrador (case-insensitive)
+        const adminRol = (admin.rol || admin.role || "").toString().toLowerCase();
+        if (adminRol !== "administrador") {
+            return handleErrorClient(res, 403, "Solo los administradores pueden asignar guardias");
+        }
+
+        const { id_bicicletero, id } = req.body;
+        if (!id_bicicletero || !id) {
+            return handleErrorClient(res, 400, "Se requiere el id del bicicletero y el id del guardia");
+        }
+
+        const bikeRackRepository = AppDataSource.getRepository(Bicicletero);
+        const userRepository = AppDataSource.getRepository(User);
+
         const bicicletero = await bikeRackRepository.findOne({
             where: { id_bicicletero: parseInt(id_bicicletero) },
             relations: ["user"],
@@ -147,14 +161,17 @@ export async function asignarGuardia(req, res) {
             return handleErrorClient(res, 404, "Guardia no encontrado o no válido");
         }
 
+        // Verificar si el guardia ya está asignado a este bicicletero
         if (bicicletero.user && bicicletero.user.id === guardia.id) {
             return handleErrorClient(res, 400, "Este guardia ya se encuentra asignado al bicicletero");
         }
 
-        if (bicicletero.user && bicicletero.user.rol === "Guardia") {
+        // Verificar que el bicicletero no tenga otro guardia asignado
+        if (bicicletero.user && (bicicletero.user.rol || "").toLowerCase() === "guardia") {
             return handleErrorClient(res, 400, "Este bicicletero ya tiene un guardia asignado. Debe desasignarlo antes de asignar otro.");
         }
 
+        // Verificar que el guardia no esté asignado a otro bicicletero
         if (guardia.bicicletero && guardia.bicicletero.id_bicicletero !== parseInt(id_bicicletero)) {
             return handleErrorClient(res, 400, "Este guardia ya está asignado a otro bicicletero");
         }
@@ -165,6 +182,6 @@ export async function asignarGuardia(req, res) {
         return handleSuccess(res, 200, "Guardia asignado correctamente", bicicletero);
     } catch (error) {
         console.error("Error al asignar guardia:", error);
-        return handleErrorServer(res, 500, "Error al asignar guardia");
+        return handleErrorServer(res, 500, "Error al asignar guardia", error.message);
     }
 }
