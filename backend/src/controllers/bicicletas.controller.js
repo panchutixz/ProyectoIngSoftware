@@ -181,7 +181,7 @@ export async function retirarBicycle(req, res){
         const { rut, codigo } = req.body;
         if (!rut || !codigo) return handleErrorClient(res, 400, "Se requiere el RUT del usuario y el código de la bicicleta");
 
-        const bicycleRepository = AppDataSource.getRepository(Bicicleta);
+            const bicycleRepository = AppDataSource.getRepository(Bicicleta);
         const userRepository = AppDataSource.getRepository("User");
 
         // Obtener usuario objetivo
