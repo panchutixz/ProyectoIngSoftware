@@ -52,7 +52,7 @@ export async function getBikeRackById(req, res) {
     const { id_bicicletero } = req.query;
 
     try {
-        const bicicletero = await bikeRackRepository.findOne({ where: { id_bicicletero: parseInt(id_bicicletero) } });
+        const bicicletero = await bikeRackRepository.findOne({ where: { id_bicicletero: parseInt(id_bicicletero) }, relations: ["usuarios", "bicicletas"], });
         if (!bicicletero) {
             return handleErrorClient(res, 404, `Bicicletero no encontrado ${id_bicicletero}`);
         }
@@ -127,11 +127,10 @@ export async function deleteBikeRack(req, res) {
 // Asignar guardia a un bicicletero
 export async function asignarGuardia(req, res) {
     try {
-        // El administrador debe estar autenticado y su info viene en req.user (proporcionada por authMiddleware)
+        // Validar autentificación de administrador
         const admin = req.user;
         if (!admin) return handleErrorClient(res, 401, "Usuario no autenticado");
 
-        // Validar rol de administrador (case-insensitive)
         const adminRol = (admin.rol || admin.role || "").toString().toLowerCase();
         if (adminRol !== "administrador") {
             return handleErrorClient(res, 403, "Solo los administradores pueden asignar guardias");
@@ -145,30 +144,26 @@ export async function asignarGuardia(req, res) {
         const bikeRackRepository = AppDataSource.getRepository(Bicicletero);
         const userRepository = AppDataSource.getRepository(User);
 
-        const bicicletero = await bikeRackRepository.findOne({
-            where: { id_bicicletero: parseInt(id_bicicletero) },
-            relations: ["user"],
-        });
+        const bicicletero = await bikeRackRepository.findOne({ where: { id_bicicletero: parseInt(id_bicicletero) }, relations: ["usuarios"] });
         if (!bicicletero) {
             return handleErrorClient(res, 404, "Bicicletero no encontrado");
         }
 
-        const guardia = await userRepository.findOne({
-            where: { id: parseInt(id), rol: "Guardia" },
-            relations: ["bicicletero"],
-        });
+        const guardia = await userRepository.findOne({ where: { id: parseInt(id), rol: "Guardia" } });
         if (!guardia) {
             return handleErrorClient(res, 404, "Guardia no encontrado o no válido");
         }
 
         // Verificar si el guardia ya está asignado a este bicicletero
-        if (bicicletero.user && bicicletero.user.id === guardia.id) {
+        const guardiaYaAsignado = bicicletero.usuarios.some(u => u.id === guardia.id);
+        if (guardiaYaAsignado) {
             return handleErrorClient(res, 400, "Este guardia ya se encuentra asignado al bicicletero");
         }
 
         // Verificar que el bicicletero no tenga otro guardia asignado
-        if (bicicletero.user && (bicicletero.user.rol || "").toLowerCase() === "guardia") {
-            return handleErrorClient(res, 400, "Este bicicletero ya tiene un guardia asignado. Debe desasignarlo antes de asignar otro.");
+        const guardiaExistente = bicicletero.usuarios.find(u => (u.rol || "").toLowerCase() === "guardia");
+        if (guardiaExistente) {
+            return handleErrorClient(res, 400, "Este bicicletero ya tiene un guardia asignado");
         }
 
         // Verificar que el guardia no esté asignado a otro bicicletero
@@ -176,12 +171,59 @@ export async function asignarGuardia(req, res) {
             return handleErrorClient(res, 400, "Este guardia ya está asignado a otro bicicletero");
         }
 
-        bicicletero.user = guardia;
+        bicicletero.usuarios.push(guardia);
         await bikeRackRepository.save(bicicletero);
 
         return handleSuccess(res, 200, "Guardia asignado correctamente", bicicletero);
     } catch (error) {
         console.error("Error al asignar guardia:", error);
         return handleErrorServer(res, 500, "Error al asignar guardia", error.message);
+    }
+}
+
+// Desasignar guardia de bicicletero
+export async function desasignarGuardia(req, res) {
+    const bikeRackRepository = AppDataSource.getRepository(Bicicletero);
+
+    try {
+        // Validar autentificación de administrador
+        const admin = req.user;
+        if (!admin) return handleErrorClient(res, 401, "Usuario no autenticado");
+
+        const adminRol = (admin.rol || admin.role || "").toString().toLowerCase();
+        if (adminRol !== "administrador") {
+            return handleErrorClient(res, 403, "Solo los administradores pueden desasignar guardias");
+        }
+
+        const { id_bicicletero } = req.body;
+        if (!id_bicicletero) {
+            return handleErrorClient(res, 400, "Se requiere el id del bicicletero");
+        }
+
+        const bicicletero = await bikeRackRepository.findOne({ where: { id_bicicletero: parseInt(id_bicicletero) }, relations: ["usuarios"], });
+
+        if (!bicicletero) {
+            return handleErrorClient(res, 404, "Bicicletero no encontrado");
+        }
+
+        // Verificar si hay un guardia asignado
+        const guardiaExistente = bicicletero.usuarios.find(
+            u => (u.rol || "").toLowerCase() === "guardia"
+        );
+
+        if (!guardiaExistente) {
+            return handleErrorClient(res, 400, "Este bicicletero no tiene un guardia asignado");
+        }
+
+        // Desasignar
+        bicicletero.usuarios = bicicletero.usuarios.filter(
+            u => (u.rol || "").toLowerCase() !== "guardia"
+        );
+        await bikeRackRepository.save(bicicletero);
+
+        return handleSuccess(res, 200, "Guardia desasignado correctamente", bicicletero);
+    } catch (error) {
+        console.error("Error al desasignar guardia:", error);
+        return handleErrorServer(res, 500, "Error al desasignar guardia", error.message);
     }
 }
