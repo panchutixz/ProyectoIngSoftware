@@ -66,7 +66,7 @@ const Home = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-600 via-indigo-600 to-blue-600 p-4">
+    <div className="min-h-screen p-4">
       <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-6">
         {/* Sidebar a la izquierda (visible en md+) */}
         <aside className="hidden md:block col-span-1">
@@ -74,7 +74,7 @@ const Home = () => {
         </aside>
 
         {/* Contenido principal */}
-        <main className="col-span-1 md:col-span-3 flex items-center justify-center">
+        <main className="col-span-1 md:col-span-3 flex items-center justify-center" style={{ zIndex: '-1' }}>
           <div className="bg-white rounded-2xl shadow-2xl p-8 md:p-12 w-full max-w-2xl transform transition-all hover:scale-105">
             <h1 className="text-4xl md:text-5xl font-bold text-gray-800 mb-8 text-center bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-blue-600">
               Página de Inicio
