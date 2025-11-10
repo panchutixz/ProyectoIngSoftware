@@ -113,7 +113,9 @@ export async function getBicycle(req, res) {
         }
 
     const bicicletas = await bicycleRepository.find({
-        where: { bicicletero: { id_bicicletero: bicicleteroId } }
+        where: { bicicletero: { id_bicicletero: bicicleteroId },
+        estado: "guardado"
+     }
     });
 
         return handleSuccess(res, 200, {message: "Bicicletas encontradas",data: bicicletas});
@@ -184,7 +186,8 @@ export async function retirarBicycle(req, res){
         if (!rut || !codigo) return handleErrorClient(res, 400, "Se requiere el RUT del usuario y el código de la bicicleta");
 
             const bicycleRepository = AppDataSource.getRepository(Bicicleta);
-        const userRepository = AppDataSource.getRepository("User");
+            const userRepository = AppDataSource.getRepository("User");
+            const historialRepository = AppDataSource.getRepository(Historial);
 
         // Obtener usuario objetivo
         const usuario = await userRepository.findOne({ where: { rut } });
@@ -214,13 +217,22 @@ export async function retirarBicycle(req, res){
 
          // Registra la salida en el historial
         await historialRepository.save({
-            bicicleta,
+            bicicletas: bicicleta,
             usuario,
             fecha_salida: new Date()
         });
+    
+
+        await bicycleRepository.update(
+            { id: bicicleta.id },
+            {
+                estado: "entregada",
+                updateAt: new Date()
+            }
+        );
 
         // Eliminar la bicicleta específica
-        await bicycleRepository.remove(bicicleta);
+      //  await bicycleRepository.remove(bicicleta);
 
         return handleSuccess(res, 200, `Se retiró la bicicleta con código ${codigo} del usuario ${rut}`);
     } catch (error) {
