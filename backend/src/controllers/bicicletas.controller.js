@@ -75,12 +75,12 @@ export async function registerBicycle(req, res){
             { rut: rut },
             { bicicletero_id: id_bicicletero }
         );
-          // Crear registro en el historial
-        await historialRepository.save({
-            bicicleta: newBicycle,
-            usuario,
-            fecha_ingreso: new Date(),
-        });
+                    // Crear registro en el historial (usar el nombre de la relación 'bicicletas' definido en la entidad)
+                await historialRepository.save({
+                        bicicletas: newBicycle,
+                        usuario: usuario,
+                        fecha_ingreso: new Date(),
+                });
 
 
         return handleSuccess(res, 200, "Bicicleta registrada correctamente y usuario actualizado");
@@ -103,7 +103,16 @@ export async function getBicycle(req, res) {
     const { rol, bicicleteroId } = req.user;
 
     if (rol === "Administrador") {
-        const bicicletas = await bicycleRepository.find();
+        const bicicletas = await bicycleRepository.find({
+            select: {
+                usuario: {
+                    rut: true
+                }
+            },
+            relations: {
+                usuario: true
+            }
+        });
         return handleSuccess(res, 200, {message: "Bicicletas encontradas", data: bicicletas});
     }
 
@@ -113,9 +122,18 @@ export async function getBicycle(req, res) {
         }
 
     const bicicletas = await bicycleRepository.find({
-        where: { bicicletero: { id_bicicletero: bicicleteroId },
-        estado: "guardado"
-     }
+        where: { 
+            bicicletero: { id_bicicletero: bicicleteroId },
+            estado: "guardado"
+        },
+        select: {
+            usuario: {
+                rut: true
+            }
+        },
+        relations: {
+            usuario: true
+        }
     });
 
         return handleSuccess(res, 200, {message: "Bicicletas encontradas",data: bicicletas});
