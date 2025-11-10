@@ -35,5 +35,4 @@ export async function register(req, res) {
       handleErrorServer(res, 500, "Error interno del servidor", error.message);
     }
   }
-  //alo
 }
