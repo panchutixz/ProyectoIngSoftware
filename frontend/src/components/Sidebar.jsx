@@ -1,6 +1,7 @@
 import { logout } from "../services/auth.service";
 import { useNavigate } from "react-router-dom";
 
+
 const Sidebar = () => {
     const navigate = useNavigate();
     const handleLogout = async () => {
@@ -20,6 +21,15 @@ const Sidebar = () => {
                             className="w-full text-left hover:bg-gray-700 p-2 rounded"
                         >
                             Inicio
+                        </button>
+                    </li>
+                    
+                        <li>
+                        <button
+                            onClick={() => navigate("/usuarios")}
+                            className="w-full text-left hover:bg-gray-700 p-2 rounded"
+                        >
+                            Usuarios
                         </button>
                     </li>
                     <li>

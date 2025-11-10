@@ -7,7 +7,8 @@ import Root from '@pages/Root';
 import ProtectedRoute from '@components/ProtectedRoute';
 import '@styles/styles.css';
 import Register from '@pages/Register';
-import Profile from '@pages/Profile'
+import Profile from '@pages/Profile';
+import Usuarios from '@pages/Usuarios';
 
 const router = createBrowserRouter([
   {
@@ -30,6 +31,14 @@ const router = createBrowserRouter([
       {
         path: '/auth/register',
         element: <Register />
+      },
+      {
+        path: "/usuarios",
+        element: (
+          <ProtectedRoute allowedRoles={["admin", "guardia"]}>
+            <Usuarios />
+          </ProtectedRoute>
+        ),
       },
       {
         path: '/home',
