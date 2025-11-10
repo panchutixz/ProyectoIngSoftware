@@ -4,12 +4,14 @@ import Bicicleta from "../entities/bicicletas.entity.js";
 import User, { UserEntity } from "../entities/user.entity.js"
 import { handleErrorClient, handleErrorServer, handleSuccess } from "../handlers/responseHandlers.js";
 import Bicicletero from "../entities/bicicletero.entity.js";
+import { Historial } from "../entities/historial_bicicleta.entity.js";
 
 // registro bicicletas
 export async function registerBicycle(req, res){
     const bicycleRepository = AppDataSource.getRepository(Bicicleta);
     const userRepository = AppDataSource.getRepository(User);
     const bicicleteroRepository = AppDataSource.getRepository(Bicicletero);
+    const historialRepository = AppDataSource.getRepository("Historial");
 
     const { marca, color, numero_serie, descripcion, estado, rut, id_bicicletero} = req.body;
     const { error } = registerValidation.validate(req.body);
@@ -75,11 +77,11 @@ export async function registerBicycle(req, res){
         );
           // Crear registro en el historial
         await historialRepository.save({
-            bicicleta: newBicycle,
             usuario,
+            bicicleta: newBicycle,
             fecha_ingreso: new Date(),
+            fecha_salida: null
         });
-
 
         return handleSuccess(res, 200, "Bicicleta registrada correctamente y usuario actualizado");
     } catch (error) {
@@ -181,8 +183,9 @@ export async function retirarBicycle(req, res){
         const { rut, codigo } = req.body;
         if (!rut || !codigo) return handleErrorClient(res, 400, "Se requiere el RUT del usuario y el código de la bicicleta");
 
-            const bicycleRepository = AppDataSource.getRepository(Bicicleta);
+        const bicycleRepository = AppDataSource.getRepository(Bicicleta);
         const userRepository = AppDataSource.getRepository("User");
+        const historialRepository = AppDataSource.getRepository(Historial);
 
         // Obtener usuario objetivo
         const usuario = await userRepository.findOne({ where: { rut } });
@@ -214,6 +217,7 @@ export async function retirarBicycle(req, res){
         await historialRepository.save({
             bicicleta,
             usuario,
+            fecha_ingreso: null, 
             fecha_salida: new Date()
         });
 

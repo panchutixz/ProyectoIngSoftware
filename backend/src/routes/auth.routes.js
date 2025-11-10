@@ -15,20 +15,11 @@ router.post("/register", register);
 router.post("/register/bicicletas", registerBicycle);
 router.get("/obtener/bicicletas", authMiddleware, getBicycle);
 router.delete("/retirar/bicicletas", authMiddleware, retirarBicycle);
-<<<<<<< HEAD
-=======
-
->>>>>>> origin/paz
 router.post("/create/bicicletero", createBikeRack);
 router.get("/getAll/bicicletero", getAllBikeRacks);
 router.get("/get/bicicletero", getBikeRackById);
 router.patch("/update/bicicletero", updateBikeRack);
 router.delete("/delete/bicicletero", deleteBikeRack);
-<<<<<<< HEAD
 router.post("/asignar/bicicletero", authMiddleware, asignarGuardia);
-=======
-
->>>>>>> origin/paz
-router.get("/history/usuario/:id", getHistoryByUser);
 
 export default router;

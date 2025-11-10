@@ -20,13 +20,38 @@ export async function createusers(){
                 password: await encryptPassword("admin123"),
             },
             {
-                rut: "98.765.432-1",
+                rut: "11.111.111-1",
                 nombre: "Guardia",
                 apellido: "Principal",
-                email: "guardia@ubiobio.cl",
+                email: "guardia1@ubiobio.cl",
                 rol: "Guardia",
                 password: await encryptPassword("guardia123")
-            }
+            },
+            {
+                rut: "22.222.222-2",
+                nombre: "Guardia",
+                apellido: "Secundario",
+                email: "guardia2@ubiobio.cl",
+                rol: "Guardia",
+                password: await encryptPassword("guardia123")
+            },
+            {
+                rut: "33.333.333-3",
+                nombre: "Guardia",
+                apellido: "Terciario",
+                email: "guardia3@ubiobio.cl",
+                rol: "Guardia",
+                password: await encryptPassword("guardia123")
+            },
+            {
+                rut: "44.444.444-4",
+                nombre: "Guardia",
+                apellido: "Cuaternario",
+                email: "guardia4@ubiobio.cl",
+                rol: "Guardia",
+                password: await encryptPassword("guardia123")
+            },
+
         ]
 
         console.log("Inicializando usuarios por defecto...");
