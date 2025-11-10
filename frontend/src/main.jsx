@@ -8,6 +8,7 @@ import ProtectedRoute from '@components/ProtectedRoute';
 import '@styles/styles.css';
 import Register from '@pages/Register';
 import Profile from '@pages/Profile'
+import Bicicletas from '@pages/Bicicletas';
 
 const router = createBrowserRouter([
   {
@@ -34,6 +35,11 @@ const router = createBrowserRouter([
       {
         path: '/home',
         element: <Home />
+      },
+      {
+        path: '/bicicletas',
+        element: <ProtectedRoute><Bicicletas /></ProtectedRoute>
+
       }
     ]
   }
