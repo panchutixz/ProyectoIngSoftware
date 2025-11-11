@@ -4,7 +4,7 @@ import { CreateUsers } from "@services/usuarios.service.js";
 async function addUserPopup(){
     const {value: formValues } = await Swal.fire({
         title: "Añadir Usuario",
-        html:`
+        html: `
         <div>
         <label for = "swal2-rut">Rut</label>
         <input id = "swal2-rut" class="swal2-input" placeholder="Rut del usuario">
@@ -23,7 +23,7 @@ async function addUserPopup(){
         </div>
          <div>
         <label for = "swal2-password">Contraseña</label>
-        <input id = "swal2-password" class="swal2-input" placeholder="Contraseña del usuario">
+        <input id = "swal2-password" type="password" class="swal2-input" placeholder="Contraseña del usuario">
         </div>
          <div>
         <label for = "swal2-rol">Rol</label>
@@ -34,15 +34,15 @@ async function addUserPopup(){
     showCancelButton: true,
     confirmButtonText: "Añadir",
     preConfirm: () => {
-        const rut = document.getElementById("swal2-rut").value ;
-        const nombre = document.getElementById("swal2-nombre").value ;
-        const apellido = document.getElementById("swal2-apellido").value ;
-        const email = document.getElementById("swal2-email").value ;
+        const rut = document.getElementById("swal2-rut").value.trim();
+        const nombre = document.getElementById("swal2-nombre").value.trim();
+        const apellido = document.getElementById("swal2-apellido").value.trim();
+        const email = document.getElementById("swal2-email").value.trim();
         const password = document.getElementById("swal2-password").value;
-        const rol = document.getElementById("swal2-rol").value ;
+        const rol = document.getElementById("swal2-rol").value.trim();
 
         if(!rut || !nombre || !apellido || !email || !rol){
-            Swal.showValidationMessage("Porfavor, Complete todos los campos");
+            Swal.showValidationMessage("Por favor, complete todos los campos");
             return false;
         }
 
@@ -62,15 +62,18 @@ async function addUserPopup(){
 
     return null; //si se cancela
 } 
-export const useCreateUsers = (fetchUsers) => {
-    const handleCreateUsers = async () => {
+
+// export con nombre singular y default para coincidir con tu import en Usuarios.jsx
+export const useCreateUser = (fetchUsers) => {
+    const handleCreateUser = async () => {
         try{
-            const formValues = await addUsersPopup();
+            const formValues = await addUserPopup();
             if(!formValues) return;
 
+            // la llamada lanzará si el backend respondió con error
             const response = await CreateUsers(formValues);
             if(response) {
-                Swal.fire({
+                await Swal.fire({
                     title: "Usuario añadido exitosamente!",
                     icon: "success",
                     confirmButtonText: "Aceptar",
@@ -79,10 +82,17 @@ export const useCreateUsers = (fetchUsers) => {
             }
 
         }catch(error){
-        console.error ("Error al añadir al usuario:", error);
+            console.error ("Error al añadir al usuario:", error);
+            // mostrar al usuario el mensaje enviado por el backend (o uno genérico)
+            await Swal.fire({
+                title: "No se pudo crear el usuario",
+                icon: "error",
+                text: error.message || "Error en el servidor. Revisa los datos e inténtalo nuevamente.",
+                confirmButtonText: "Aceptar",
+            });
         } 
     };   
-    return {handleCreateUsers}
+    return { handleCreateUser };
 };
 
-export default useCreateUsers;
+export default useCreateUser;

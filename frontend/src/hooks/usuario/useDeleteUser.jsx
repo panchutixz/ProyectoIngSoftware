@@ -1,7 +1,7 @@
 import { DeleteUsers } from "@services/usuarios.service.js";
 import Swal from "sweetalert2";
 
-async function confirmDeleteUsers() {
+async function confirmDeleteUser() {
   const result = await Swal.fire({
     title: "¿Estás seguro?",
     text: "No podrás deshacer esta acción",
@@ -31,24 +31,24 @@ async function confirmError() {
   });
 }
 
-export const useDeleteUsers = (fetchUsers) => {
-  const handleDeleteUsers = async (userId) => {
+export const useDeleteUser = (fetchUsers) => {
+  const handleDeleteUser = async (userId) => {
     try {
-      const isConfirmed = await confirmDeleteUsers();
+      const isConfirmed = await confirmDeleteUser();
       if (isConfirmed) {
         const response = await DeleteUsers(userId);
         if (response) {
-          confirmAlert();
+          await confirmAlert();
           await fetchUsers();
         }
       }
     } catch (error) {
       console.error("Error al eliminar usuario:", error);
-      confirmError();
+      await confirmError();
     }
   };
 
-    return { handleDeleteUsers };
+  return { handleDeleteUser };
 };
 
-export default useDeleteUsers;
+export default useDeleteUser;
