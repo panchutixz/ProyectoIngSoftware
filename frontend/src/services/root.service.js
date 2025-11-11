@@ -10,7 +10,6 @@ const instance = axios.create({
   },
   withCredentials: true,
 });
-//ola
 instance.interceptors.request.use(
   (config) => {
     const token = cookies.get('jwt-auth', { path: '/' });
