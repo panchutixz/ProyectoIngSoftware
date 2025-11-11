@@ -29,6 +29,8 @@ const Users = () => {
                         <th>Apellido</th>
                         <th>Email</th>
                         <th>Rol</th>
+                        <th>Teléfono</th>
+                        <th>Acciones</th>
                     </tr>
                 </thead>
             <tbody>
@@ -40,6 +42,7 @@ const Users = () => {
                             <td>{user.apellido}</td>
                             <td>{user.email}</td>
                             <td>{user.rol}</td>
+                            <td>{user.telefono}</td>
                             <td>
                                 <button className="delete" onClick={() => handleDeleteUser(user.id)}>Eliminar</button>
                                 

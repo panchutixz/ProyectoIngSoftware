@@ -43,7 +43,7 @@ export async function createUser(req, res) {
   }
   try {
     const userRepository = AppDataSource.getRepository(UserEntity);
-    const { rut, nombre, apellido, rol , password, email } = req.body;
+    const { rut, nombre, apellido, rol , password, email, telefono } = req.body;
 
     // Validación para ingresar rol como Estudiante, Funcionario o Académico solamente
     if (rol.toLowerCase() !== "estudiante" && rol.toLowerCase() !== "funcionario" && rol.toLowerCase() !== "academico") {
@@ -60,7 +60,13 @@ export async function createUser(req, res) {
     if (existingEmail) {
       return res.status(400).json({ message: "Ya existe un usuario con este correo electrónico." });
     }
-
+    // Verificar si el teléfono ya existe
+    if (telefono) {
+      const existingTelefono = await userRepository.findOne({ where: { telefono } });
+      if (existingTelefono) {
+        return res.status(400).json({ message: "Ya existe un usuario con este teléfono." });
+      }
+    }
 
     // Encriptar la contraseña antes de guardar
     const hashedPassword = await encryptPassword(password);
@@ -71,7 +77,8 @@ export async function createUser(req, res) {
       apellido,
       rol,
       password: hashedPassword,
-      email 
+      email,
+      telefono
     });
 
     const savedUser = await userRepository.save(newUser);

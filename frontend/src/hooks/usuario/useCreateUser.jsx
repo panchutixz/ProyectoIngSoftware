@@ -29,6 +29,10 @@ async function addUserPopup(){
         <label for = "swal2-rol">Rol</label>
         <input id = "swal2-rol" class="swal2-input" placeholder="Rol del usuario">
         </div>
+         <div>
+         <label for = "swal2-telefono">Teléfono</label>
+        <input id = "swal2-telefono" class="swal2-input" placeholder="Teléfono del usuario">
+        </div>
     `,
     focusConfirm: false,
     showCancelButton: true,
@@ -40,13 +44,14 @@ async function addUserPopup(){
         const email = document.getElementById("swal2-email").value.trim();
         const password = document.getElementById("swal2-password").value;
         const rol = document.getElementById("swal2-rol").value.trim();
+        const telefono = document.getElementById("swal2-telefono").value.trim();
 
-        if(!rut || !nombre || !apellido || !email || !rol){
+        if(!rut || !nombre || !apellido || !email || !rol || !password || !telefono){
             Swal.showValidationMessage("Por favor, complete todos los campos");
             return false;
         }
 
-        return {rut, nombre, apellido, email, password, rol};
+        return {rut, nombre, apellido, email, password, rol, telefono};
     }, 
     });
     if(formValues){
@@ -57,6 +62,7 @@ async function addUserPopup(){
             email: formValues.email,
             password: formValues.password,
             rol: formValues.rol,
+            telefono: formValues.telefono
         };
     }
 

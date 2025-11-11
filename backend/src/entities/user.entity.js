@@ -8,7 +8,6 @@ export const UserEntity= new EntitySchema({
       primary: true,
       type: "varchar",
       length: 255,
-      //unique: true,
     },
      nombre: {
       type: "varchar",
@@ -38,6 +37,11 @@ export const UserEntity= new EntitySchema({
       type: "varchar",
       length: 255,
       nullable: false,
+    },
+    telefono: {
+      type: "varchar",
+      length: 20,
+      nullable: true,
     },
     created_at: {
       type: "timestamp",

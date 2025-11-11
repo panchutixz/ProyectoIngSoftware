@@ -110,6 +110,12 @@ apellido: Joi.string()
       "any.only": `El rol debe ser ${allowedRoles.join(", ")}.`,
       "string.empty": "El rol es obligatorio.",
     }),
+    telefono: Joi.string()
+    .pattern(/^\+?[0-9\s\-]{7,20}$/)
+    .allow(null, '')
+    .messages({
+      "string.pattern.base": "El teléfono debe contener solo números, espacios, guiones y puede comenzar con un '+'. Debe tener entre 7 y 20 caracteres.",
+    }),
 })
   .unknown(false)
   .messages({
@@ -123,6 +129,15 @@ export async function validateRegister(data, checkEmailExists) {
 
   const email = validated.email.toLowerCase();
   const role = validated.rol.toLowerCase();
+  const telefono = validated.telefono;
+
+
+  if(telefono !== null && telefono !== undefined && telefono !== '') {
+    const telefonoPattern = /^\+?[0-9\s\-]{7,20}$/;
+    if (!telefonoPattern.test(telefono)) {
+      throw new Error("El teléfono debe contener solo números, espacios, guiones y puede comenzar con un '+'. Debe tener entre 7 y 20 caracteres.");
+    }
+  }
 
   
   if (role === "estudiante") {
