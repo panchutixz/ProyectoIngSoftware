@@ -1,12 +1,11 @@
 import axios from '@services/root.service.js';
 
-export async function registerBicicletas(payload){
+export async function registerBicicletas(){
     try{
-        const response = await axios.post('/register/bicicletas', payload);
+        const response = await axios.post('/register/bicicletas');
         return response.data;
     }catch(error){
         console.error("Error al registrar la bicicleta:", error);
-        throw error;
     }
 }
 
@@ -26,6 +25,5 @@ export async function retirarBicicleta(payload){
 
     }catch(error){
         console.error("Error al retirar la bicicleta:", error);
-        throw error;
     }
 }

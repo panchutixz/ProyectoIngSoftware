@@ -42,6 +42,14 @@ const Sidebar = () => {
                     </li>
                     <li>
                         <button
+                            onClick={() => navigate("/registrarBicicletas")}
+                            className="w-full text-left hover:bg-gray-700 p-2 rounded"
+                        >   
+                            Añadir Bicicletas
+                        </button>
+                    </li>
+                    <li>
+                        <button
                             onClick={() => navigate("/perfil")}
                             className="w-full text-left hover:bg-gray-700 p-2 rounded"
                         >
