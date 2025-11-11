@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { login, register } from "../controllers/auth.controller.js";
-import { registerBicycle, getBicycle, retirarBicycle } from "../controllers/bicicletas.controller.js";
+import { registerBicycle, getBicycle, retirarBicycle, getUserBicycles } from "../controllers/bicicletas.controller.js";
 import { getHistoryByUser } from "../controllers/historial.controller.js";
 import { createBikeRack, getAllBikeRacks, getBikeRackById, updateBikeRack, deleteBikeRack, asignarGuardia, desasignarGuardia} from "../controllers/bicicletero.controller.js";
 import { authMiddleware } from "../middleware/auth.middleware.js";
@@ -8,21 +8,19 @@ import { authMiddleware } from "../middleware/auth.middleware.js";
 
 const router = Router();
 
-
 router.post("/login", login);
 router.post("/register", register);
 
 router.post("/register/bicicletas", registerBicycle);
 router.get("/obtener/bicicletas", authMiddleware, getBicycle);
 router.delete("/retirar/bicicletas", authMiddleware, retirarBicycle);
-
-router.post("/create/bicicletero", authMiddleware, createBikeRack);
+router.post("/create/bicicletero", createBikeRack);
 router.get("/getAll/bicicletero", getAllBikeRacks);
 router.get("/get/bicicletero", getBikeRackById);
-router.patch("/update/bicicletero", authMiddleware, updateBikeRack);
-router.delete("/delete/bicicletero", authMiddleware, deleteBikeRack);
+router.patch("/update/bicicletero", updateBikeRack);
+router.delete("/delete/bicicletero", deleteBikeRack);
 router.post("/asignar/bicicletero", authMiddleware, asignarGuardia);
-router.patch("/desasignar/bicicletero", authMiddleware, desasignarGuardia);
-router.get("/history/usuario/:id", getHistoryByUser);
+router.post("/historial/rut", authMiddleware, getHistoryByUser);
+router.get("/usuario/:rut", authMiddleware, getUserBicycles);
 
 export default router;

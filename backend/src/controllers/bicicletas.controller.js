@@ -75,13 +75,13 @@ export async function registerBicycle(req, res){
             { rut: rut },
             { bicicletero_id: id_bicicletero }
         );
-                    // Crear registro en el historial (usar el nombre de la relación 'bicicletas' definido en la entidad)
-                await historialRepository.save({
-                        bicicletas: newBicycle,
-                        usuario: usuario,
-                        fecha_ingreso: new Date(),
-                });
-
+          // Crear registro en el historial
+        await historialRepository.save({
+            usuario,
+            bicicletas: newBicycle,
+            fecha_ingreso: new Date(),
+            fecha_salida: null
+        });
 
         return handleSuccess(res, 200, "Bicicleta registrada correctamente y usuario actualizado");
     } catch (error) {
@@ -205,9 +205,9 @@ export async function retirarBicycle(req, res){
         const { rut, codigo } = req.body;
         if (!rut || !codigo) return handleErrorClient(res, 400, "Se requiere el RUT del usuario y el código de la bicicleta");
 
-            const bicycleRepository = AppDataSource.getRepository(Bicicleta);
-            const userRepository = AppDataSource.getRepository("User");
-            const historialRepository = AppDataSource.getRepository(Historial);
+        const bicycleRepository = AppDataSource.getRepository(Bicicleta);
+        const userRepository = AppDataSource.getRepository("User");
+        const historialRepository = AppDataSource.getRepository(Historial);
 
         // Obtener usuario objetivo
         const usuario = await userRepository.findOne({ where: { rut } });
@@ -234,14 +234,30 @@ export async function retirarBicycle(req, res){
         if (!bicicleta) {
             return handleErrorClient(res, 404, "No se encontró una bicicleta con ese código para este usuario en este bicicletero");
         }
-
-         // Registra la salida en el historial
-        await historialRepository.save({
-            bicicletas: bicicleta,
-            usuario,
-            fecha_salida: new Date()
+        
+        // Buscar el ingreso más reciente sin salida
+        let historial = await historialRepository.findOne({
+            where: {
+                bicicletas: { id: bicicleta.id },
+                fecha_salida: null
+            }
         });
-    
+
+        // Si existe ingreso sin salida actualizarlo
+        if (historial) {
+            historial.fecha_salida = new Date();
+            await historialRepository.save(historial);
+        }
+        // Si no existe, crear un registro nuevo (caso excepcional)
+        else {
+            await historialRepository.save({
+                usuario,
+                bicicletas: bicicleta,
+                fecha_ingreso: null,
+                fecha_salida: new Date()
+            });
+        }
+        
 
         await bicycleRepository.update(
             { id: bicicleta.id },
