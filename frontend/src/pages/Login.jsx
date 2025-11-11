@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { login } from '../services/auth.service';
+import { useAuth } from '../context/AuthContext.jsx';
 
 const Login = () => {
     const navigate = useNavigate();
@@ -8,17 +9,26 @@ const Login = () => {
     const [password, setPassword] = useState('');
 
     const [error, setError] = useState(null);
+    const { setUser } = useAuth();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError(null);
         const res = await login({ email, password });
-        if (res && res.data && res.data.token) {
+        // login() guarda el usuario en sessionStorage; actualizar contexto si existe
+        const stored = sessionStorage.getItem('usuario');
+        if (stored) {
+            try {
+                setUser(JSON.parse(stored));
+            } catch (e) {
+                console.error('Error parsing stored user', e);
+            }
             navigate('/home');
         } else {
             setError(res.message || 'Credenciales incorrectas');
         }
     };
+
     return (
         <div className="min-h-screen bg-gradient-to-br from-purple-600 via-indigo-600 to-blue-600 flex items-center justify-center p-4">
             <div className="bg-white rounded-2xl shadow-2xl p-8 md:p-12 w-full max-w-md transform transition-all hover:scale-105">
@@ -26,7 +36,7 @@ const Login = () => {
                     <h1 className="text-4xl font-bold text-center bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-blue-600 mb-8">
                         Iniciar sesión
                     </h1>
-                    
+
                     <div className="space-y-2">
                         <label htmlFor="email" className="block text-sm font-semibold text-gray-700">
                             Email
@@ -57,8 +67,8 @@ const Login = () => {
                         />
                     </div>
 
-                    <button 
-                        type="submit" 
+                    <button
+                        type="submit"
                         className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-bold py-4 px-8 rounded-xl transition-all duration-300 transform hover:scale-105 hover:shadow-xl focus:outline-none focus:ring-4 focus:ring-purple-300"
                     >
                         Iniciar sesión

@@ -48,7 +48,7 @@ const Register = () => {
         <button
           type="submit"
           disabled={loading}
-          className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold py-2 px-4 rounded-xl mt-2"
+          className="w-full bg-white-to-r from-purple-600 to-indigo-600 text-white font-bold py-2 px-4 rounded-xl mt-2"
         >
           {loading ? 'Registrando...' : 'Registrar'}
         </button>

@@ -105,13 +105,14 @@ export async function getBicycle(req, res) {
     if (rol === "Administrador") {
         const bicicletas = await bicycleRepository.find({
             select: {
-                usuario: {
-                    rut: true
-                }
-            },
-            relations: {
-                usuario: true
-            }
+            usuario: {rut: true},
+            bicicletero: {id_bicicletero: true}
+        },
+        relations: {
+            usuario: true,
+            bicicletero: true
+
+        }
         });
         return handleSuccess(res, 200, {message: "Bicicletas encontradas", data: bicicletas});
     }
@@ -126,15 +127,17 @@ export async function getBicycle(req, res) {
             bicicletero: { id_bicicletero: bicicleteroId },
             estado: "guardado"
         },
-        select: {
-            usuario: {
-                rut: true
+            select: {
+                usuario: {
+                    rut: true
+                }
+            },
+            relations: {
+                usuario: true
             }
-        },
-        relations: {
-            usuario: true
         }
-    });
+        
+    );
 
         return handleSuccess(res, 200, {message: "Bicicletas encontradas",data: bicicletas});
     }
@@ -194,7 +197,6 @@ export async function retirarBicycle(req, res){
         const guardia = req.user;
         if (!guardia) return handleErrorClient(res, 401, "Usuario no autenticado");
 
-        // Validar rol de guardia (case-insensitive)
         const guardiaRol = (guardia.rol || guardia.role || "").toString().toLowerCase();
         if (guardiaRol!== "guardia") {
             return handleErrorClient(res, 403, "Solo los guardias pueden eliminar bicicletas");
@@ -249,8 +251,6 @@ export async function retirarBicycle(req, res){
             }
         );
 
-        // Eliminar la bicicleta específica
-      //  await bicycleRepository.remove(bicicleta);
 
         return handleSuccess(res, 200, `Se retiró la bicicleta con código ${codigo} del usuario ${rut}`);
     } catch (error) {
