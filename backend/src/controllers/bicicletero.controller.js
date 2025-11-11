@@ -250,3 +250,42 @@ export async function desasignarGuardia(req, res) {
         return handleErrorServer(res, 500, "Error al desasignar guardia", error.message);
     }
 }
+
+// Capacidad y espacios en Bicicletero
+export async function getCapacity(req, res) {
+    try {
+        const bicycleRepository = AppDataSource.getRepository(Bicicleta);
+        const bicicleteroRepository = AppDataSource.getRepository(Bicicletero);
+
+        const rawId = req.body?.id_bicicletero;
+        if (!rawId) return handleErrorClient(res, 400, "Falta id del bicicletero");
+
+        const id = Number(rawId);
+        if (!Number.isInteger(id) || id <= 0) return handleErrorClient(res, 400, "ID de bicicletero inválido");
+
+        const bicicletero = await bicicleteroRepository.findOne({
+            where: { id_bicicletero: id }
+        });
+        if (!bicicletero) return handleErrorClient(res, 404, "No se encontró un bicicletero con ese ID");
+
+        const cantidadGuardadas = await bicycleRepository.count({
+            where: {
+                estado: "guardada",
+                bicicletero: { id_bicicletero: bicicletero.id_bicicletero }
+            }
+        });
+
+        return handleSuccess(res, 200, {
+            message: "Capacidad consultada",
+            data: {
+                bicicleteroId: bicicletero.id_bicicletero,
+                guardadas: cantidadGuardadas,
+                espaciosDisponibles: bicicletero.capacidad - cantidadGuardadas,
+                capacidadTotal: bicicletero.capacidad
+            }
+        });
+    } catch (error) {
+        console.error("Error en getCapacity:", error);
+        return handleErrorServer(res, 500, "Error al obtener la capacidad");
+    }
+}
