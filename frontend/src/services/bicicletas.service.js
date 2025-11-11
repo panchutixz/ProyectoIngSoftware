@@ -27,4 +27,3 @@ export async function retirarBicicleta(payload){
         console.error("Error al retirar la bicicleta:", error);
     }
 }
-//alo
