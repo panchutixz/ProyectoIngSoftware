@@ -78,7 +78,7 @@ export async function registerBicycle(req, res){
           // Crear registro en el historial
         await historialRepository.save({
             usuario,
-            bicicleta: newBicycle,
+            bicicletas: newBicycle,
             fecha_ingreso: new Date(),
             fecha_salida: null
         });
@@ -214,15 +214,30 @@ export async function retirarBicycle(req, res){
         if (!bicicleta) {
             return handleErrorClient(res, 404, "No se encontró una bicicleta con ese código para este usuario en este bicicletero");
         }
-
-         // Registra la salida en el historial
-        await historialRepository.save({
-            bicicletas: bicicleta,
-            usuario,
-            fecha_ingreso: null, 
-            fecha_salida: new Date()
+        
+        // Buscar el ingreso más reciente sin salida
+        let historial = await historialRepository.findOne({
+            where: {
+                bicicletas: { id: bicicleta.id },
+                fecha_salida: null
+            }
         });
-    
+
+        // Si existe ingreso sin salida actualizarlo
+        if (historial) {
+            historial.fecha_salida = new Date();
+            await historialRepository.save(historial);
+        }
+        // Si no existe, crear un registro nuevo (caso excepcional)
+        else {
+            await historialRepository.save({
+                usuario,
+                bicicletas: bicicleta,
+                fecha_ingreso: null,
+                fecha_salida: new Date()
+            });
+        }
+        
 
         await bicycleRepository.update(
             { id: bicicleta.id },

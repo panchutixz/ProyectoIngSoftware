@@ -3,13 +3,13 @@ import Joi from "joi";
 
 export const registerValidation = Joi.object({
     marca: Joi.string()
-    .min(5)
+    .min(4)
     .max(20)
     .pattern(/^[A-Za-z]+$/)
     .required()
     .messages({
         "string.pattern.base": "La marca de la bicicleta debe tener formato de solo letras",
-        "string.min": "La marca de la bicicleta debe tener un mínimo de 5 carácteres",
+        "string.min": "La marca de la bicicleta debe tener un mínimo de 4 carácteres",
         "string.max": "La marca de la bicicleta debe tener un máximo de 20 carácteres",
         "string.empty": "La marca de la bicicleta es obligatoria"
     }),
