@@ -9,6 +9,7 @@ import '@styles/styles.css';
 import Register from '@pages/Register';
 import Profile from '@pages/Profile';
 import Usuarios from '@pages/Usuarios';
+import Bicicletas from '@pages/Bicicletas';
 
 const router = createBrowserRouter([
   {
@@ -47,8 +48,8 @@ const router = createBrowserRouter([
       {
         path: '/bicicletas',
         element: <ProtectedRoute allowedRoles={["admin", "guardia"]}
-        ><Bicicletas /></ProtectedRoute>
-
+        ><Bicicletas />
+        </ProtectedRoute>
       }
     ]
   }

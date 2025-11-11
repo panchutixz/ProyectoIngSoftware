@@ -11,7 +11,6 @@ const Users = () => {
     const {handleCreateUser} = useCreateUser(fetchUsers);
 
     
-    /* eslint-disable react-hooks/exhaustive-deps */
     useEffect(() => {
         fetchUsers();
     },[]);
@@ -36,12 +35,12 @@ const Users = () => {
             <tbody>
                 {Array.isArray(users) && users.length > 0 ? (
                     users.map((user) => (
-                        <tr key={participant.id}>
-                            <td>{participant.rut}</td>
-                            <td>{participant.nombre}</td>
-                            <td>{participant.apellido}</td>
-                            <td>{participant.email}</td>
-                            <td>{participant.rol}</td>
+                        <tr key={user.id}>
+                            <td>{user.rut}</td>
+                            <td>{user.nombre}</td>
+                            <td>{user.apellido}</td>
+                            <td>{user.email}</td>
+                            <td>{user.rol}</td>
                             <td>
                                 <button className="delete" onClick={()=> handleDeleteUser(user.id)}>Eliminar</button>
                                 
@@ -50,7 +49,7 @@ const Users = () => {
                     ))
                 ) : (
                     <tr>
-                        <td colSpan="5">No hay usuarios disponibles</td>
+                        <td colSpan="6">No hay usuarios disponibles</td>
                     </tr>
                 )
 
