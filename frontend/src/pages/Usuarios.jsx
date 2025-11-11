@@ -4,11 +4,10 @@ import useDeleteUser from "@hooks/usuario/useDeleteUser.jsx";
 import useCreateUser from "@hooks/usuario/useCreateUser.jsx";
 import { useEffect } from "react";
 
-
 const Users = () => {
     const { users, fetchUsers } = useGetUser();
-    const {handleDeleteUser} = useDeleteUser(fetchUsers);
-    const {handleCreateUser} = useCreateUser(fetchUsers);
+    const { handleDeleteUser } = useDeleteUser(fetchUsers);
+    const { handleCreateUser } = useCreateUser(fetchUsers);
 
     
     useEffect(() => {
@@ -19,7 +18,7 @@ const Users = () => {
         <div className="users-page">
             <div className = "users-header">
             <h2>Lista de Usuarios</h2>   
-            <button className="users-addbtn" onClick={()=> handleCreateUser()}>Añadir</button>
+            <button className="users-addbtn" onClick={() => handleCreateUser()}>Añadir</button>
             </div>
 
             <table className="users-table">
@@ -42,7 +41,7 @@ const Users = () => {
                             <td>{user.email}</td>
                             <td>{user.rol}</td>
                             <td>
-                                <button className="delete" onClick={()=> handleDeleteUser(user.id)}>Eliminar</button>
+                                <button className="delete" onClick={() => handleDeleteUser(user.id)}>Eliminar</button>
                                 
                             </td>
                         </tr>
