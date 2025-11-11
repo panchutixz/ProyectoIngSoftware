@@ -5,34 +5,34 @@ async function addBicicletasPopup() {
     const {value } = await Swal.fire({
         title: "Añadir Bicicleta",
         html: `
-        <div>
-        <label for = "swal2-Rut">Rut</label>
-        <input id = "swal2-rut" class="swal2-input" placeholder="Rut bicicleta">
-        </div>
-        <div>
-        <label for = "swal2-marca">Marca</label>
-        <input id = "swal2-marca" class="swal2-input" placeholder="Marca de la bicicleta">
-        </div>
-        <div>
-        <label for = "swal2-color>Color</label>
-        <input id = "swal2-color" class="swal2-input" placeholder="Color de la bicicleta">
-        </div>
-        <div>
-        <label for = "swal2-número serie">Número Serie</label>
-        <input id = "swal2-número serie" class="swal2-input" placeholder="Número de serie de la bicicleta">
-        </div>
-        <div>
-        <label for = "swal2-descripción">Descripción</label>
-        <input id = "swal2-descripción" class="swal2-input" placeholder="Descripción de la bicicleta">
-        </div>
-        <div>
-        <label for = "swal2-estado">Estado</label>
-        <input id = "swal2-estado" class="swal2-input" placeholder="Estado de la bicicleta">
-        </div>
-        <div>
-        <label for = "swal2-id_bicicletero">ID_bicicletero</label>
-        <input id = "swal2-id_bicicletero" class="swal2-input" placeholder="ID del bicicletero">
-        </div>
+    <div>
+        <label for="swal2-rut">Rut</label>
+        <input id="swal2-rut" class="swal2-input" placeholder="Rut Usuario">
+    </div>
+    <div>
+        <label for="swal2-marca">Marca</label>
+        <input id="swal2-marca" class="swal2-input" placeholder="Marca de la bicicleta">
+    </div>
+    <div>
+        <label for="swal2-color">Color</label>
+        <input id="swal2-color" class="swal2-input" placeholder="Color de la bicicleta">
+    </div>
+    <div>
+        <label for="swal2-numero_serie">Número Serie</label>
+        <input id="swal2-numero_serie" class="swal2-input" placeholder="Número de serie de la bicicleta">
+    </div>
+    <div>
+        <label for="swal2-descripcion">Descripción</label>
+        <input id="swal2-descripcion" class="swal2-input" placeholder="Descripción de la bicicleta">
+    </div>
+    <div>
+        <label for="swal2-estado">Estado</label>
+        <input id="swal2-estado" class="swal2-input" placeholder="Estado de la bicicleta">
+    </div>
+    <div>
+        <label for="swal2-id_bicicletero">ID Bicicletero</label>
+        <input id="swal2-id_bicicletero" class="swal2-input" placeholder="ID del bicicletero">
+    </div>
     `,
     focusConfirm: false,
     showCancelButton: true,
