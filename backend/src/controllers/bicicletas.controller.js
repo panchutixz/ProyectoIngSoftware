@@ -11,7 +11,7 @@ export async function registerBicycle(req, res){
     const bicycleRepository = AppDataSource.getRepository(Bicicleta);
     const userRepository = AppDataSource.getRepository(User);
     const bicicleteroRepository = AppDataSource.getRepository(Bicicletero);
-    const historialRepository = AppDataSource.getRepository("Historial");
+    const historialRepository = AppDataSource.getRepository(Historial);
 
     const { marca, color, numero_serie, descripcion, estado, rut, id_bicicletero} = req.body;
     const { error } = registerValidation.validate(req.body);
@@ -113,7 +113,9 @@ export async function getBicycle(req, res) {
         }
 
     const bicicletas = await bicycleRepository.find({
-        where: { bicicletero: { id: bicicleteroId } }
+        where: { bicicletero: { id_bicicletero: bicicleteroId },
+        estado: "guardado"
+     }
     });
 
         return handleSuccess(res, 200, {message: "Bicicletas encontradas",data: bicicletas});
@@ -205,7 +207,7 @@ export async function retirarBicycle(req, res){
             where: {
                 codigo,
                 usuario: { rut },
-                bicicletero: { id: guardiaBicicleteroId }
+                bicicletero: { id_bicicletero: guardiaBicicleteroId }
             }
         });
 
@@ -215,14 +217,23 @@ export async function retirarBicycle(req, res){
 
          // Registra la salida en el historial
         await historialRepository.save({
-            bicicleta,
+            bicicletas: bicicleta,
             usuario,
             fecha_ingreso: null, 
             fecha_salida: new Date()
         });
+    
+
+        await bicycleRepository.update(
+            { id: bicicleta.id },
+            {
+                estado: "entregada",
+                updateAt: new Date()
+            }
+        );
 
         // Eliminar la bicicleta específica
-        await bicycleRepository.remove(bicicleta);
+      //  await bicycleRepository.remove(bicicleta);
 
         return handleSuccess(res, 200, `Se retiró la bicicleta con código ${codigo} del usuario ${rut}`);
     } catch (error) {
