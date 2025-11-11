@@ -2,7 +2,7 @@ import axios from '@services/root.service.js';
 
 export async function registerBicicletas(){
     try{
-        const response = await axios.post('/register/bicicletas');
+        const response = await axios.post('/register/bicicletas',data);
         return response.data;
     }catch(error){
         console.error("Error al registrar la bicicleta:", error);
