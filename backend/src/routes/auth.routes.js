@@ -2,7 +2,7 @@ import { Router } from "express";
 import { login, register } from "../controllers/auth.controller.js";
 import { registerBicycle, getBicycle, retirarBicycle } from "../controllers/bicicletas.controller.js";
 import { getHistoryByUser } from "../controllers/historial.controller.js";
-import { createBikeRack, getAllBikeRacks, getBikeRackById, updateBikeRack, deleteBikeRack, asignarGuardia, desasignarGuardia} from "../controllers/bicicletero.controller.js";
+import { createBikeRack, getAllBikeRacks, getBikeRackById, updateBikeRack, deleteBikeRack, asignarGuardia, desasignarGuardia, getCapacity} from "../controllers/bicicletero.controller.js";
 import { authMiddleware } from "../middleware/auth.middleware.js";
 
 
@@ -23,6 +23,7 @@ router.patch("/update/bicicletero", authMiddleware, updateBikeRack);
 router.delete("/delete/bicicletero", authMiddleware, deleteBikeRack);
 router.post("/asignar/bicicletero", authMiddleware, asignarGuardia);
 router.patch("/desasignar/bicicletero", authMiddleware, desasignarGuardia);
+router.get("/getCapacity/bicicletero", getCapacity);
 router.get("/history/usuario/:id", getHistoryByUser);
 
 export default router;
