@@ -7,13 +7,8 @@ import Root from '@pages/Root';
 import ProtectedRoute from '@components/ProtectedRoute';
 import '@styles/styles.css';
 import Register from '@pages/Register';
-<<<<<<< HEAD
 import Profile from '@pages/Profile';
 import Usuarios from '@pages/Usuarios';
-=======
-import Profile from '@pages/Profile'
-import Bicicletas from '@pages/Bicicletas';
->>>>>>> origin/barbara
 
 const router = createBrowserRouter([
   {
