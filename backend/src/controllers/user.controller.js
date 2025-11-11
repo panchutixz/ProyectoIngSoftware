@@ -5,6 +5,8 @@ import { UserEntity } from "../entities/user.entity.js";
 import { registerValidation} from "../validations/usuario.validation.js";
 import { encryptPassword } from "../handlers/bcrypt.helper.js";
 
+
+
 // Obtener todos los usuarios
 export async function getUsers(req, res) {
   try {
@@ -43,11 +45,11 @@ export async function createUser(req, res) {
   }
   try {
     const userRepository = AppDataSource.getRepository(UserEntity);
-    const { rut, nombre, apellido, rol , password, email } = req.body;
+    const { rut, nombre, apellido, rol , password, email, telefono } = req.body;
 
     // Validación para ingresar rol como Estudiante, Funcionario o Académico solamente
-    if (rol.toLowerCase() !== "estudiante" && rol.toLowerCase() !== "funcionario" && rol.toLowerCase() !== "académico") {
-      return res.status(400).json({ message: "El rol solo puede ser 'estudiante', 'funcionario' o 'académico' al momento de crear un usuario." });
+    if (rol.toLowerCase() !== "estudiante" && rol.toLowerCase() !== "funcionario" && rol.toLowerCase() !== "academico") {
+      return res.status(400).json({ message: "El rol solo puede ser 'estudiante', 'funcionario' o 'academico' al momento de crear un usuario." });
     }
 
     // Verificar si el RUT ya existe
@@ -60,7 +62,13 @@ export async function createUser(req, res) {
     if (existingEmail) {
       return res.status(400).json({ message: "Ya existe un usuario con este correo electrónico." });
     }
-
+    // Verificar si el teléfono ya existe
+    if (telefono) {
+      const existingTelefono = await userRepository.findOne({ where: { telefono } });
+      if (existingTelefono) {
+        return res.status(400).json({ message: "Ya existe un usuario con este teléfono." });
+      }
+    }
 
     // Encriptar la contraseña antes de guardar
     const hashedPassword = await encryptPassword(password);
@@ -71,7 +79,8 @@ export async function createUser(req, res) {
       apellido,
       rol,
       password: hashedPassword,
-      email 
+      email,
+      telefono
     });
 
     const savedUser = await userRepository.save(newUser);
@@ -100,7 +109,7 @@ export async function updateUserById(req, res) {
       return res.status(404).json({ message: "Usuario no encontrado." });
     }
 // Validar que el nuevo rol sea uno permitido, si se está intentando actualizar
-    const rolesValidos = ["Estudiante", "Funcionario", "Académico"];
+    const rolesValidos = ["Estudiante", "Funcionario", "Academico", "estudiante", "funcionario", "academico"];
     if (rol && !rolesValidos.includes(rol.toLowerCase())) {
       return res.status(400).json({ message: `Rol inválido. Solo se permiten: ${rolesValidos.join(", ")}.` });
     }
@@ -172,7 +181,7 @@ export async function updateUserData(req, res) {
     try {
         const userRepository = AppDataSource.getRepository(UserEntity);
         const { rut } = req.params;
-        const { email, telefono } = req.body;
+        const { telefono } = req.body;
 
         const user = await userRepository.findOne({ where: { rut } });
 
@@ -181,13 +190,12 @@ export async function updateUserData(req, res) {
         }
 
         // Actualizar solamente los datos enviados
-        user.email = email ?? user.email;
         user.telefono = telefono ?? user.telefono;
 
         await userRepository.save(user);
 
         return res.status(200).json({
-            message: "Datos personales actualizados correctamente.",
+            message: "Telefono actualizado correctamente.",
             data: user
         });
     } catch (error) {

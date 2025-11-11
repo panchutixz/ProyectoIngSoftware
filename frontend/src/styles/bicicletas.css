@@ -1,0 +1,31 @@
+.bicicleta-page{
+    margin-top: 40px;
+    margin-bottom: 20px;
+    text-align: left;
+    padding: 16px;
+    background: rgba(255,255,255,0.02);
+}
+
+.bicicleta-table{
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    color: #000;
+    border: 1px solid rgba(0,0,0,0.06);
+}
+
+.bicicleta-table td {
+    padding: 8px 12px;
+}
+
+.bicicleta-table th {
+  padding: 8px 12px;
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  text-align: left;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.bicicleta-table thead {
+  background-color: rgba(0, 0, 0, 0.1);
+}

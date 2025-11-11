@@ -9,7 +9,7 @@ import bcrypt from "bcrypt";
 export async function register(req, res) {
   try {
     const userRepository = AppDataSource.getRepository(UserEntity);
-    const { email, password, nombre, rol, apellido, rut } = req.body;
+    const { email, password, nombre, rol, apellido, rut, telefono } = req.body;
     const { error } = registerValidation.validate(req.body);
     if (error) return res.status(400).json({ message: error.message });
 
@@ -30,6 +30,7 @@ export async function register(req, res) {
       nombre,
       rol: rol || "estudiante",
       apellido,
+      telefono
     });
     await userRepository.save(newUser);
     return res.status(201).json({ message: "Usuario registrado exitosamente" });
@@ -41,7 +42,7 @@ export async function register(req, res) {
 // Nueva función que devuelve el usuario creado (usada por auth.controller)
 export async function createUser(data) {
   const userRepository = AppDataSource.getRepository(UserEntity);
-  const { email, password, nombre, rol, apellido, rut } = data;
+  const { email, password, nombre, rol, apellido, rut, telefono } = data;
 
   // Validación (opcional si ya se valida antes)
   const { error } = registerValidation.validate(data);
@@ -60,6 +61,12 @@ export async function createUser(data) {
     err.code = "23505";
     throw err;
   }
+  const existingTelefonoUser = await userRepository.findOne({ where: { telefono } });
+  if (existingTelefonoUser) {
+    const err = new Error("El teléfono ya está en uso");
+    err.code = "23505";
+    throw err;
+  }
 
   const user = userRepository.create({
     email,
@@ -68,6 +75,7 @@ export async function createUser(data) {
     nombre,
     rol: rol || "estudiante" || "academico" || "funcionario",
     apellido,
+    telefono
   });
 
   const saved = await userRepository.save(user);
@@ -80,3 +88,4 @@ export async function findUserByEmail(email) {
   const userRepository = AppDataSource.getRepository(UserEntity);
   return await userRepository.findOneBy({ email });
 }
+
