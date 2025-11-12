@@ -39,7 +39,7 @@ export const registerValidation = Joi.object({
     }),
     
     descripcion: Joi.string()
-    .min(20)
+    .min(10)
     .max(100)
     .pattern(/^[A-Za-z]+(?: [A-Za-z]+)*$/)
     .required()
