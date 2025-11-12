@@ -13,7 +13,7 @@ const domainEmailValidator = (value, helpers) => {
 
 
 const passwordRegex = /^[a-zA-Z0-9]+$/;
-const allowedRoles = ["Estudiante", "Funcionario", "Académico"];
+const allowedRoles = ["Estudiante", "Funcionario", "Academico", "estudiante", "funcionario", "academico"];
 
 
 export const registerValidation = Joi.object({
@@ -44,22 +44,53 @@ export const registerValidation = Joi.object({
       "string.pattern.base": "La contraseña solo puede contener letras y números. No se permiten símbolos especiales.",
     }),
   nombre: Joi.string()
-    .min(3)
-    .max(50)
-    .required()
+        .pattern(/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/)
+        .min(3)
+        .max(30)
+        .required()
+        .custom((value, helpers) => {
+        if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(value)) {
+            return helpers.error('string.symbols');
+        }
+        const wordCount = value.trim().split(/\s+/).length;
+        if (wordCount < 1) { // minimo de 1 palabra
+            return helpers.error('string.minWords');
+        }
+        return value;
+    })
     .messages({
-      "string.empty": "El nombre es obligatorio.",
-      "string.min": "El nombre debe tener al menos 3 caracteres.",
-      "string.max": "El nombre no puede exceder los 50 caracteres.",
+        'string.empty': 'El nombre es obligatorio.',
+        'any.required': 'El nombre es obligatorio.',
+        'string.pattern.base': 'El nombre solo puede contener letras y espacios.',
+        'string.min': 'El nombre debe tener al menos 3 caracteres.',
+        'string.max': 'El nombre debe tener como máximo 30 caracteres.',
+        'string.minWords': 'El nombre debe tener al menos 1 palabra.',
+        'string.symbols': 'El nombre no puede contener símbolos ni números.'
     }),
-  apellido: Joi.string()
+
+apellido: Joi.string()
+    .pattern(/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/)
     .min(3)
-    .max(50)
+    .max(30)
     .required()
+    .custom((value, helpers) => {
+        if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(value)) {
+            return helpers.error('string.symbols');
+        }
+        const wordCount = value.trim().split(/\s+/).length;
+        if (wordCount < 1) { // minimo una palabra
+            return helpers.error('string.minWords');
+        }
+        return value;
+    })
     .messages({
-      "string.empty": "El apellido es obligatorio.",
-      "string.min": "El apellido debe tener al menos 3 caracteres.",
-      "string.max": "El apellido no puede exceder los 50 caracteres.",
+        'string.empty': 'El apellido es obligatorio.',
+        'any.required': 'El apellido es obligatorio.',
+        'string.pattern.base': 'El apellido solo puede contener letras y espacios.',
+        'string.min': 'El apellido debe tener al menos 3 caracteres.',
+        'string.max': 'El apellido debe tener como máximo 30 caracteres.',
+        'string.minWords': 'El apellido debe tener al menos 1 palabra.',
+        'string.symbols': 'El apellido no puede contener símbolos ni números.'
     }),
   rut: Joi.string()
     .min(9)
@@ -79,6 +110,13 @@ export const registerValidation = Joi.object({
       "any.only": `El rol debe ser ${allowedRoles.join(", ")}.`,
       "string.empty": "El rol es obligatorio.",
     }),
+    telefono: Joi.string()
+    .pattern(/^\+?[0-9\s\-]{7,20}$/)
+    .allow(null, '')
+    .messages({
+      "string.empty": "El teléfono es obligatorio.",
+      "string.pattern.base": "El teléfono debe contener solo números, espacios, guiones y puede comenzar con un '+'. Debe tener entre 7 y 20 caracteres.",
+    }),
 })
   .unknown(false)
   .messages({
@@ -92,13 +130,22 @@ export async function validateRegister(data, checkEmailExists) {
 
   const email = validated.email.toLowerCase();
   const role = validated.rol.toLowerCase();
+  const telefono = validated.telefono;
+
+
+  if(telefono !== null && telefono !== undefined && telefono !== '') {
+    const telefonoPattern = /^\+?[0-9\s\-]{7,20}$/;
+    if (!telefonoPattern.test(telefono)) {
+      throw new Error("El teléfono debe contener solo números, espacios, guiones y puede comenzar con un '+'. Debe tener entre 7 y 20 caracteres.");
+    }
+  }
 
   
-  if (role === "Estudiante") {
+  if (role === "estudiante") {
     if (!email.endsWith("@alumnos.ubiobio.cl")) {
       throw new Error("Para el rol estudiante el correo debe terminar en @alumnos.ubiobio.cl.");
     }
-  } else if (role === "Funcionario" || role === "Académico") {
+  } else if (role === "funcionario" || role === "academico") {
     if (!email.endsWith("@ubiobio.cl")) {
       throw new Error(
         "Para el rol funcionario o académico el correo debe terminar en @ubiobio.cl."

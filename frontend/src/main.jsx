@@ -7,7 +7,10 @@ import Root from '@pages/Root';
 import ProtectedRoute from '@components/ProtectedRoute';
 import '@styles/styles.css';
 import Register from '@pages/Register';
-import Profile from '@pages/Profile'
+import Profile from '@pages/Profile';
+import Usuarios from '@pages/Usuarios';
+import Bicicletas from '@pages/Bicicletas';
+import RegistrarBicicletas from '@pages/RegistrarBicicletas';
 
 const router = createBrowserRouter([
   {
@@ -23,7 +26,7 @@ const router = createBrowserRouter([
         path: '/auth',
         element: <Login />
       },
-       {
+      {
         path: "/profile",
         element: <Profile />,
       },
@@ -32,8 +35,28 @@ const router = createBrowserRouter([
         element: <Register />
       },
       {
+        path: "/usuarios",
+        element: (
+          <ProtectedRoute allowedRoles={["admin", "guardia"]}>
+            <Usuarios />
+          </ProtectedRoute>
+        ),
+      },
+      {
         path: '/home',
         element: <Home />
+      },
+      {
+        path: '/bicicletas',
+        element: <ProtectedRoute allowedRoles={["admin", "guardia"]}
+        ><Bicicletas />
+        </ProtectedRoute>
+      },
+      {
+        path: '/registrarBicicletas',
+        element: <ProtectedRoute allowedRoles={["guardia"]}
+        ><RegistrarBicicletas />
+        </ProtectedRoute>
       }
     ]
   }

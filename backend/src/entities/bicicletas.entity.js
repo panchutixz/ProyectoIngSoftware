@@ -24,6 +24,11 @@ export const Bicicleta = new EntitySchema({
             length: 100,
             unique: true,
         },
+        codigo: {
+            type: "varchar",
+            length: 50,
+            unique: true,
+        },
         descripcion: {
             type: "varchar",
             length: 100,
@@ -47,18 +52,18 @@ export const Bicicleta = new EntitySchema({
         },
     },
     relations: {
-        users: {
-            type: "one-to-one",
+        usuario: {
+            type: "many-to-one",
             target: "User",
-            JoinColumn: {name: "rut_user"},
-            eager: true,
+            joinColumn: {name: "rut_user"},
+            eager: false,
             nullable: false,
         },
         bicicletero: {
-            type: "one-to-one",
+            type: "many-to-one",
             target: "Bicicletero",
-            JoinColumn: {name: "id"},
-            eager: true,
+            joinColumn: {name: "id_bicicletero"},
+            eager: false,
             nullable: false,
 
         }
@@ -67,5 +72,5 @@ export const Bicicleta = new EntitySchema({
 
 
 });
-//ola
+
 export default Bicicleta;

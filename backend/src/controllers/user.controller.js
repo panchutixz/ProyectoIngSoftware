@@ -3,8 +3,15 @@
 import { AppDataSource } from "../config/configDb.js";
 import { UserEntity } from "../entities/user.entity.js";
 import { registerValidation} from "../validations/usuario.validation.js";
+<<<<<<< HEAD
 import { encryptPassword } from "../helpers/bcrypt.helper.js";
 
+=======
+import { encryptPassword } from "../handlers/bcrypt.helper.js";
+
+
+
+>>>>>>> ec29eab9ff6119951f25eddf3e5a319dc7fe49aa
 // Obtener todos los usuarios
 export async function getUsers(req, res) {
   try {
@@ -43,11 +50,19 @@ export async function createUser(req, res) {
   }
   try {
     const userRepository = AppDataSource.getRepository(UserEntity);
+<<<<<<< HEAD
     const { rut, nombre, apellido, rol , password, email } = req.body;
 
     // Validación para ingresar rol como Estudiante, Funcionario o Académico solamente
     if (rol.toLowerCase() !== "estudiante" && rol.toLowerCase() !== "funcionario" && rol.toLowerCase() !== "académico") {
       return res.status(400).json({ message: "El rol solo puede ser 'estudiante', 'funcionario' o 'académico' al momento de crear un usuario." });
+=======
+    const { rut, nombre, apellido, rol , password, email, telefono } = req.body;
+
+    // Validación para ingresar rol como Estudiante, Funcionario o Académico solamente
+    if (rol.toLowerCase() !== "estudiante" && rol.toLowerCase() !== "funcionario" && rol.toLowerCase() !== "academico") {
+      return res.status(400).json({ message: "El rol solo puede ser 'estudiante', 'funcionario' o 'academico' al momento de crear un usuario." });
+>>>>>>> ec29eab9ff6119951f25eddf3e5a319dc7fe49aa
     }
 
     // Verificar si el RUT ya existe
@@ -60,7 +75,17 @@ export async function createUser(req, res) {
     if (existingEmail) {
       return res.status(400).json({ message: "Ya existe un usuario con este correo electrónico." });
     }
+<<<<<<< HEAD
 
+=======
+    // Verificar si el teléfono ya existe
+    if (telefono) {
+      const existingTelefono = await userRepository.findOne({ where: { telefono } });
+      if (existingTelefono) {
+        return res.status(400).json({ message: "Ya existe un usuario con este teléfono." });
+      }
+    }
+>>>>>>> ec29eab9ff6119951f25eddf3e5a319dc7fe49aa
 
     // Encriptar la contraseña antes de guardar
     const hashedPassword = await encryptPassword(password);
