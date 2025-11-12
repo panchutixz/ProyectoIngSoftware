@@ -114,6 +114,7 @@ apellido: Joi.string()
     .pattern(/^\+?[0-9\s\-]{7,20}$/)
     .allow(null, '')
     .messages({
+      "string.empty": "El teléfono es obligatorio.",
       "string.pattern.base": "El teléfono debe contener solo números, espacios, guiones y puede comenzar con un '+'. Debe tener entre 7 y 20 caracteres.",
     }),
 })

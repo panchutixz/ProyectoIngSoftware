@@ -101,7 +101,7 @@ export async function updateUserById(req, res) {
   try {
     const userRepository = AppDataSource.getRepository(UserEntity);
     const { id } = req.params;
-    const { nombre, apellido, rol, email } = req.body;
+    const { nombre, apellido, rol } = req.body;
 
     const user = await userRepository.findOne({ where: { id } });
 
@@ -117,7 +117,6 @@ export async function updateUserById(req, res) {
     user.nombre = nombre ?? user.nombre;
     user.apellido = apellido ?? user.apellido;
     user.rol = rol ?? user.rol;
-    user.email = email ?? user.email;
 
     await userRepository.save(user);
 

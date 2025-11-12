@@ -23,6 +23,11 @@ export async function register(req, res) {
     });
     if (existingRutUser) return res.status(400).json({ message: "El RUT ya está en uso" });
 
+    const existingTelefonoUser = await userRepository.findOne({
+      where: { telefono },
+    });
+    if (existingTelefonoUser) return res.status(400).json({ message: "El teléfono ya está en uso" });
+
     const newUser = userRepository.create({
       email,
       rut,
