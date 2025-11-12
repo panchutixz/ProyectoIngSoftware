@@ -4,10 +4,10 @@ import { getUsers, getUserById, createUser, updateUserById ,deleteUserById, upda
 
 const router = Router();
 
-router.get("/", getUsers);
-router.get("/:id", getUserById);
+router.get("/", authMiddleware, getUsers);
+router.get("/:id", authMiddleware, getUserById);
 router.post("/", createUser);
-router.put("/:id", updateUserById);
-router.delete("/:id", deleteUserById);
-router.put("/actualizar/:rut", updateUserData);
+router.put("/:id", authMiddleware, updateUserById);
+router.delete("/:id", authMiddleware, deleteUserById);
+router.put("/actualizar/:rut", authMiddleware, updateUserData);
 export default router;
