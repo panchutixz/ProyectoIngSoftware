@@ -11,4 +11,3 @@ router.put("/:id", authMiddleware, updateUserById);
 router.delete("/:id", authMiddleware, deleteUserById);
 router.put("/actualizar/:rut", authMiddleware, updateUserData);
 export default router;
-//ola
