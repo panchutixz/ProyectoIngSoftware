@@ -24,3 +24,4 @@ router.post("/historial/rut", authMiddleware, getHistoryByUser);
 router.get("/usuario/:rut", authMiddleware, getUserBicycles);
 
 export default router;
+//ola
