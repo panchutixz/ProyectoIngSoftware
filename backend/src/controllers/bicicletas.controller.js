@@ -17,7 +17,6 @@ export async function registerBicycle(req, res){
     const { error } = registerValidation.validate(req.body);
     if(error) return handleErrorClient(res, 400,{message: error.details[0].message});
 
-    //verficar si el usuario que desea ingresar ya existe
 
     const usuario = await userRepository.findOne({ where: {rut}});
     if(!usuario){
@@ -35,8 +34,7 @@ export async function registerBicycle(req, res){
     if (bicicletasEnBicicletero >= bicicletero.capacidad) {
     return handleErrorClient(res, 400, "El bicicletero está lleno");
     }
-    
-    //verificar si la bicicleta que se quiere registrar ya se encuentra //FALTARA ENLAZAR CON BICICLETERO//
+
     const existingBicycle = await bicycleRepository.findOne({
         where: { 
             numero_serie, 
@@ -70,7 +68,6 @@ export async function registerBicycle(req, res){
             bicicletero
         });
 
-        // Actualizar el bicicletero_id del usuario
         await userRepository.update(
             { rut: rut },
             { bicicletero_id: id_bicicletero }
@@ -221,8 +218,7 @@ export async function retirarBicycle(req, res){
         if (guardiaBicicleteroId !== usuarioBicicleteroId) {
             return handleErrorClient(res, 403, "No puedes eliminar bicicletas de otro bicicletero");
         }
-
-        // Buscar la bicicleta específica por código y verificar propietario
+        
         const bicicleta = await bicycleRepository.findOne({
             where: {
                 codigo,
