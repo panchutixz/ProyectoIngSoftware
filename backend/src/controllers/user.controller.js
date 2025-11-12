@@ -5,6 +5,8 @@ import { UserEntity } from "../entities/user.entity.js";
 import { registerValidation} from "../validations/usuario.validation.js";
 import { encryptPassword } from "../handlers/bcrypt.helper.js";
 
+
+
 // Obtener todos los usuarios
 export async function getUsers(req, res) {
   try {
@@ -179,7 +181,7 @@ export async function updateUserData(req, res) {
     try {
         const userRepository = AppDataSource.getRepository(UserEntity);
         const { rut } = req.params;
-        const { email, telefono } = req.body;
+        const { telefono } = req.body;
 
         const user = await userRepository.findOne({ where: { rut } });
 
@@ -188,13 +190,12 @@ export async function updateUserData(req, res) {
         }
 
         // Actualizar solamente los datos enviados
-        user.email = email ?? user.email;
         user.telefono = telefono ?? user.telefono;
 
         await userRepository.save(user);
 
         return res.status(200).json({
-            message: "Datos personales actualizados correctamente.",
+            message: "Telefono actualizado correctamente.",
             data: user
         });
     } catch (error) {
