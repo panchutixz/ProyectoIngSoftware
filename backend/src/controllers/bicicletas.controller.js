@@ -218,7 +218,7 @@ export async function retirarBicycle(req, res){
         if (guardiaBicicleteroId !== usuarioBicicleteroId) {
             return handleErrorClient(res, 403, "No puedes eliminar bicicletas de otro bicicletero");
         }
-        
+
         const bicicleta = await bicycleRepository.findOne({
             where: {
                 codigo,
