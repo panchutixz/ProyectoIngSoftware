@@ -23,6 +23,11 @@ export async function registerBicycle(req, res){
         return handleErrorClient(res, 404, "No se encontró un usuario con ese RUT");
     }
 
+    const bicicletasUsuario = await bicycleRepository.count({ where: { usuario : {rut} } });
+    if (bicicletasUsuario >= 2) {
+        return handleErrorClient(res, 400, "El usuario ya tiene el máximo de bicicletas permitidas (2)");
+    }
+
     if(!id_bicicletero){
         return handleErrorClient(res, 404, "No se encontró un bicicletero asociado a este ID");
     }
@@ -34,19 +39,13 @@ export async function registerBicycle(req, res){
     if (bicicletasEnBicicletero >= bicicletero.capacidad) {
     return handleErrorClient(res, 400, "El bicicletero está lleno");
     }
-
     const existingBicycle = await bicycleRepository.findOne({
-        where: { 
-            numero_serie, 
-            usuario: {id: usuario.id},
-            bicicletero: {id: bicicletero.id}
-        
-        },
+        where: { numero_serie }
     });
-
     if(existingBicycle){
-    return handleErrorClient(res, 404, "Ya existe una bicicleta registrada con este RUT y número de serie");
+    return handleErrorClient(res, 404, "Ya existe una bicicleta registrada con ese número de serie");
     }
+
     try {
         let codigo;
         let existsCodigo = null;
