@@ -22,7 +22,7 @@ const Reclamo = new EntitySchema({
         usuario: {
             type: "many-to-one",
             target: "User",
-            joinColumn: { name: "rut_usuario" },
+            joinColumn: { name: "id_usuario" },
             eager: true,
         },
         bicicletas: {
