@@ -17,6 +17,7 @@ export async function createusers(){
                 apellido: "Sistema",
                 email: "admin@ubiobio.cl",
                 rol: "Administrador",
+                telefono: "+56912345678",
                 password: await encryptPassword("admin123"),
             },
             {
@@ -25,6 +26,7 @@ export async function createusers(){
                 apellido: "Principal",
                 email: "guardia1@ubiobio.cl",
                 rol: "Guardia",
+                telefono: "+56987654321",
                 password: await encryptPassword("guardia123")
             },
             {
@@ -33,6 +35,7 @@ export async function createusers(){
                 apellido: "Secundario",
                 email: "guardia2@ubiobio.cl",
                 rol: "Guardia",
+                telefono: "+56911223344",
                 password: await encryptPassword("guardia123")
             },
             {
@@ -41,6 +44,7 @@ export async function createusers(){
                 apellido: "Terciario",
                 email: "guardia3@ubiobio.cl",
                 rol: "Guardia",
+                telefono: "+56944332211",
                 password: await encryptPassword("guardia123")
             },
             {
@@ -49,6 +53,7 @@ export async function createusers(){
                 apellido: "Cuaternario",
                 email: "guardia4@ubiobio.cl",
                 rol: "Guardia",
+                telefono: "+56955667788",
                 password: await encryptPassword("guardia123")
             },
 
