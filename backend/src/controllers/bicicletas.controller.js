@@ -118,8 +118,19 @@ export async function reIngresoBicycle(req, res) {
     bicicleta.usuario = usuario;
     bicicleta.bicicletero = { id_bicicletero };
 
-    await bicycleRepository.save(bicicleta);
+        try {
+        let codigo;
+        let existsCodigo = null;
 
+    do {
+    const token = Math.floor(1000 + Math.random() * 9000);
+    codigo = `${token}`;
+    existsCodigo = await bicycleRepository.findOne({ where: { codigo } });
+    }   while (existsCodigo);
+
+    //bicicleta trae todo lo de la bici y el .codigo se asigna el nuevo codigo
+    bicicleta.codigo = codigo;
+    await bicycleRepository.save(bicicleta);
     await historialRepository.save({
         usuario,
         bicicletas: bicicleta,
@@ -128,6 +139,10 @@ export async function reIngresoBicycle(req, res) {
     });
 
     return handleSuccess(res, 200, "Bicicleta reingresada correctamente");
+    }catch (error) {
+        console.error("Error al reingresar la bicicleta:", error);
+        return handleErrorServer(res, 500, "Error al reingresar la bicicleta");
+    }
 }
 
 //obtener bicicletas
