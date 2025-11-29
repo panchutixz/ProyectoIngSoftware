@@ -85,3 +85,38 @@ export const registerValidation = Joi.object({
             "string.max": "Los id de los bicicleteros no son de 2 digitos"
         }),
 })
+
+export const reIngresoValidation = Joi.object({
+    numero_serie: Joi.string()
+    .min(10)
+    .max(20)
+    .pattern(/^[A-Za-z0-9]+$/)
+    .required()
+    .messages({
+        "string.pattern.base": "El número de serie de la bicicleta debe contener solo caracteres y números",
+        "string.min": "El número de serie debe tener mínimo 10 caracteres",
+        "string.max": "El número de serie debe tener máximo 20 caracteres",
+    }),
+    rut: Joi.string()
+        .min(9)
+        .max(12)
+        .pattern(/^\d{1,2}\.\d{3}\.\d{3}-[0-9kK]{1}$/) 
+        .required()
+        .messages({
+            "string.empty": "El RUT es obligatorio.",
+            "string.min": "El RUT debe tener al menos 9 caracteres.",
+            "string.max": "El RUT no puede exceder los 12 caracteres.",
+            "string.pattern.base": "El RUT debe tener formato xx.xxx.xxx-x.",
+        }),
+    id_bicicletero: Joi.string()
+        .min(1)
+        .max(2)
+        .pattern(/^[0-9]+$/)
+        .required()
+        .messages({
+            "string.pattern.base": "Para registrar su bicicleta debe ingresar el ID del bicicletero",
+            "string.empty": "Para completar el registro de su bicicleta el ID es obligatorio",
+            "string.min": "El id del bicicletero debe ser <= 1",
+            "string.max": "Los id de los bicicleteros no son de 2 digitos"
+        }),
+});

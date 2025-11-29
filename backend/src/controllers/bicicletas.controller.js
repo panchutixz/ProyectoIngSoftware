@@ -1,7 +1,7 @@
 import { AppDataSource } from "../config/configDb.js";
-import { registerValidation } from "../validations/bicicleta.validation.js";
+import { registerValidation, reIngresoValidation } from "../validations/bicicleta.validation.js";
 import Bicicleta from "../entities/bicicletas.entity.js";
-import User, { UserEntity } from "../entities/user.entity.js"
+import User from "../entities/user.entity.js"
 import { handleErrorClient, handleErrorServer, handleSuccess } from "../handlers/responseHandlers.js";
 import Bicicletero from "../entities/bicicletero.entity.js";
 import { Historial } from "../entities/historial_bicicleta.entity.js";
@@ -17,13 +17,12 @@ export async function registerBicycle(req, res){
     const { error } = registerValidation.validate(req.body);
     if(error) return handleErrorClient(res, 400,{message: error.details[0].message});
 
-
     const usuario = await userRepository.findOne({ where: {rut}});
     if(!usuario){
         return handleErrorClient(res, 404, "No se encontró un usuario con ese RUT");
     }
 
-    const bicicletasUsuario = await bicycleRepository.count({ where: { usuario : {rut} } });
+    const bicicletasUsuario = await bicycleRepository.count({where: { usuario: { rut }, estado: "guardada" }});
     if (bicicletasUsuario >= 2) {
         return handleErrorClient(res, 400, "El usuario ya tiene el máximo de bicicletas permitidas (2)");
     }
@@ -39,11 +38,12 @@ export async function registerBicycle(req, res){
     if (bicicletasEnBicicletero >= bicicletero.capacidad) {
     return handleErrorClient(res, 400, "El bicicletero está lleno");
     }
+
     const existingBicycle = await bicycleRepository.findOne({
         where: { numero_serie }
     });
-    if(existingBicycle){
-    return handleErrorClient(res, 404, "Ya existe una bicicleta registrada con ese número de serie");
+    if (existingBicycle){
+        return handleErrorClient(res, 400, "Ya existe una bicicleta registrada con ese número de serie");
     }
 
     try {
@@ -85,10 +85,54 @@ export async function registerBicycle(req, res){
         return handleErrorServer(res, 500, "Error al registrar la bicicleta");
     }
 }
+// reingreso bicicletas
+export async function reIngresoBicycle(req, res) {
+    const bicycleRepository = AppDataSource.getRepository(Bicicleta);
+    const userRepository = AppDataSource.getRepository(User);
+    const historialRepository = AppDataSource.getRepository(Historial);
 
+    const { numero_serie, rut, id_bicicletero } = req.body;
+    const { error } = reIngresoValidation.validate(req.body);
+    if(error) return handleErrorClient(res, 400,{message: error.details[0].message});
+    const bicicleta = await bicycleRepository.findOne({
+        where: { numero_serie },
+        relations: ["usuario", "bicicletero"]
+    });
+
+    if (!bicicleta) {
+        return handleErrorClient(res, 404, "La bicicleta no está registrada");
+    }
+
+    if (bicicleta.estado !== "entregada") {
+        return handleErrorClient(res, 400, "La bicicleta no está en estado entregada");
+    }
+    if (bicicleta.estado === "guardada") {
+        return handleErrorClient(res, 400, "La bicicleta ya está guardada");
+    }
+    const usuario = await userRepository.findOne({ where: { rut } });
+    if (!usuario) {
+        return handleErrorClient(res, 404, "Usuario no encontrado");
+    }
+
+    bicicleta.estado = "guardada";
+    bicicleta.usuario = usuario;
+    bicicleta.bicicletero = { id_bicicletero };
+
+    await bicycleRepository.save(bicicleta);
+
+    await historialRepository.save({
+        usuario,
+        bicicletas: bicicleta,
+        fecha_ingreso: new Date(),
+        fecha_salida: null
+    });
+
+    return handleSuccess(res, 200, "Bicicleta reingresada correctamente");
+}
 
 //obtener bicicletas
 export async function getBicycle(req, res) {
+
     try {
     const bicycleRepository = AppDataSource.getRepository(Bicicleta);
 
@@ -121,7 +165,7 @@ export async function getBicycle(req, res) {
     const bicicletas = await bicycleRepository.find({
         where: { 
             bicicletero: { id_bicicletero: bicicleteroId },
-            estado: "guardado"
+            estado: "guardada"
         },
             select: {
                 usuario: {
