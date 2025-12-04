@@ -5,34 +5,52 @@ async function addBicicletasPopup() {
     const {value } = await Swal.fire({
         title: "Añadir Bicicleta",
         html: `
-    <div>
-        <label for="swal2-rut">Rut</label>
+            <div style="display: grid; gap: 10px;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+        <label for="swal2-rut" style="width: 120px;">Rut</label>
         <input id="swal2-rut" class="swal2-input" placeholder="Rut Usuario">
-    </div>
-    <div>
-        <label for="swal2-marca">Marca</label>
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 10px;">
+        <label for="swal2-marca" style="width: 120px;">Marca</label>
         <input id="swal2-marca" class="swal2-input" placeholder="Marca de la bicicleta">
-    </div>
-    <div>
-        <label for="swal2-color">Color</label>
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 10px;">
+        <label for="swal2-color" style="width: 120px;">Color</label>
         <input id="swal2-color" class="swal2-input" placeholder="Color de la bicicleta">
-    </div>
-    <div>
-        <label for="swal2-numero_serie">Número Serie</label>
-        <input id="swal2-numero_serie" class="swal2-input" placeholder="Número de serie de la bicicleta">
-    </div>
-    <div>
-        <label for="swal2-descripcion">Descripción</label>
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 10px;">
+        <label for="swal2-numero_serie" style="width: 120px;">Número Serie</label>
+        <input id="swal2-numero_serie" class="swal2-input" placeholder="Número de serie">
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 10px;">
+        <label for="swal2-descripcion" style="width: 120px;">Descripción</label>
         <input id="swal2-descripcion" class="swal2-input" placeholder="Descripción de la bicicleta">
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 10px;">
+        <label for="swal2-estado" style="width: 120px;">Estado</label>
+        <select id="swal2-estado" class="swal2-input">
+            <option value="">Seleccione estado</option>
+            <option value="guardada">Guardada</option>
+        </select>
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 10px;">
+        <label for="swal2-id_bicicletero" style="width: 120px;">Bicicletero</label>
+        <select id="swal2-id_bicicletero" class="swal2-input">
+            <option value="">Seleccione un bicicletero</option>
+            <option value="1">UBB - 1</option>
+            <option value="2">UBB - 2</option>
+            <option value="3">UBB - 3</option>
+            <option value="4">UBB - 4</option>
+        </select>
+        </div>
     </div>
-    <div>
-        <label for="swal2-estado">Estado</label>
-        <input id="swal2-estado" class="swal2-input" placeholder="Estado de la bicicleta">
-    </div>
-    <div>
-        <label for="swal2-id_bicicletero">ID Bicicletero</label>
-        <input id="swal2-id_bicicletero" class="swal2-input" placeholder="ID del bicicletero">
-    </div>
+
     `,
     focusConfirm: false,
     showCancelButton: true,

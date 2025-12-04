@@ -26,7 +26,7 @@ const Bicicletas = () => {
   <table className="bicicleta-table">
   <thead>
     <tr>
-        <th>ID Bicicletero</th>
+        <th>Bicicletero</th>
         <th>Marca</th>
         <th>Color</th>
         <th>Numero_Serie</th>
@@ -38,9 +38,10 @@ const Bicicletas = () => {
     </tr>
     </thead>
     <tbody>
+
     {bicicletas.map((bici) => (
         <tr key={bici.id}>
-        <td>{bici.bicicletero.id_bicicletero}</td>
+        <td>{bici.bicicletero.nombre}</td>
         <td>{bici.marca}</td>
         <td>{bici.color}</td>
         <td>{bici.numero_serie}</td>
@@ -51,7 +52,7 @@ const Bicicletas = () => {
         
         </tr>
     ))}
-  </tbody>
+    </tbody>
 </table>
     {error && <p className="error-message">{error}</p>}
     </div>
