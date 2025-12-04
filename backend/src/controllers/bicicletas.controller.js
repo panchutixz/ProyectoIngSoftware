@@ -185,10 +185,13 @@ export async function getBicycle(req, res) {
             select: {
                 usuario: {
                     rut: true
+                },
+                bicicletero: {id_bicicletero: true, nombre: true
                 }
             },
             relations: {
-                usuario: true
+                usuario: true,
+                bicicletero: true
             }
         }
         
