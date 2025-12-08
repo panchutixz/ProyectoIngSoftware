@@ -1,4 +1,4 @@
-
+import "@styles/bicicletas.css";
 import { registerBicicleta } from '@hooks/bicicletas/useRegisterBicicletas.jsx';
 
     const RegistrarBicicletas = () => {
@@ -7,8 +7,8 @@ import { registerBicicleta } from '@hooks/bicicletas/useRegisterBicicletas.jsx';
 
     return (
         <div>
-        <h1>Registrar Bicicleta</h1>
-        <button onClick={handleRegisterBicicleta}>Abrir formulario</button>
+        <h1 className="title-register-bicicleta"> Registrar Bicicleta</h1>
+        <button className="button-registrar-bicicleta" onClick={handleRegisterBicicleta}>Abrir formulario</button>
         </div>
     );
     };

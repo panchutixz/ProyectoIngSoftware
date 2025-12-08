@@ -1,11 +1,13 @@
 import "@styles/bicicletas.css";
 import { useState, useEffect } from 'react';
-import { getBicicletas } from '../services/bicicletas.service.js';
-import { use } from "react";
-
+import { getBicicletas, reIngresarBicicleta} from '../services/bicicletas.service.js';
+import { reIngresoBicicleta } from '@hooks/bicicletas/useReIngresoBicicletas.jsx';
 const Bicicletas = () => {
     const [bicicletas, setBicicletas] = useState([]);
     const [error] = useState(null);
+
+    const {handleReIngresoBicicleta} = reIngresoBicicleta();
+
     useEffect(() => {
         fetchBicicletas();
     }, []);
@@ -13,8 +15,8 @@ const Bicicletas = () => {
     const fetchBicicletas = async () => {
         try {
             const data = await getBicicletas();
-           console.log("Respuesta del backend:", data); 
-           setBicicletas(data);
+            console.log("Respuesta del backend:", data); 
+            setBicicletas(data);
         } catch (error) {
             console.error("Error al cargar las bicicletas:", error);
         }
@@ -22,9 +24,9 @@ const Bicicletas = () => {
 
     return (
     <div className="bicicletas-page">
-    <h1>Listado de Bicicletas</h1>
-  <table className="bicicleta-table">
-  <thead>
+    <h1 className="title-listar-bicicletas">Listado de Bicicletas Guardadas</h1>
+    <table className="bicicleta-table">
+    <thead>
     <tr>
         <th>Bicicletero</th>
         <th>Marca</th>
@@ -34,6 +36,7 @@ const Bicicletas = () => {
         <th>Descripción</th>
         <th>Estado</th>
         <th>Rut Usuario</th>
+        <th>Re-Ingresar</th>
         
     </tr>
     </thead>
@@ -49,7 +52,11 @@ const Bicicletas = () => {
         <td>{bici.descripcion}</td>
         <td>{bici.estado}</td>
         <td>{bici.usuario.rut}</td>
-        
+        <td>
+            <button className="btn-icon" onClick={handleReIngresoBicicleta}>
+            <i className="fa-solid fa-arrow-right-to-bracket"></i>
+            </button>
+        </td>
         </tr>
     ))}
     </tbody>
