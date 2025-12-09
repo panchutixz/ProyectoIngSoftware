@@ -29,3 +29,41 @@
 .bicicleta-table thead {
   background-color: rgba(0, 0, 0, 0.1);
 }
+
+.button-registrar-bicicleta{
+    background-color: #066380; 
+    border: none;
+    color: white;
+    padding: 10px 20px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
+    border-radius: 4px;
+}
+.button-reIngresar-bicicleta{
+    background-color: #28a745; 
+    border: none;
+    color: white;
+    padding: 10px 20px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
+    border-radius: 4px;
+}
+.title-register-bicicleta{
+    color: #000000;
+    margin-bottom: 20px;
+    font-size: 24px;
+}
+
+.title-listar-bicicletas{
+    color: #000000;
+    margin-bottom: 20px;
+    font-size: 24px;
+}

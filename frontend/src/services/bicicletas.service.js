@@ -9,7 +9,6 @@ export async function registerBicicletas(data) {
     }
 }
 
-
 export async function getBicicletas() {
     try{
         const response = await axios.get('/auth/obtener/bicicletas');
@@ -18,7 +17,14 @@ export async function getBicicletas() {
         console.error("Error al obtener las bicicletas:", error);
     }
 }
-
+export async function reIngresarBicicleta(){
+    try{
+        const response = await axios.patch('/auth/reIngreso/bicicletas');
+        return response.data;
+    }catch(error){
+        console.error("Error al reingresar la bicicleta:", error);
+    }
+}
 export async function retirarBicicleta(payload){
     try{
         const response = await axios.delete('/retirar/bicicletas', { data: payload });

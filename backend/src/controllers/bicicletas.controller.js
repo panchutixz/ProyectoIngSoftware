@@ -5,6 +5,7 @@ import User from "../entities/user.entity.js"
 import { handleErrorClient, handleErrorServer, handleSuccess } from "../handlers/responseHandlers.js";
 import Bicicletero from "../entities/bicicletero.entity.js";
 import { Historial } from "../entities/historial_bicicleta.entity.js";
+import { In } from "typeorm";
 
 // registro bicicletas
 export async function registerBicycle(req, res){
@@ -161,7 +162,7 @@ export async function getBicycle(req, res) {
         const bicicletas = await bicycleRepository.find({
             select: {
             usuario: {rut: true},
-            bicicletero: {id_bicicletero: true}
+            bicicletero: {id_bicicletero: true, nombre: true}
         },
         relations: {
             usuario: true,
@@ -180,15 +181,18 @@ export async function getBicycle(req, res) {
     const bicicletas = await bicycleRepository.find({
         where: { 
             bicicletero: { id_bicicletero: bicicleteroId },
-            estado: "guardada"
+            estado: In(["guardada", "entregada", "olvidada"])
         },
             select: {
                 usuario: {
                     rut: true
+                },
+                bicicletero: {id_bicicletero: true, nombre: true
                 }
             },
             relations: {
-                usuario: true
+                usuario: true,
+                bicicletero: true
             }
         }
         
