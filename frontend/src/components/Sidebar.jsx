@@ -58,6 +58,14 @@
             </li>
             <li>
                 <button
+                onClick={() => navigate("/bicicleteros")}
+                className="w-full text-left hover:bg-gray-700 p-2 rounded"
+                >
+                Bicicleteros
+                </button>
+            </li>
+            <li>
+                <button
                 onClick={handleLogout}
                 className="w-full text-left hover:bg-gray-700 p-2 rounded"
                 >
