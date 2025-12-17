@@ -17,9 +17,9 @@ export async function getBicicletas() {
         console.error("Error al obtener las bicicletas:", error);
     }
 }
-export async function reIngresarBicicleta(){
+export async function reIngresarBicicleta(data){
     try{
-        const response = await axios.patch('/auth/reIngreso/bicicletas');
+        const response = await axios.patch('/auth/reIngreso/bicicletas', data);
         return response.data;
     }catch(error){
         console.error("Error al reingresar la bicicleta:", error);
