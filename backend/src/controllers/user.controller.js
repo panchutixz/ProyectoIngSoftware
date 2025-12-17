@@ -45,7 +45,7 @@ export async function createUser(req, res) {
   }
   try {
     const userRepository = AppDataSource.getRepository(UserEntity);
-    const { rut, nombre, apellido, rol , password, email } = req.body;
+    const { rut, nombre, apellido, rol , password, email, telefono } = req.body;
 
     // Validación para ingresar rol como Estudiante, Funcionario o Académico solamente
     if (rol.toLowerCase() !== "estudiante" && rol.toLowerCase() !== "funcionario" && rol.toLowerCase() !== "académico") {
@@ -86,7 +86,8 @@ export async function createUser(req, res) {
       apellido,
       rol,
       password: hashedPassword,
-      email 
+      email,
+      telefono
     });
 
     const savedUser = await userRepository.save(newUser);

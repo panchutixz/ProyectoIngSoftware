@@ -6,48 +6,82 @@ async function addUserPopup(){
         title: "Añadir Usuario",
         html: `
         <div>
-        <label for = "swal2-rut">Rut</label>
-        <input id = "swal2-rut" class="swal2-input" placeholder="Rut del usuario">
+          <label for="swal2-rut">Rut</label>
+          <input id="swal2-rut" class="swal2-input" placeholder="Rut del usuario">
         </div>
         <div>
-        <label for = "swal2-nombre">Nombre</label>
-        <input id = "swal2-nombre" class="swal2-input" placeholder="Nombre del usuario">
+          <label for="swal2-nombre">Nombre</label>
+          <input id="swal2-nombre" class="swal2-input" placeholder="Nombre del usuario">
         </div>
-         <div>
-        <label for = "swal2-apellido">Apellido</label>
-        <input id = "swal2-apellido" class="swal2-input" placeholder="Apellido del usuario">
+        <div>
+          <label for="swal2-apellido">Apellido</label>
+          <input id="swal2-apellido" class="swal2-input" placeholder="Apellido del usuario">
         </div>
-         <div>
-        <label for = "swal2-email">Email</label>
-        <input id = "swal2-email" class="swal2-input" placeholder="Email del usuario">
+        <div>
+          <label for="swal2-email">Email</label>
+          <input id="swal2-email" class="swal2-input" placeholder="Email del usuario">
         </div>
-         <div>
-        <label for = "swal2-password">Contraseña</label>
-        <input id = "swal2-password" type="password" class="swal2-input" placeholder="Contraseña del usuario">
+        <div>
+          <label for="swal2-password">Contraseña</label>
+          <input id="swal2-password" type="password" class="swal2-input" placeholder="Contraseña del usuario">
         </div>
-         <div>
-        <label for = "swal2-rol">Rol</label>
-        <input id = "swal2-rol" class="swal2-input" placeholder="Rol del usuario">
+        <div>
+          <label for="swal2-rol">Rol</label>
+          <select id="swal2-rol" class="swal2-input swal2-select">
+            <option value="" disabled selected>Seleccione su rol</option>
+            <option value="Estudiante">Estudiante</option>
+            <option value="Funcionario">Funcionario</option>
+            <option value="Academico">Académico</option>
+          </select>
         </div>
-         <div>
-         <label for = "swal2-telefono">Teléfono</label>
-        <input id = "swal2-telefono" class="swal2-input" placeholder="Teléfono del usuario">
+        <div>
+          <label for="swal2-telefono">Teléfono</label>
+          <input id="swal2-telefono" class="swal2-input" placeholder="Teléfono del usuario">
         </div>
     `,
     focusConfirm: false,
     showCancelButton: true,
     confirmButtonText: "Añadir",
+    didOpen: () => {
+      // ajustar visual del select para que coincida con los inputs de SweetAlert2
+      const popup = Swal.getPopup();
+      const style = document.createElement('style');
+      style.innerHTML = `
+        /* Force select to match swal2-input appearance */
+        .swal2-select {
+          height: 44px !important;
+          padding: 8px 36px 8px 12px !important;
+          box-sizing: border-box !important;
+          border-radius: 4px !important;
+          border: 1px solid #d9d9d9 !important;
+          background-color: #fff !important;
+          font-size: 14px !important;
+          appearance: none !important;
+          -webkit-appearance: none !important;
+          -moz-appearance: none !important;
+          background-image: linear-gradient(45deg, transparent 50%, #555 50%), linear-gradient(135deg, #555 50%, transparent 50%);
+          background-position: calc(100% - 18px) calc(50% - 6px), calc(100% - 12px) calc(50% - 6px);
+          background-size: 8px 8px, 8px 8px;
+          background-repeat: no-repeat;
+          cursor: pointer;
+        }
+        /* keep labels aligned with inputs */
+        .swal2-html-container > div { display:block; margin-bottom:12px; }
+        .swal2-html-container label { display:block; margin-bottom:6px; font-weight:500; color:#333; }
+      `;
+      popup.appendChild(style);
+    },
     preConfirm: () => {
         const rut = document.getElementById("swal2-rut").value.trim();
         const nombre = document.getElementById("swal2-nombre").value.trim();
         const apellido = document.getElementById("swal2-apellido").value.trim();
         const email = document.getElementById("swal2-email").value.trim();
         const password = document.getElementById("swal2-password").value;
-        const rol = document.getElementById("swal2-rol").value.trim();
+        const rol = document.getElementById("swal2-rol").value;
         const telefono = document.getElementById("swal2-telefono").value.trim();
 
-        if(!rut || !nombre || !apellido || !email || !rol || !password || !telefono){
-            Swal.showValidationMessage("Por favor, complete todos los campos");
+        if(!rut || !nombre || !apellido || !email || !rol || !password ){
+            Swal.showValidationMessage("Por favor, complete todos los campos obligatorios");
             return false;
         }
 

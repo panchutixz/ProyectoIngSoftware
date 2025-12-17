@@ -1,159 +1,105 @@
-.usuarios-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top:20px;
+/* Layout del contenedor */
+.users-page {
+  max-width: 1100px;
+  margin: 28px 24px;
+  padding: 20px;
 }
 
-.usuarios-header{
+/* Encabezado */
+.users-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-bottom: 16px;
 }
-
-.usuarios-addbtn{
-  padding: 6px 12px;
-  margin: 5px;
-  background: #fb9c92;
-  color: black;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer; 
-  font-size: 1.2rem;
+.users-header h2 {
+  margin: 0;
+  font-size: 24px;
+  color: #e8f0f2; /* color oscuro/teal */
+  letter-spacing: 0.2px;
+  font-weight: 700;
 }
-
-.usuarios-addbtn:hover{
-  background: #fd8072;
-  transition: background 0,3s;
-}
-
-
-.usuarios-table th,
-.usuarios-table td {
-  padding: 12px;
-  border: 1px solid #ccc;
-  text-align: left;
-}
-.usuarios-table th {
-  background: #333;
+.users-addbtn {
+  background: linear-gradient(135deg,#7058e1,#6b45ce);
   color: #fff;
-  border-bottom: 4px solid #9ea7af;
-  border-right: 1px solid #343a45;
-  font-size: 23px;
-  font-weight: 100;
-  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
-  vertical-align: middle;
-}
-
-.usuarios-table th:first-child {
-  border-top-left-radius:3px;
-}
-
-.usuarios-table th:last-child {
-  border-top-right-radius:3px;
-  border-right:none;
-}
-
-.usuarios-table tr {
-  border-top: 1px solid #C1C3D1;
-  border-bottom: 1px solid #C1C3D1;
-  color:#000;
-  font-size:16px;
-  font-weight:normal;
-  text-shadow: 0 1px 1px rgba(256, 256, 256, 0.1);
-}
-
-tr:hover td {
-  background:#4E5066;
-  color:#FFFFFF;
-  border-top: 1px solid #22262e;
-}
- 
-tr:first-child {
-  border-top:none;
-}
-
-tr:last-child {
-  border-bottom:none;
-}
- 
-tr:nth-child(odd) td {
-  background:#EBEBEB;
-}
- 
-tr:nth-child(odd):hover td {
-  background:#4E5066;
-}
-
-tr:last-child td:first-child {
-  border-bottom-left-radius:3px;
-}
- 
-tr:last-child td:last-child {
-  border-bottom-right-radius:3px;
-}
- 
-td {
-  background:#FFFFFF;
-  padding:20px;
-  text-align:left;
-  vertical-align:middle;
-  font-weight:300;
-  font-size:18px;
-  text-shadow: -1px -1px 1px rgba(0, 0, 0, 0.1);
-  border-right: 1px solid #C1C3D1;
-}
-
-td:last-child {
-  border-right: 0px;
-}
-
-th.text-left {
-  text-align: left;
-}
-
-th.text-center {
-  text-align: center;
-}
-
-th.text-right {
-  text-align: right;
-}
-
-td.text-left {
-  text-align: left;
-}
-
-td.text-center {
-  text-align: center;
-}
-
-td.text-right {
-  text-align: right;
-}
-
-.usuarios-table button {
-  padding: 6px 12px;
-  margin: 5px;
-  color: white;
   border: none;
-  border-radius: 4px;
+  padding: 10px 16px;
+  border-radius: 8px;
   cursor: pointer;
+  box-shadow: 0 6px 18px rgba(103,58,183,0.12);
+  font-weight: 600;
 }
 
-.usuarios-table button.edit {
-  background-color: #4caf50;
+/* Tabla - tarjeta */
+.users-table-wrapper {
+  background: #fff;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 8px 20px rgba(2,40,53,0.08);
+}
+.users-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 15px;
+  color: #24323a;
+}
+/* Encabezados */
+.users-table thead th {
+  background: linear-gradient(90deg,#0a6b71,#0b9fb6);
+  color: #fff;
+  font-weight: 700;
+  padding: 12px 18px;
+  text-align: left;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  font-size: 14px;
+}
+/* Filas y celdas */
+.users-table tbody td {
+  padding: 14px 18px;
+  border-bottom: 1px solid #eef2f3;
+  vertical-align: middle;
+  background: #fff;
+}
+.users-table tbody tr:nth-child(even) td {
+  background: #fbfbfb;
 }
 
-.usuarios-table button.delete {
-  background-color: #f44336;
+/* Acciones (botón eliminar) */
+.users-table .delete {
+  background: transparent;
+  border: none;
+  color: #c0392b;
+  cursor: pointer;
+  font-weight: 600;
 }
 
-
-
-.usuarios-table button.delete:hover {
-  background-color: #e53935;
+/* Badges para rol */
+.role-badge {
+  display: inline-block;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+.role-estudiante {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+.role-funcionario {
+  background: #e3f2fd;
+  color: #0277bd;
+}
+.role-academico, .role-administrador {
+  background: #f3e5f5;
+  color: #6a1b9a;
 }
 
-.usuarios-table button:active {
-  background-color: #388e3c;
+/* Responsive */
+@media (max-width: 980px) {
+  .users-page { padding: 12px; }
+  .users-header h2 { font-size: 20px; }
+  .users-table thead th, .users-table tbody td { padding: 10px 12px; font-size: 14px; }
 }
