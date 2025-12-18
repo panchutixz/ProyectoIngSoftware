@@ -1,50 +1,66 @@
 .bicicleta-page{
-    margin-top: 40px;
-    margin-bottom: 20px;
-    text-align: left;
-    padding: 16px;
-    background: rgba(255,255,255,0.02);
+        margin-top: 40px;
+        margin-bottom: 20px;
+        text-align: left;
+        padding: 16px;
+        background: rgba(255,255,255,0.02);
+}
+
+/* Página de bicicletas (coincide con className "bicicletas-page") */
+.bicicletas-page {
+    max-width: 1100px;
+    margin: 28px 24px;
+    padding: 20px;
+}
+
+.bicicletas-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
 }
 
 .bicicleta-table{
     width: 100%;
+    background: #fff;
     border-collapse: collapse;
     margin-top: 20px;
-    color: #000;
-    border: 1px solid rgba(0,0,0,0.06);
-}
+    font-size: 15px;
+    color: #24323a;
+    }
 
 .bicicleta-table td {
     padding: 8px 12px;
 }
 
 .bicicleta-table th {
-  padding: 8px 12px;
-  background-color: rgba(255, 255, 255, 0.1);
-  color: #fff;
-  text-align: left;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    background: linear-gradient(90deg,#0a6b71,#0b9fb6);
+    color: #fff;
+    font-weight: 700;
+    padding: 12px 18px;
+    text-align: left;
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    font-size: 14px;
 }
 
 .bicicleta-table thead {
   background-color: rgba(0, 0, 0, 0.1);
 }
 
-.button-registrar-bicicleta{
-    background-color: #066380; 
+.button-registrar-bicicleta {
+    background: linear-gradient(135deg,#7058e1,#6b45ce);
+    color: #fff;
     border: none;
-    color: white;
-    padding: 10px 20px;
-    text-align: center;
-    text-decoration: none;
-    display: inline-block;
-    font-size: 16px;
-    margin: 4px 2px;
+    padding: 10px 16px;
+    border-radius: 8px;
     cursor: pointer;
-    border-radius: 4px;
+    box-shadow: 0 6px 18px rgba(103,58,183,0.12);
+    font-weight: 600;
 }
+
 .button-reIngresar-bicicleta{
-    background-color: #28a745; 
     border: none;
     color: white;
     padding: 10px 20px;
@@ -63,7 +79,9 @@
 }
 
 .title-listar-bicicletas{
-    color: #000000;
-    margin-bottom: 20px;
+    margin: 0;
     font-size: 24px;
+    color: #e8f0f2;
+    letter-spacing: 0.2px;
+    font-weight: 700;
 }

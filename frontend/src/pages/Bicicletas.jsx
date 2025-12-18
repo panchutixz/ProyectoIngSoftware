@@ -1,16 +1,11 @@
 import "@styles/bicicletas.css";
 import { useState, useEffect } from 'react';
-import { getBicicletas, reIngresarBicicleta} from '../services/bicicletas.service.js';
+import { getBicicletas} from '../services/bicicletas.service.js';
 import { reIngresoBicicleta } from '@hooks/bicicletas/useReIngresoBicicletas.jsx';
+import { registerBicicleta } from '@hooks/bicicletas/useRegisterBicicletas.jsx';
 const Bicicletas = () => {
     const [bicicletas, setBicicletas] = useState([]);
     const [error] = useState(null);
-
-    const {handleReIngresoBicicleta} = reIngresoBicicleta();
-
-    useEffect(() => {
-        fetchBicicletas();
-    }, []);
 
     const fetchBicicletas = async () => {
         try {
@@ -22,17 +17,27 @@ const Bicicletas = () => {
         }
     };
 
+    useEffect(() => {
+        fetchBicicletas();
+    }, []);
+
+    const {handleReIngresoBicicleta} = reIngresoBicicleta();
+    const { handleRegisterBicicleta } = registerBicicleta(fetchBicicletas);
+
     return (
     <div className="bicicletas-page">
-    <h1 className="title-listar-bicicletas">Listado de Bicicletas Guardadas</h1>
+        <div className="bicicletas-header">
+            <h1 className="title-listar-bicicletas">Listado de Bicicletas</h1>
+            <button className="button-registrar-bicicleta" onClick={handleRegisterBicicleta}>Registrar Bicicleta</button>
+        </div>
     <table className="bicicleta-table">
     <thead>
     <tr>
         <th>Bicicletero</th>
         <th>Marca</th>
         <th>Color</th>
-        <th>Numero_Serie</th>
-        <th>Codigo</th>
+        <th>Número Serie</th>
+        <th>Código</th>
         <th>Descripción</th>
         <th>Estado</th>
         <th>Rut Usuario</th>
