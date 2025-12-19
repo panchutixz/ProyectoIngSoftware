@@ -6,7 +6,7 @@ import { handleErrorClient, handleErrorServer, handleSuccess } from "../handlers
 import Bicicletero from "../entities/bicicletero.entity.js";
 import { Historial } from "../entities/historial_bicicleta.entity.js";
 import { In } from "typeorm";
-//a
+
 // registro bicicletas
 export async function registerBicycle(req, res){
     const bicycleRepository = AppDataSource.getRepository(Bicicleta);
