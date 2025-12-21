@@ -10,7 +10,7 @@ import Register from '@pages/Register';
 import Profile from '@pages/Profile';
 import Usuarios from '@pages/Usuarios';
 import Bicicletas from '@pages/Bicicletas';
-import BikeRacks from '@pages/Bicicleteros';
+import Bicicleteros from '@pages/Bicicleteros';
 
 const router = createBrowserRouter([
   {
@@ -55,7 +55,7 @@ const router = createBrowserRouter([
       {
         path: '/bicicleteros',
         element: <ProtectedRoute allowedRoles={["admin", "guardia"]}
-        ><BikeRacks/>
+        ><Bicicleteros/>
         </ProtectedRoute>
       }
     ]

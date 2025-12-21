@@ -12,7 +12,7 @@ export async function createBikeRack(data) {
 export async function getAllBikeRacks() {
     try{
         const response = await axios.get('/auth/getAll/bicicletero');
-        return response.data.message.data;
+        return response.data.data;
     }catch(error){
         console.error("Error al obtener los bicicleteros:", error);
     }
