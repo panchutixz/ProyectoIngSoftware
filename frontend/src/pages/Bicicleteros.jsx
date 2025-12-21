@@ -41,10 +41,8 @@ const BikeRacks = () => {
           <tr>
             <th>Nombre</th>
             <th>Ubicación</th>
-            <th>Espacios ocupados</th>
             <th>Capacidad total</th>
             <th>Estado</th>
-            <th></th>
             <th></th>
           </tr>
         </thead>
@@ -54,19 +52,8 @@ const BikeRacks = () => {
               <tr key={bikeRack.id_bicicletero}>
                 <td>{bikeRack.nombre}</td>
                 <td>{bikeRack.ubicacion}</td>
-                <td></td>
                 <td>{bikeRack.capacidad}</td>
                 <td>{transformarEstado(bikeRack.estado)}</td>
-                <td>
-                  <button
-                    className="capacity"
-                    onClick={() =>
-                      handleGetCapacityBikeRack(bikeRack.id_bicicletero)
-                    }
-                  >
-                    Consultar espacios
-                  </button>
-                </td>
                 <td>
                   <button
                     className="delete"

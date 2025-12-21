@@ -98,7 +98,7 @@
 
 /* Responsive */
 @media (max-width: 980px) {
-  .users-page { padding: 12px; }
-  .users-header h2 { font-size: 20px; }
-  .users-table thead th, .users-table tbody td { padding: 10px 12px; font-size: 14px; }
+  .bicicleteros-page { padding: 12px; }
+  .bicicleteros-header h2 { font-size: 20px; }
+  .bicicleteros-table thead th, .bicicleteros-table tbody td { padding: 10px 12px; font-size: 14px; }
 }
