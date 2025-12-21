@@ -8,7 +8,7 @@ export const useAssignGuard = (refreshBikeRacks) => {
       } else {
         await assignGuardToBikeRack(id_bicicletero, id_guardia);
       }
-      if (refreshBikeRacks) refreshBikeRacks(); // refrescar tabla
+      if (refreshBikeRacks) refreshBikeRacks();
     } catch (error) {
       console.error("Error al asignar/desasignar guardia:", error);
     }

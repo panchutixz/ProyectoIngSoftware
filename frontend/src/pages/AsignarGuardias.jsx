@@ -36,25 +36,29 @@ const AsignarGuardias = () => {
                 <td>{bikeRack.ubicacion}</td>
                 <td>
                   <select
-                    value={bikeRack.id_guardia ?? ""}
-                    onChange={(e) =>
-                      handleAssignGuard(bikeRack.id_bicicletero, e.target.value)
-                    }
+                    defaultValue={""}
+                    onChange={(e) => {
+                      const guardiaId = e.target.value;
+                      if (guardiaId) {
+                        handleAssignGuard(bikeRack.id_bicicletero, Number(guardiaId));
+                      }
+                    }}
                     className="guard-select"
                   >
-                    <option value="">- Sin asignar -</option>
+                    <option value="">- Seleccionar Guardia -</option>
                     {guards.map((guard) => (
-                      <option key={guard.id_guardia} value={guard.id_guardia}>
-                        {guard.nombre}
+                      <option key={guard.id} value={guard.id}>
+                        {guard.nombre} {guard.apellido}
                       </option>
                     ))}
+
                   </select>
                 </td>
               </tr>
             ))
           ) : (
             <tr>
-              <td colSpan="6">No hay bicicleteros registrados</td>
+              <td colSpan="3">No hay bicicleteros registrados</td>
             </tr>
           )}
         </tbody>

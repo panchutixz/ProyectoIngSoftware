@@ -160,6 +160,7 @@ export async function asignarGuardia(req, res) {
     }
 
     const { id_bicicletero, id } = req.body;
+    console.log("Datos recibidos en backend:", req.body);
     if (!id_bicicletero || !id) {
         return handleErrorClient(res, 400, "Se requiere el id del bicicletero y el id del guardia");
     }
@@ -307,8 +308,8 @@ export async function getAllGuardias(req, res) {
         // Buscar todos los usuarios con rol Guardia
         const guardias = await userRepository.find({
             where: { rol: "Guardia" },
-            select: ["id", "nombre", "apellido", "email"], // selecciona solo lo necesario
-            relations: ["bicicletero"], // opcional, si quieres saber si ya están asignados
+            select: ["id", "nombre", "apellido", "email"], 
+            relations: ["bicicletero"], 
         });
 
         return handleSuccess(res, 200, "Guardias obtenidos correctamente", guardias);
