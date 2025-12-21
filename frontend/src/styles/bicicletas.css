@@ -58,6 +58,18 @@
     cursor: pointer;
     box-shadow: 0 6px 18px rgba(103,58,183,0.12);
     font-weight: 600;
+    margin-left: auto;
+    margin-right: 8px;
+}
+.button-retirar-bicicleta{
+    background: linear-gradient(135deg,#05495e,#05495e);
+    color: #fff;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    box-shadow: 0 6px 18px rgba(103,58,183,0.12);
+    font-weight: 600;
 }
 
 .button-reIngresar-bicicleta{

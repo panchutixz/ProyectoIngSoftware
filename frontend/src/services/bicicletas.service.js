@@ -25,11 +25,12 @@ export async function reIngresarBicicleta(data){
         console.error("Error al reingresar la bicicleta:", error);
     }
 }
-export async function retirarBicicleta(payload){
-    try{
-        const response = await axios.delete('/retirar/bicicletas', { data: payload });
-        return response.data;
 
+//se le pone entre corchetes porque los datos deben ir dentro de un objeto
+export async function retirarBicicleta(data){
+    try{
+        const response = await axios.delete('/auth/retirar/bicicletas', { data });
+        return response.data;
     }catch(error){
         console.error("Error al retirar la bicicleta:", error);
     }
