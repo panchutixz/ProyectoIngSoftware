@@ -289,3 +289,31 @@ export async function getCapacity(req, res) {
         return handleErrorServer(res, 500, "Error al obtener la capacidad");
     }
 }
+
+// Obtener todos los guardias
+export async function getAllGuardias(req, res) {
+    // Validar autentificación de administrador
+    const admin = req.user;
+    if (!admin) return handleErrorClient(res, 401, "Usuario no autenticado");
+
+    const adminRol = (admin.rol || admin.role || "").toString().toLowerCase();
+    if (adminRol !== "administrador") {
+        return handleErrorClient(res, 403, "Solo los administradores pueden ver guardias");
+    }
+
+    try {
+        const userRepository = AppDataSource.getRepository(User);
+
+        // Buscar todos los usuarios con rol Guardia
+        const guardias = await userRepository.find({
+            where: { rol: "Guardia" },
+            select: ["id", "nombre", "apellido", "email"], // selecciona solo lo necesario
+            relations: ["bicicletero"], // opcional, si quieres saber si ya están asignados
+        });
+
+        return handleSuccess(res, 200, "Guardias obtenidos correctamente", guardias);
+    } catch (error) {
+        console.error("Error al obtener guardias:", error);
+        return handleErrorServer(res, 500, "Error al obtener guardias", error.message);
+    }
+}

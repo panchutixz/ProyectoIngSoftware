@@ -50,3 +50,23 @@ export async function  getCapacity(id) {
         console.error("Error al obtener la capacidad del bicicletero:", error);
     }
 }
+
+export const assignGuardToBikeRack = async (id_bicicletero, id_guardia) => {
+  const response = await axios.post("/auth/asignar/bicicleteros", {
+    id_bicicletero,
+    id: id_guardia,   // 👈 importante: backend espera "id"
+  });
+  return response.data.data;
+};
+
+export const unassignGuardFromBikeRack = async (id_bicicletero) => {
+  const response = await axios.post("/auth/desasignar/bicicleteros/", {
+    id_bicicletero,
+  });
+  return response.data.data;
+};
+
+export const getAllGuards = async () => {
+  const res = await axios.get("/auth/guardias");
+  return res.data.data;
+};

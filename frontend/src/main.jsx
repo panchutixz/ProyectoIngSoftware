@@ -11,6 +11,7 @@ import Profile from '@pages/Profile';
 import Usuarios from '@pages/Usuarios';
 import Bicicletas from '@pages/Bicicletas';
 import Bicicleteros from '@pages/Bicicleteros';
+import AsignarGuardias from '@pages/AsignarGuardias';
 
 const router = createBrowserRouter([
   {
@@ -57,7 +58,13 @@ const router = createBrowserRouter([
         element: <ProtectedRoute allowedRoles={["admin", "guardia"]}
         ><Bicicleteros/>
         </ProtectedRoute>
-      }
+      },
+      {
+        path: '/asignarGuardias',
+        element: <ProtectedRoute allowedRoles={["admin", "guardia"]}
+        ><AsignarGuardias/>
+        </ProtectedRoute>
+      },
     ]
   }
 ]);

@@ -21,8 +21,8 @@ async function addBikeRackPopup(){
           <label for="swal2-estado">Estado</label>
           <select id="swal2-estado" class="swal2-input" swal2-select">
             <option value="" disabled selected>Seleccione un estado</option>
-            <option value="Abierto">Abierto</option>
-            <option value="Cerrado">Cerrado</option>
+            <option value="Abierto">Habilitado</option>
+            <option value="Cerrado">No habilitado</option>
           </select>
         </div>
 
