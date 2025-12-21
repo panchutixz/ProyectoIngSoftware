@@ -4,8 +4,11 @@ export async function createBikeRack(data) {
     try {
         const response = await axios.post('auth/create/bicicletero', data);
         return response.data;
-    } catch (error) {
-        console.error("Error al registrar bicicletero:", error);
+    }catch (error) {
+        if (error.response && error.response.data) {
+            throw new Error(error.response.data.message || JSON.stringify(error.response.data));
+        }
+        throw error;
     }
 }
 
@@ -27,12 +30,15 @@ export async function updateBikeRack(id, data) {
     }
 }
 
-export async function deleteBikeRack(id) {
+export async function deleteBikeRack(id_bicicletero) {
     try {
-        const response = await axios.delete(`auth/delete/bicicletero/${id}`);
+        const response = await axios.delete(`auth/delete/bicicletero?id_bicicletero=${id_bicicletero}`);
         return response.data;
-    } catch (error) {
-        console.error("Error al eliminar bicicletero:", error);
+    }catch (error) {
+        if (error.response && error.response.data) {
+            throw new Error(error.response.data.message || JSON.stringify(error.response.data));
+        }
+        throw error;
     }
 }
 
