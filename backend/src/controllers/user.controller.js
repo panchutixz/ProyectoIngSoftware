@@ -24,7 +24,13 @@ export async function getUserById(req, res) {
   try {
     const userRepository = AppDataSource.getRepository(UserEntity);
     const { id } = req.params;
-    const user = await userRepository.findOne({ where: { id } });
+    const idNum = parseInt(id, 10);
+
+    if (Number.isNaN(idNum)) {
+      return res.status(400).json({ message: "ID de usuario inválido." });
+    }
+
+    const user = await userRepository.findOne({ where: { id: idNum } });
 
     if (!user) {
       return res.status(404).json({ message: "Usuario no encontrado." });
@@ -104,7 +110,12 @@ export async function updateUserById(req, res) {
     const { id } = req.params;
     const { nombre, apellido, rol, email } = req.body;
 
-    const user = await userRepository.findOne({ where: { id } });
+    const idNum = parseInt(id, 10);
+    if (Number.isNaN(idNum)) {
+      return res.status(400).json({ message: "ID de usuario inválido." });
+    }
+
+    const user = await userRepository.findOne({ where: { id: idNum } });
 
     if (!user) {
       return res.status(404).json({ message: "Usuario no encontrado." });
@@ -134,7 +145,13 @@ export async function deleteUserById(req, res) {
   try {
     const userRepository = AppDataSource.getRepository(UserEntity);
     const { id } = req.params;
-    const user = await userRepository.findOne({ where: { id } });
+
+    const idNum = parseInt(id, 10);
+    if (Number.isNaN(idNum)) {
+      return res.status(400).json({ message: "ID de usuario inválido." });
+    }
+
+    const user = await userRepository.findOne({ where: { id: idNum } });
 
     if (!user) {
       return res.status(404).json({ message: "Usuario no encontrado." });

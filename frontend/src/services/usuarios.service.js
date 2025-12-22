@@ -49,5 +49,14 @@ export async function CreateUsers(userData) {
         }
         throw error;
     }
+}
+    export async function getProfile() { 
+    try {
+        const response = await axios.get('/users/profile');
+        return response.data;
+    } catch (error) {
+        console.error("Error al obtener perfil:", error);
+        throw error;
+    }
     
 }
