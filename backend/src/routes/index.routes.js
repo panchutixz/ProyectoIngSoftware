@@ -10,5 +10,6 @@ export function routerApi(app) {
   router.use("/auth", authRoutes);
   router.use("/profile", profileRoutes);
   router.use("/users", userRoutes);
+  router.use("/bikeracks", bikerackRoutes);
 }
 
