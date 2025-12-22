@@ -97,3 +97,9 @@
     letter-spacing: 0.2px;
     font-weight: 700;
 }
+
+@media (max-width: 980px) {
+  .bicicleta-page { padding: 12px; }
+  .bicicletas-header h2 { font-size: 20px; }
+  .bicicleta-table thead th, .bicicleta-table tbody td { padding: 10px 12px; font-size: 14px; }
+}
