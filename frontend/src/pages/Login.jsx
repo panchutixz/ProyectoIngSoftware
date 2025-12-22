@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { login } from '../services/auth.service';
 import { useAuth } from '../context/AuthContext.jsx';
+import logo from '../assets/logo.svg';
 
 const Login = () => {
     const navigate = useNavigate();
@@ -30,47 +31,42 @@ const Login = () => {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-purple-600 via-indigo-600 to-blue-600 flex items-center justify-center p-4">
-            <div className="bg-white rounded-2xl shadow-2xl p-8 md:p-12 w-full max-w-md transform transition-all hover:scale-105">
-                <form className="space-y-6" onSubmit={handleSubmit}>
-                    <h1 className="text-4xl font-bold text-center bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-blue-600 mb-8">
-                        Iniciar sesión
-                    </h1>
+        <div className="min-h-screen bg-[#066380] flex items-center justify-center p-6">
+            <div className="bg-white rounded-[40px] shadow-lg p-10 w-full max-w-md">
+                <img src={logo} alt="logo" className="w-40 mx-auto mb-4" />
 
-                    <div className="space-y-2">
-                        <label htmlFor="email" className="block text-sm font-semibold text-gray-700">
-                            Email
-                        </label>
+                <h1 className="text-center text-2xl font-semibold text-gray-800 mb-6 uppercase">
+                    Iniciar sesión
+                </h1>
+
+                <form onSubmit={handleSubmit} className="space-y-6">
+                    <div>
+                        <label htmlFor="email" className="block text-sm font-semibold text-gray-700 uppercase tracking-wide">Email:</label>
                         <input
-                            type="email"
                             id="email"
+                            type="email"
+                            className="mt-2 w-full px-4 py-3 border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-200"
+                            placeholder="usuario@ejemplo.com"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
-                            placeholder="usuario@ejemplo.com"
                             required
-                            className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-200 transition-all duration-300"
                         />
                     </div>
 
-                    <div className="space-y-2">
-                        <label htmlFor="password" className="block text-sm font-semibold text-gray-700">
-                            Contraseña
-                        </label>
+                    <div>
+                        <label htmlFor="password" className="block text-sm font-semibold text-gray-700 uppercase tracking-wide mt-4">Contraseña:</label>
                         <input
-                            type="password"
                             id="password"
+                            type="password"
+                            className="mt-2 w-full px-4 py-3 border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-200"
+                            placeholder="**********"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
-                            placeholder="**********"
                             required
-                            className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-200 transition-all duration-300"
                         />
                     </div>
 
-                    <button
-                        type="submit"
-                        className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-bold py-4 px-8 rounded-xl transition-all duration-300 transform hover:scale-105 hover:shadow-xl focus:outline-none focus:ring-4 focus:ring-purple-300"
-                    >
+                    <button className="mx-auto block bg-[#066380] hover:bg-[#05586f] text-white font-semibold px-12 py-3 rounded-full text-lg">
                         Iniciar sesión
                     </button>
                 </form>
@@ -82,7 +78,7 @@ const Login = () => {
                     <button
                         type="button"
                         onClick={() => navigate('/auth/register')}
-                        className="text-purple-700 hover:underline font-semibold"
+                        className="text-teal-800 font-medium uppercase"
                     >
                         ¿No tienes cuenta? Regístrate
                     </button>
