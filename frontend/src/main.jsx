@@ -10,7 +10,8 @@ import Register from '@pages/Register';
 import Profile from '@pages/Profile';
 import Usuarios from '@pages/Usuarios';
 import Bicicletas from '@pages/Bicicletas';
-import BikeRacks from '@pages/Bicicleteros';
+import Bicicleteros from '@pages/Bicicleteros';
+import AsignarGuardias from '@pages/AsignarGuardias';
 
 const router = createBrowserRouter([
   {
@@ -55,9 +56,15 @@ const router = createBrowserRouter([
       {
         path: '/bicicleteros',
         element: <ProtectedRoute allowedRoles={["admin", "guardia"]}
-        ><BikeRacks/>
+        ><Bicicleteros/>
         </ProtectedRoute>
-      }
+      },
+      {
+        path: '/asignarGuardias',
+        element: <ProtectedRoute allowedRoles={["admin", "guardia"]}
+        ><AsignarGuardias/>
+        </ProtectedRoute>
+      },
     ]
   }
 ]);

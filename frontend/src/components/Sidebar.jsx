@@ -42,18 +42,26 @@
             </li>
             <li>
                 <button
-                onClick={() => navigate("/perfil")}
-                className="w-full text-left hover:bg-gray-700 p-2 rounded"
-                >
-                Perfil
-                </button>
-            </li>
-            <li>
-                <button
                 onClick={() => navigate("/bicicleteros")}
                 className="w-full text-left hover:bg-gray-700 p-2 rounded"
                 >
                 Bicicleteros
+                </button>
+            </li>
+            <li>
+                <button
+                onClick={() => navigate("/asignarGuardias")}
+                className="w-full text-left hover:bg-gray-700 p-2 rounded"
+                >
+                Asignar Guardias
+                </button>
+            </li>
+            <li>
+                <button
+                onClick={() => navigate("/perfil")}
+                className="w-full text-left hover:bg-gray-700 p-2 rounded"
+                >
+                Perfil
                 </button>
             </li>
             <li>
