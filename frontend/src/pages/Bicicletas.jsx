@@ -3,6 +3,8 @@ import { useState, useEffect } from 'react';
 import { getBicicletas} from '../services/bicicletas.service.js';
 import { reIngresoBicicleta } from '@hooks/bicicletas/useReIngresoBicicletas.jsx';
 import { registerBicicleta } from '@hooks/bicicletas/useRegisterBicicletas.jsx';
+import { retirarBicicletas } from '@hooks/bicicletas/useRetirarBicicletas.jsx';
+
 const Bicicletas = () => {
     const [bicicletas, setBicicletas] = useState([]);
     const [error] = useState(null);
@@ -23,12 +25,14 @@ const Bicicletas = () => {
 
     const {handleReIngresoBicicleta} = reIngresoBicicleta();
     const { handleRegisterBicicleta } = registerBicicleta(fetchBicicletas);
+    const { handleRetirarBicicleta } = retirarBicicletas(fetchBicicletas);
 
     return (
     <div className="bicicletas-page">
         <div className="bicicletas-header">
             <h1 className="title-listar-bicicletas">Listado de Bicicletas</h1>
             <button className="button-registrar-bicicleta" onClick={handleRegisterBicicleta}>Registrar Bicicleta</button>
+            <button className="button-retirar-bicicleta" onClick={handleRetirarBicicleta}>Retirar Bicicleta</button>
         </div>
     <table className="bicicleta-table">
     <thead>
