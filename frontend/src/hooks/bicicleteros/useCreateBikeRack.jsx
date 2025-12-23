@@ -96,6 +96,8 @@ export const useCreateBikeRack = (fetchBikeRacks) => {
                     title: "Bicicletero añadido exitosamente",
                     icon: "success",
                     confirmButtonText: "Aceptar",
+                    timer: 2000,
+                    timerProgressBar: true
                 })
                 await fetchBikeRacks();
             }
@@ -107,6 +109,8 @@ export const useCreateBikeRack = (fetchBikeRacks) => {
                 icon: "error",
                 text: error.message || "Error en el servidor. Revisar datos e intentar nuevamente.",
                 confirmButtonText: "Aceptar",
+                timer: 2000,
+                timerProgressBar: true
             });
         } 
     };   

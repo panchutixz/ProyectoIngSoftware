@@ -83,6 +83,14 @@ const Sidebar = () => {
               Perfil
             </NavLink>
           </li>
+          <li>
+            <button
+              onClick={() => navigate("/Misreclamos")}
+              className="w-full text-left hover:bg-gray-700 p-2 rounded"
+            >
+              Mis Reclamos
+            </button>
+          </li>
 
           <li className="flex-grow" />
 

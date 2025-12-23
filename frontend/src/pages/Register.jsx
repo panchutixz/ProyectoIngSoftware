@@ -29,7 +29,7 @@ const Register = () => {
     if (res?.status === 201) {
       setMessage('Usuario registrado correctamente');
       setMessageType('success');
-      setTimeout(() => (window.location.href = '/'), 1200);
+      setTimeout(() => (window.location.href = '/auth'), 1200);
     } else if (res?.data) {
      
       const msg = res.data.message || JSON.stringify(res.data);

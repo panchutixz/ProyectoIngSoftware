@@ -66,6 +66,8 @@ export const reIngresoBicicleta = (fetchReIngresoBicicletas) => {
                 title: "Bicicleta re ingresada correctamente",
                 icon: "success",
                 confirmButtonText: "Aceptar",
+                timer: 2000,
+                timerProgressBar: true
                 })
                 await fetchReIngresoBicicletas();
             }
@@ -76,6 +78,8 @@ export const reIngresoBicicleta = (fetchReIngresoBicicletas) => {
                 icon: "error",
                 text: error.message || "Ha ocurrido un error inesperado, intentalo nuevamente",
                 confirmButtonText: "Aceptar",
+                timer: 2000,
+                timerProgressBar: true
             });
         }
     };

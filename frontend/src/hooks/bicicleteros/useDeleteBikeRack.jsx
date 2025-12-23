@@ -19,6 +19,8 @@ async function confirmAlert() {
     text: "El Bicicletero ha sido eliminado correctamente",
     icon: "success",
     confirmButtonText: "Aceptar",
+    timer: 2000,
+    timerProgressBar: true
   });
 }
 
@@ -28,6 +30,8 @@ async function confirmError() {
     text: "No se pudo eliminar al bicicletero",
     icon: "error",
     confirmButtonText: "Aceptar",
+    timer: 2000,
+    timerProgressBar: true
   });
 }
 

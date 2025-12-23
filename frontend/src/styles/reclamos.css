@@ -1,0 +1,105 @@
+/* Layout del contenedor */
+.reclamos-page {
+  max-width: 1100px;
+  margin: 28px 24px;
+  padding: 20px;
+}
+
+/* Encabezado */
+.reclamos-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+.reclamos-header h2 {
+  margin: 0;
+  font-size: 24px;
+  color: #e8f0f2; /* color oscuro/teal */
+  letter-spacing: 0.2px;
+  font-weight: 700;
+}
+.reclamos-addbtn {
+  background: linear-gradient(135deg,#7058e1,#6b45ce);
+  color: #fff;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  box-shadow: 0 6px 18px rgba(103,58,183,0.12);
+  font-weight: 600;
+}
+
+/* Tabla - tarjeta */
+.reclamos-table-wrapper {
+  background: #fff;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 8px 20px rgba(2,40,53,0.08);
+}
+.reclamos-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 15px;
+  color: #24323a;
+}
+/* Encabezados */
+.reclamos-table thead th {
+  background: linear-gradient(90deg,#0a6b71,#0b9fb6);
+  color: #fff;
+  font-weight: 700;
+  padding: 12px 18px;
+  text-align: left;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  font-size: 14px;
+}
+/* Filas y celdas */
+.reclamos-table tbody td {
+  padding: 14px 18px;
+  border-bottom: 1px solid #eef2f3;
+  vertical-align: middle;
+  background: #fff;
+}
+.reclamos-table tbody tr:nth-child(even) td {
+  background: #fbfbfb;
+}
+
+/* Acciones (botón eliminar) */
+.reclamos-table .delete {
+  background: transparent;
+  border: none;
+  color: #c0392b;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+/* Badges para rol */
+.role-badge {
+  display: inline-block;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+.role-estudiante {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+.role-funcionario {
+  background: #e3f2fd;
+  color: #0277bd;
+}
+.role-academico, .role-administrador {
+  background: #f3e5f5;
+  color: #6a1b9a;
+}
+
+/* Responsive */
+@media (max-width: 980px) {
+  .reclamos-page { padding: 12px; }
+  .reclamos-header h2 { font-size: 20px; }
+  .reclamos-table thead th, .reclamos-table tbody td { padding: 10px 12px; font-size: 14px; }
+}
