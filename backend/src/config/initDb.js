@@ -21,7 +21,7 @@ export async function createusers(){
                 password: await encryptPassword("admin123"),
             },
             {
-                rut: "11.111.111-1",
+                rut: "15.234.987-K",
                 nombre: "Guardia",
                 apellido: "Principal",
                 email: "guardia1@ubiobio.cl",
@@ -30,7 +30,7 @@ export async function createusers(){
                 password: await encryptPassword("guardia123")
             },
             {
-                rut: "22.222.222-2",
+                rut: "7.654.321-0",
                 nombre: "Guardia",
                 apellido: "Secundario",
                 email: "guardia2@ubiobio.cl",
@@ -39,7 +39,7 @@ export async function createusers(){
                 password: await encryptPassword("guardia123")
             },
             {
-                rut: "33.333.333-3",
+                rut: "14.258.369-4",
                 nombre: "Guardia",
                 apellido: "Terciario",
                 email: "guardia3@ubiobio.cl",
@@ -48,7 +48,7 @@ export async function createusers(){
                 password: await encryptPassword("guardia123")
             },
             {
-                rut: "44.444.444-4",
+                rut: "16.432.987-8",
                 nombre: "Guardia",
                 apellido: "Cuaternario",
                 email: "guardia4@ubiobio.cl",
