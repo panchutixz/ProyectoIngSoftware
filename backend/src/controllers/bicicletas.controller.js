@@ -1,5 +1,5 @@
 import { AppDataSource } from "../config/configDb.js";
-import { registerValidation, reIngresoValidation } from "../validations/bicicleta.validation.js";
+import { registerValidation, reIngresoValidation, retiroValidation } from "../validations/bicicleta.validation.js";
 import Bicicleta from "../entities/bicicletas.entity.js";
 import User from "../entities/user.entity.js"
 import { handleErrorClient, handleErrorServer, handleSuccess } from "../handlers/responseHandlers.js";
@@ -14,16 +14,17 @@ export async function registerBicycle(req, res){
     const bicicleteroRepository = AppDataSource.getRepository(Bicicletero);
     const historialRepository = AppDataSource.getRepository(Historial);
 
-    const { marca, color, numero_serie, descripcion, estado, rut, id_bicicletero} = req.body;
+    let { marca, color, numero_serie, descripcion, estado, rut, id_bicicletero} = req.body;
+    numero_serie = numero_serie ? numero_serie.toString().toUpperCase() : numero_serie;
     const { error } = registerValidation.validate(req.body);
-    if(error) return handleErrorClient(res, 400,{message: error.details[0].message});
+    if(error) return handleErrorClient(res, 400, error.details[0].message);
 
     const usuario = await userRepository.findOne({ where: {rut}});
     if(!usuario){
         return handleErrorClient(res, 404, "No se encontró un usuario con ese RUT");
     }
 
-    const bicicletasUsuario = await bicycleRepository.count({where: { usuario: { rut }, estado: "guardada" }});
+    const bicicletasUsuario = await bicycleRepository.count({where: { usuario: { rut }, estado: "guardada" }}); 
     if (bicicletasUsuario >= 2) {
         return handleErrorClient(res, 400, "El usuario ya tiene el máximo de bicicletas permitidas (2)");
     }
@@ -92,11 +93,13 @@ export async function reIngresoBicycle(req, res) {
     const userRepository = AppDataSource.getRepository(User);
     const historialRepository = AppDataSource.getRepository(Historial);
 
-    const { numero_serie, rut, id_bicicletero } = req.body;
+    let { numero_serie, rut, id_bicicletero } = req.body;
+    numero_serie = numero_serie ? numero_serie.toString().toUpperCase() : numero_serie;
     const { error } = reIngresoValidation.validate(req.body);
-    if(error) return handleErrorClient(res, 400,{message: error.details[0].message});
+
+    if(error) return handleErrorClient(res, 400, error.details[0].message);
     const bicicleta = await bicycleRepository.findOne({
-        where: { numero_serie },
+        where: { numero_serie: In([numero_serie, numero_serie.toLowerCase(), numero_serie.toUpperCase()]) },
         relations: ["usuario", "bicicletero"]
     });
 
@@ -267,6 +270,9 @@ export async function retirarBicycle(req, res){
         const bicycleRepository = AppDataSource.getRepository(Bicicleta);
         const userRepository = AppDataSource.getRepository("User");
         const historialRepository = AppDataSource.getRepository(Historial);
+
+        const { error } = retiroValidation.validate(req.body);    // Validación de entrada
+        if(error) return handleErrorClient(res, 400, error.details[0].message);
 
         // Obtener usuario objetivo
         const usuario = await userRepository.findOne({ where: { rut } });

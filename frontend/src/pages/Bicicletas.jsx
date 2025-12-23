@@ -6,6 +6,27 @@ import { registerBicicleta } from '@hooks/bicicletas/useRegisterBicicletas.jsx';
 import { retirarBicicletas } from '@hooks/bicicletas/useRetirarBicicletas.jsx';
 import { useAuth } from "../context/AuthContext.jsx";
 
+const estadoColors = {
+    guardada: '#007bff',    
+    entregada: '#28a745',   
+    olvidada: '#ff0000ff'   
+};
+
+function estadoStyle(estado) {
+    const color = estadoColors[estado?.toLowerCase().trim()] || '#6c757d';
+
+    return {
+    backgroundColor: color,
+    color: '#fff',
+    padding: '4px 8px',
+    borderRadius: 12,
+    display: 'inline-block',
+    fontWeight: 'bold',
+    textTransform: 'capitalize'
+    };
+}
+
+
 const Bicicletas = () => {
     const { user } = useAuth();
     const [bicicletas, setBicicletas] = useState([]);
@@ -64,7 +85,7 @@ const Bicicletas = () => {
                             <td>{bici.numero_serie}</td>
                             <td>{bici.codigo}</td>
                             <td>{bici.descripcion}</td>
-                            <td>{bici.estado}</td>
+                            <td> <span style={estadoStyle(bici.estado)}>{bici.estado}</span> </td>
                             <td>{bici.usuario.rut}</td>
                             {user.rol === 'Guardia' && (
                             <td>
