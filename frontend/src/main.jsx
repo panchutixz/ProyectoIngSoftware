@@ -13,6 +13,7 @@ import Bicicletas from '@pages/Bicicletas';
 import Bicicleteros from '@pages/Bicicleteros';
 //import RegistrarBicicletas from '@pages/RegistrarBicicletas';
 import Reclamos from '@pages/Reclamos'; 
+import AsignarGuardias from '@pages/AsignarGuardias';
 
 const router = createBrowserRouter([
   {
@@ -65,7 +66,13 @@ const router = createBrowserRouter([
         element: <ProtectedRoute allowedRoles={["usuario"]}
         ><Reclamos />
         </ProtectedRoute>
-      }
+      },
+      {
+        path: '/asignarGuardias',
+        element: <ProtectedRoute allowedRoles={["admin", "guardia"]}
+        ><AsignarGuardias/>
+        </ProtectedRoute>
+      },
     ]
   }
 ]);

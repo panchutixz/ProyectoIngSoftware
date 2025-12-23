@@ -3,7 +3,7 @@ import authRoutes from "./auth.routes.js";
 import bikerackRoutes from "./bikeRack.routes.js";
 import profileRoutes from "./profile.routes.js";
 import userRoutes from "./user.routes.js";
-import reclamosRoutes from "./reclamos.routes.js";
+import reclamosRoutes from "./reclamo.routes.js";
 
 export function routerApi(app) {
   const router = Router();
