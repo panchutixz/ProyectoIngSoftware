@@ -67,7 +67,8 @@ export const assignGuardToBikeRack = async (id_bicicletero, userId) => {
 };
 
 export const unassignGuardFromBikeRack = async (id_bicicletero) => {
-    const response = await axios.post("/auth/desasignar/bicicleteros/", {
+    const response = await axios.patch("/auth/desasignar/bicicletero/", {
+        
         id_bicicletero,
     });
     return response.data.data;
