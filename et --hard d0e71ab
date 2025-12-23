@@ -1,0 +1,105 @@
+[33m6f4664a[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mpamela[m[33m)[m HEAD@{0}: checkout: moving from pamela to pamela
+[33m6f4664a[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mpamela[m[33m)[m HEAD@{1}: checkout: moving from temp-pamela to pamela
+[33m89c27cb[m[33m ([m[1;32mtemp-pamela[m[33m)[m HEAD@{2}: checkout: moving from pamela to temp-pamela
+[33m6f4664a[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mpamela[m[33m)[m HEAD@{3}: commit: Se muestran algunas validaciones
+[33md0e71ab[m[33m ([m[1;31morigin/pamela[m[33m)[m HEAD@{4}: reset: moving to origin/pamela
+[33md0e71ab[m[33m ([m[1;31morigin/pamela[m[33m)[m HEAD@{5}: commit: Permite asignar un guardia a un bicicletero que no tenga otro guardia asignado
+[33m893f80a[m HEAD@{6}: commit: Agrega página para asignar guardia. Error al asignar
+[33mf9924f4[m HEAD@{7}: commit: Soluciona error al eliminar bicicleteros
+[33m89c27cb[m[33m ([m[1;32mtemp-pamela[m[33m)[m HEAD@{8}: reset: moving to temp-pamela
+[33m89c27cb[m[33m ([m[1;32mtemp-pamela[m[33m)[m HEAD@{9}: checkout: moving from temp-pamela to pamela
+[33m89c27cb[m[33m ([m[1;32mtemp-pamela[m[33m)[m HEAD@{10}: reset: moving to origin/pamela
+[33m89c27cb[m[33m ([m[1;32mtemp-pamela[m[33m)[m HEAD@{11}: reset: moving to origin/pamela
+[33m3b07b88[m HEAD@{12}: checkout: moving from pamela to temp-pamela
+[33m89c27cb[m[33m ([m[1;32mtemp-pamela[m[33m)[m HEAD@{13}: commit: Muestra tabla con datos de bicicletero, permiter crear bicicletero. Error al eliminar bicicletero
+[33m3b07b88[m HEAD@{14}: reset: moving to temp-pamela
+[33m3b07b88[m HEAD@{15}: reset: moving to temp-pamela
+[33m3b07b88[m HEAD@{16}: checkout: moving from temp-pamela to pamela
+[33m3b07b88[m HEAD@{17}: checkout: moving from temp-pamela to temp-pamela
+[33m3b07b88[m HEAD@{18}: checkout: moving from pamela to temp-pamela
+[33m3b07b88[m HEAD@{19}: reset: moving to temp-pamela
+[33m3b07b88[m HEAD@{20}: reset: moving to temp-pamela
+[33m3b07b88[m HEAD@{21}: reset: moving to temp-pamela
+[33m3b07b88[m HEAD@{22}: checkout: moving from temp-pamela to pamela
+[33m3b07b88[m HEAD@{23}: reset: moving to pamela
+[33m9fb8f27[m HEAD@{24}: checkout: moving from pamela to temp-pamela
+[33m3b07b88[m HEAD@{25}: commit: .
+[33m9fb8f27[m HEAD@{26}: checkout: moving from temp-pamela to pamela
+[33m9fb8f27[m HEAD@{27}: reset: moving to pamela
+[33m9fb8f27[m HEAD@{28}: checkout: moving from pamela to temp-pamela
+[33m9fb8f27[m HEAD@{29}: checkout: moving from temp-pamela to pamela
+[33m9fb8f27[m HEAD@{30}: reset: moving to pamela
+[33m9fb8f27[m HEAD@{31}: checkout: moving from pamela to temp-pamela
+[33m9fb8f27[m HEAD@{32}: checkout: moving from temp-pamela to pamela
+[33m9fb8f27[m HEAD@{33}: reset: moving to pamela
+[33m9fb8f27[m HEAD@{34}: checkout: moving from pamela to temp-pamela
+[33m9fb8f27[m HEAD@{35}: checkout: moving from pamela to pamela
+[33m9fb8f27[m HEAD@{36}: checkout: moving from temp-pamela to pamela
+[33m9fb8f27[m HEAD@{37}: reset: moving to pamela
+[33mb058bdb[m HEAD@{38}: checkout: moving from pamela to temp-pamela
+[33m9fb8f27[m HEAD@{39}: commit: Arregla tabla bicicleteros
+[33m3cb9c5d[m[33m ([m[1;31morigin/barbara[m[33m)[m HEAD@{40}: reset: moving to origin/barbara
+[33m3cb9c5d[m[33m ([m[1;31morigin/barbara[m[33m)[m HEAD@{41}: merge origin/barbara: Fast-forward
+[33m1615aa7[m HEAD@{42}: commit: se agrega página de bicicletero, tiene problema para mostrar tabla
+[33m7244b9f[m[33m ([m[1;32mrama-francisco[m[33m)[m HEAD@{43}: reset: moving to origin/francisco
+[33m0e8d6e2[m HEAD@{44}: checkout: moving from rama-francisco to pamela
+[33m7244b9f[m[33m ([m[1;32mrama-francisco[m[33m)[m HEAD@{45}: reset: moving to origin/francisco
+[33m0e8d6e2[m HEAD@{46}: checkout: moving from pamela to rama-francisco
+[33m0e8d6e2[m HEAD@{47}: merge rama-francisco: Fast-forward
+[33m09db268[m HEAD@{48}: checkout: moving from rama-francisco to pamela
+[33m0e8d6e2[m HEAD@{49}: pull origin francisco: Fast-forward
+[33mf5f000e[m HEAD@{50}: checkout: moving from pamela to rama-francisco
+[33m09db268[m HEAD@{51}: reset: moving to origin/pamela
+[33m09db268[m HEAD@{52}: commit: Agrega función para obtener la capacidad y espacios de un bicicletero
+[33m8dc1eab[m[33m ([m[1;32mrama-barbara[m[33m)[m HEAD@{53}: checkout: moving from temp-pamela to pamela
+[33mb058bdb[m HEAD@{54}: checkout: moving from pamela to temp-pamela
+[33m8dc1eab[m[33m ([m[1;32mrama-barbara[m[33m)[m HEAD@{55}: reset: moving to HEAD
+[33m8dc1eab[m[33m ([m[1;32mrama-barbara[m[33m)[m HEAD@{56}: reset: moving to rama-barbara
+[33mb058bdb[m HEAD@{57}: reset: moving to HEAD
+[33mb058bdb[m HEAD@{58}: merge temp-pamela: Fast-forward
+[33m2e007f1[m HEAD@{59}: reset: moving to origin/pamela
+[33mb058bdb[m HEAD@{60}: merge temp-pamela: Fast-forward
+[33m2e007f1[m HEAD@{61}: reset: moving to origin/pamela
+[33m8dc1eab[m[33m ([m[1;32mrama-barbara[m[33m)[m HEAD@{62}: reset: moving to HEAD
+[33m8dc1eab[m[33m ([m[1;32mrama-barbara[m[33m)[m HEAD@{63}: reset: moving to HEAD
+[33m8dc1eab[m[33m ([m[1;32mrama-barbara[m[33m)[m HEAD@{64}: merge rama-barbara: Fast-forward
+[33m2e007f1[m HEAD@{65}: checkout: moving from rama-barbara to pamela
+[33m8dc1eab[m[33m ([m[1;32mrama-barbara[m[33m)[m HEAD@{66}: pull origin barbara: Fast-forward
+[33m9c0423a[m HEAD@{67}: checkout: moving from temp-pamela to rama-barbara
+[33mb058bdb[m HEAD@{68}: commit: agrega funcion para ver capacidad y espacios disponibles
+[33m2e007f1[m HEAD@{69}: checkout: moving from pamela to temp-pamela
+[33m2e007f1[m HEAD@{70}: checkout: moving from temp-pamela to pamela
+[33m2e007f1[m HEAD@{71}: reset: moving to pamela
+[33mdcc274a[m HEAD@{72}: checkout: moving from pamela to temp-pamela
+[33m2e007f1[m HEAD@{73}: reset: moving to origin/pamela
+[33mdcc274a[m HEAD@{74}: checkout: moving from temp-pamela to pamela
+[33mdcc274a[m HEAD@{75}: checkout: moving from pamela to temp-pamela
+[33mdcc274a[m HEAD@{76}: commit: Copia temporal
+[33m9c0423a[m HEAD@{77}: merge rama-barbara: Fast-forward
+[33m2e007f1[m HEAD@{78}: checkout: moving from rama-barbara to pamela
+[33m9c0423a[m HEAD@{79}: pull origin barbara: Fast-forward
+[33mf740d13[m HEAD@{80}: checkout: moving from pamela to rama-barbara
+[33m2e007f1[m HEAD@{81}: reset: moving to HEAD
+[33m2e007f1[m HEAD@{82}: checkout: moving from rama-paz to pamela
+[33mecf9a7c[m[33m ([m[1;32mrama-paz[m[33m)[m HEAD@{83}: checkout: moving from pamela to rama-paz
+[33m2e007f1[m HEAD@{84}: reset: moving to origin/pamela
+[33m2e007f1[m HEAD@{85}: reset: moving to origin/pamela
+[33m2e007f1[m HEAD@{86}: commit: Agrega autentificación para funciones del bicicletero en las que es necesaria
+[33m5448753[m HEAD@{87}: commit: Corrige error en asignar guardia
+[33m0843a55[m HEAD@{88}: commit: Agrega función desasignar guardia
+[33m7280614[m HEAD@{89}: commit: Agrega validación de autentificación para asignar guardia
+[33m9549dd4[m HEAD@{90}: commit: Agrega función para asignar guardia a bicicletero
+[33mf740d13[m HEAD@{91}: merge rama-barbara: Fast-forward
+[33mdb4c8ba[m HEAD@{92}: checkout: moving from rama-barbara to pamela
+[33mf740d13[m HEAD@{93}: pull origin barbara: Fast-forward
+[33m9cfb7b7[m HEAD@{94}: checkout: moving from pamela to rama-barbara
+[33mdb4c8ba[m HEAD@{95}: commit: Agrega función para actualizar bicicleteros
+[33m9dc7387[m HEAD@{96}: merge origin/barbara: Merge made by the 'ort' strategy.
+[33md236ccd[m HEAD@{97}: commit (merge): Merge remote-tracking branch 'origin/francisco' into pamela
+[33m3851918[m HEAD@{98}: checkout: moving from rama-francisco to pamela
+[33mf5f000e[m HEAD@{99}: checkout: moving from pamela to rama-francisco
+[33m3851918[m HEAD@{100}: commit: Elimina carpeta incorrecta del repositorio
+[33m88ac595[m HEAD@{101}: commit: ADD get y delete de bicicletero
+[33maa120e3[m HEAD@{102}: checkout: moving from pamela to pamela
+[33maa120e3[m HEAD@{103}: commit: ADD rutas, validaciones y controlador de bicicletero; UPDATE user.entity, auth.routes y bicicletero.entity
+[33m9cfb7b7[m HEAD@{104}: merge rama-b

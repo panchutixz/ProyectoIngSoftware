@@ -11,27 +11,41 @@ export async function createBikeRack(req, res) {
     const { nombre, capacidad, ubicacion, estado } = req.body;
     // Validar autentificación de administrador
     const admin = req.user;
+
     if (!admin) return handleErrorClient(res, 401, "Usuario no autenticado");
 
     const adminRol = (admin.rol || admin.role || "").toString().toLowerCase();
+    if (!admin) {
+        return res.status(401).json({
+            message: "Usuario no autenticado",
+        });
+    }
     if (adminRol !== "administrador") {
         return handleErrorClient(res, 403, "Solo los administradores pueden crear bicicleteros");
     }
 
     const { error } = createValidation.validate(req.body);
-    if (error) return handleErrorClient(res, 400, { message: error.details[0].message });
 
+    if (error) {
+        return res.status(400).json({
+            message: error.details[0].message,
+        });
+    }
     try {
         const existeNombre = await bikeRackRepository.findOne({ where: { nombre } });
         if (existeNombre) {
-            return handleErrorClient(res, 404, `Ya existe un bicicletero con el nombre "${nombre}".`);
+            return res.status(404).json({
+                message: `Ya existe un bicicletero con el nombre "${nombre}".`,
+            });
         }
 
         const existeUbicacion = await bikeRackRepository.findOne({ where: { ubicacion } });
-        if (existeUbicacion) {
-            return handleErrorClient(res, 400, { message: `Ya existe un bicicletero registrado en la ubicación "${ubicacion}".` });
-        }
 
+        if (existeUbicacion) {
+            return res.status(400).json({
+                message: `Ya existe un bicicletero registrado en la ubicación "${ubicacion}".`,
+            });
+        }
         const newBikeRack = bikeRackRepository.create({ nombre, capacidad, ubicacion, estado });
         await bikeRackRepository.save(newBikeRack);
 
@@ -120,7 +134,7 @@ export async function deleteBikeRack(req, res) {
     const adminRol = (admin.rol || admin.role || "").toString().toLowerCase();
     if (adminRol !== "administrador") {
         return handleErrorClient(res, 403, "Solo los administradores pueden eliminar bicicleteros");
-    }    
+    }
 
     try {
         const bicicletero = await bikeRackRepository.findOne({ where: { id_bicicletero: parseInt(id_bicicletero) } });
@@ -147,6 +161,7 @@ export async function deleteBikeRack(req, res) {
         return handleErrorServer(res, 500, "Error al eliminar bicicletero");
     }
 }
+
 
 // Asignar guardia a un bicicletero
 export async function asignarGuardia(req, res) {
@@ -193,8 +208,10 @@ export async function asignarGuardia(req, res) {
 
         // Verificar que el guardia no esté asignado a otro bicicletero
         if (guardia.bicicletero && guardia.bicicletero.id_bicicletero !== parseInt(id_bicicletero)) {
-            return handleErrorClient(res, 400, "Este guardia ya está asignado a otro bicicletero");
-        }
+            return res.status(400).json({
+                message: `Este guardia ya está asignado a otro bicicletero.`,
+            });
+        }       
 
         bicicletero.usuarios.push(guardia);
         await bikeRackRepository.save(bicicletero);
