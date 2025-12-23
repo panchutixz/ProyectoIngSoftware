@@ -61,7 +61,7 @@ export async function getAllBikeRacks(req, res) {
     const bikeRackRepository = AppDataSource.getRepository(Bicicletero);
     try {
         const bicicleteros = await bikeRackRepository.find({
-            relations: ["bicicletas"]
+            relations: ["bicicletas", "usuarios"]
         });
 
         const dataConCalculos = bicicleteros.map(b => {

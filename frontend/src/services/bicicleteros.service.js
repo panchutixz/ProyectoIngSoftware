@@ -23,10 +23,13 @@ export async function getAllBikeRacks() {
 
 export async function updateBikeRack(id, data) {
     try {
-        const response = await axios.patch(`auth/update/bicicletero/${id}`, data);
+        const response = await axios.patch(`auth/update/bicicletero?id_bicicletero=${id}`, data);
         return response.data;
     } catch (error) {
-        console.error("Error al actualizar bicicletero:", error);
+        if (error.response && error.response.data) {
+            throw new Error(error.response.data.message || JSON.stringify(error.response.data));
+        }
+        throw error;
     }
 }
 
