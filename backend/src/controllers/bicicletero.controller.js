@@ -63,13 +63,17 @@ export async function getAllBikeRacks(req, res) {
         const bicicleteros = await bikeRackRepository.find({
             relations: ["bicicletas"]
         });
+
         const dataConCalculos = bicicleteros.map(b => {
             const espaciosOcupados = b.bicicletas
-                ? b.bicicletas.filter(bici => bici.estado === 'guardada').length
+                ? b.bicicletas.filter(bici => {
+                    const estadoLimpio = (bici.estado || "").toString().toLowerCase().trim();
+                    return estadoLimpio === 'guardada';
+                }).length
                 : 0;
 
             return {
-                ...b, 
+                ...b,
                 ocupados: espaciosOcupados,
                 disponibles: b.capacidad - espaciosOcupados
             };
@@ -229,7 +233,7 @@ export async function asignarGuardia(req, res) {
 
         // Desasignar guardia anterior si existía uno
         bicicletero.usuarios = bicicletero.usuarios.filter(usuario => {
-            const rolUsuario = (usuario.rol || usuario.role || "").toString().toLowerCase(); 
+            const rolUsuario = (usuario.rol || usuario.role || "").toString().toLowerCase();
             return rolUsuario !== "guardia";
         });
 
@@ -346,8 +350,8 @@ export async function getAllGuardias(req, res) {
         // Buscar todos los usuarios con rol Guardia
         const guardias = await userRepository.find({
             where: { rol: "Guardia" },
-            select: ["id", "nombre", "apellido", "email"], 
-            relations: ["bicicletero"], 
+            select: ["id", "nombre", "apellido", "email"],
+            relations: ["bicicletero"],
         });
 
         return handleSuccess(res, 200, "Guardias obtenidos correctamente", guardias);
