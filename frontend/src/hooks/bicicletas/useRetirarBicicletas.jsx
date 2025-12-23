@@ -54,14 +54,22 @@ async function retirarBicicletasPopup() {
     return null;
 }
 
-export const retirarBicicletas = () => {
+export const retirarBicicletas = (fetchRetirarBicicletas) => {
     const handleRetirarBicicleta = async () => {
         try{
             const value = await retirarBicicletasPopup();
-            if(value){
-                await retirarBicicleta(value);
-                Swal.fire("Éxito", "Bicicleta retirada correctamente", "success");
+            if(!value)return;
+
+            const response = await retirarBicicleta(value);
+            if(response){
+                await Swal.fire({
+                title: "Bicicleta retirada correctamente",
+                icon: "success",
+                confirmButtonText: "Aceptar",
+                });
+                await fetchRetirarBicicletas();
             }
+            
         }catch(error){
             console.error("Error al retirar la bicicleta:", error);
             await Swal.fire({

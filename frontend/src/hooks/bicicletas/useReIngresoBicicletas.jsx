@@ -54,13 +54,20 @@ async function reIngresoBicicletasPopup() {
     return null;
 }
 
-export const reIngresoBicicleta = () => {
+export const reIngresoBicicleta = (fetchReIngresoBicicletas) => {
     const handleReIngresoBicicleta = async () => {
         try{
             const value = await reIngresoBicicletasPopup();
-            if(value){
-                await reIngresarBicicleta(value);
-                Swal.fire("Éxito", "Bicicleta re ingresada correctamente", "success");
+            if(!value) return;
+            
+            const response = await reIngresarBicicleta(value);
+            if(response){
+                await Swal.fire({
+                title: "Bicicleta re ingresada correctamente",
+                icon: "success",
+                confirmButtonText: "Aceptar",
+                })
+                await fetchReIngresoBicicletas();
             }
         }catch(error){
             console.error("Error al re ingresar la bicicleta:", error);
