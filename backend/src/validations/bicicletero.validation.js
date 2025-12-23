@@ -17,7 +17,7 @@ export const createValidation = Joi.object({
     capacidad: Joi.number()
     .integer()
     .min(3)
-    .max(500)
+    .max(35)
     .required()
     .messages({
         "any.required": "Ingresar la capacidad es obligatorio",

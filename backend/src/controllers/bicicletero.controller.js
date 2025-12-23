@@ -61,10 +61,21 @@ export async function getAllBikeRacks(req, res) {
     const bikeRackRepository = AppDataSource.getRepository(Bicicletero);
     try {
         const bicicleteros = await bikeRackRepository.find({
-            relations: ["usuarios"]
+            relations: ["bicicletas"]
+        });
+        const dataConCalculos = bicicleteros.map(b => {
+            const espaciosOcupados = b.bicicletas
+                ? b.bicicletas.filter(bici => bici.estado === 'guardada').length
+                : 0;
+
+            return {
+                ...b, 
+                ocupados: espaciosOcupados,
+                disponibles: b.capacidad - espaciosOcupados
+            };
         });
 
-        return handleSuccess(res, 200, "Bicicleteros obtenidos correctamente", bicicleteros);
+        return handleSuccess(res, 200, "Bicicleteros obtenidos correctamente", dataConCalculos);
     } catch (error) {
         console.error("Error al obtener bicicleteros:", error);
         return handleErrorServer(res, 500, "Error al obtener bicicleteros");
