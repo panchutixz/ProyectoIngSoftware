@@ -116,3 +116,15 @@
     letter-spacing: 0.2px;
     font-weight: 700;
 }
+
+.bici-estado-guardada{
+    color: green
+}
+
+.estado-entregada{
+    color: orange
+}
+
+.estadpo-olvidada{
+    color: red
+}
