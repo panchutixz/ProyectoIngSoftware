@@ -4,6 +4,7 @@ import Bicicletero from "../entities/bicicletero.entity.js";
 import Bicicleta from "../entities/bicicletas.entity.js";
 import User from "../entities/user.entity.js";
 import { handleErrorClient, handleErrorServer, handleSuccess } from "../handlers/responseHandlers.js";
+import { Not } from "typeorm";
 
 // Crear bicicletero
 export async function createBikeRack(req, res) {
@@ -61,10 +62,25 @@ export async function getAllBikeRacks(req, res) {
     const bikeRackRepository = AppDataSource.getRepository(Bicicletero);
     try {
         const bicicleteros = await bikeRackRepository.find({
-            relations: ["usuarios"]
+            relations: ["bicicletas", "usuarios"]
         });
 
-        return handleSuccess(res, 200, "Bicicleteros obtenidos correctamente", bicicleteros);
+        const dataConCalculos = bicicleteros.map(b => {
+            const espaciosOcupados = b.bicicletas
+                ? b.bicicletas.filter(bici => {
+                    const estadoLimpio = (bici.estado || "").toString().toLowerCase().trim();
+                    return estadoLimpio === 'guardada';
+                }).length
+                : 0;
+
+            return {
+                ...b,
+                ocupados: espaciosOcupados,
+                disponibles: b.capacidad - espaciosOcupados
+            };
+        });
+
+        return handleSuccess(res, 200, "Bicicleteros obtenidos correctamente", dataConCalculos);
     } catch (error) {
         console.error("Error al obtener bicicleteros:", error);
         return handleErrorServer(res, 500, "Error al obtener bicicleteros");
@@ -103,12 +119,42 @@ export async function updateBikeRack(req, res) {
     }
 
     const { error } = createValidation.validate(req.body);
-    if (error) return handleErrorClient(res, 400, { message: error.details[0].message });
+    if (error) {
+        return res.status(400).json({
+            message: error.details[0].message,
+        });
+    }
 
     try {
         const bicicletero = await bikeRackRepository.findOne({ where: { id_bicicletero: parseInt(id_bicicletero) } });
         if (!bicicletero) {
             return handleErrorClient(res, 404, `No existe un bicicletero con id: ${id_bicicletero}`);
+        }
+
+        const existeNombre = await bikeRackRepository.findOne({
+            where: {
+                nombre: nombre,
+                id_bicicletero: Not(id_bicicletero) 
+            }
+        });
+
+        if (existeNombre) {
+            return res.status(409).json({
+                message: `Ya existe otro bicicletero con el nombre "${nombre}".`,
+            });
+        }
+
+        const existeUbicacion = await bikeRackRepository.findOne({
+            where: {
+                ubicacion: ubicacion,
+                id_bicicletero: Not(id_bicicletero) 
+            }
+        });
+
+        if (existeUbicacion) {
+            return res.status(409).json({
+                message: `Ya existe otro bicicletero registrado en la ubicación "${ubicacion}".`,
+            });
         }
 
         bicicletero.nombre = nombre;
@@ -218,7 +264,7 @@ export async function asignarGuardia(req, res) {
 
         // Desasignar guardia anterior si existía uno
         bicicletero.usuarios = bicicletero.usuarios.filter(usuario => {
-            const rolUsuario = (usuario.rol || usuario.role || "").toString().toLowerCase(); 
+            const rolUsuario = (usuario.rol || usuario.role || "").toString().toLowerCase();
             return rolUsuario !== "guardia";
         });
 
@@ -335,8 +381,8 @@ export async function getAllGuardias(req, res) {
         // Buscar todos los usuarios con rol Guardia
         const guardias = await userRepository.find({
             where: { rol: "Guardia" },
-            select: ["id", "nombre", "apellido", "email"], 
-            relations: ["bicicletero"], 
+            select: ["id", "nombre", "apellido", "email"],
+            relations: ["bicicletero"],
         });
 
         return handleSuccess(res, 200, "Guardias obtenidos correctamente", guardias);
