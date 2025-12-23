@@ -4,6 +4,7 @@ import Bicicletero from "../entities/bicicletero.entity.js";
 import Bicicleta from "../entities/bicicletas.entity.js";
 import User from "../entities/user.entity.js";
 import { handleErrorClient, handleErrorServer, handleSuccess } from "../handlers/responseHandlers.js";
+import { Not } from "typeorm";
 
 // Crear bicicletero
 export async function createBikeRack(req, res) {
@@ -118,12 +119,42 @@ export async function updateBikeRack(req, res) {
     }
 
     const { error } = createValidation.validate(req.body);
-    if (error) return handleErrorClient(res, 400, { message: error.details[0].message });
+    if (error) {
+        return res.status(400).json({
+            message: error.details[0].message,
+        });
+    }
 
     try {
         const bicicletero = await bikeRackRepository.findOne({ where: { id_bicicletero: parseInt(id_bicicletero) } });
         if (!bicicletero) {
             return handleErrorClient(res, 404, `No existe un bicicletero con id: ${id_bicicletero}`);
+        }
+
+        const existeNombre = await bikeRackRepository.findOne({
+            where: {
+                nombre: nombre,
+                id_bicicletero: Not(id_bicicletero) 
+            }
+        });
+
+        if (existeNombre) {
+            return res.status(409).json({
+                message: `Ya existe otro bicicletero con el nombre "${nombre}".`,
+            });
+        }
+
+        const existeUbicacion = await bikeRackRepository.findOne({
+            where: {
+                ubicacion: ubicacion,
+                id_bicicletero: Not(id_bicicletero) 
+            }
+        });
+
+        if (existeUbicacion) {
+            return res.status(409).json({
+                message: `Ya existe otro bicicletero registrado en la ubicación "${ubicacion}".`,
+            });
         }
 
         bicicletero.nombre = nombre;
