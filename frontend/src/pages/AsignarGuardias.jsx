@@ -30,32 +30,36 @@ const AsignarGuardias = () => {
         </thead>
         <tbody>
           {Array.isArray(bikeRacks) && bikeRacks.length > 0 ? (
-            bikeRacks.map((bikeRack) => (
-              <tr key={bikeRack.id_bicicletero}>
-                <td>{bikeRack.nombre}</td>
-                <td>{bikeRack.ubicacion}</td>
-                <td>
-                  <select
-                    defaultValue={""}
-                    onChange={(e) => {
-                      const guardiaId = e.target.value;
-                      if (guardiaId) {
-                        handleAssignGuard(bikeRack.id_bicicletero, Number(guardiaId));
-                      }
-                    }}
-                    className="guard-select"
-                  >
-                    <option value="">- Seleccionar Guardia -</option>
-                    {guards.map((guard) => (
-                      <option key={guard.id} value={guard.id}>
-                        {guard.nombre} {guard.apellido}
-                      </option>
-                    ))}
+            bikeRacks.map((bikeRack) => {
+              const guardiaActual = bikeRack.usuarios?.find(
+                (u) => (u.rol || u.role || "").toString().toLowerCase() === "guardia"
+              );
+              const valorSelect = guardiaActual ? guardiaActual.id : "";
 
-                  </select>
-                </td>
-              </tr>
-            ))
+              return (
+                <tr key={bikeRack.id_bicicletero}>
+                  <td>{bikeRack.nombre}</td>
+                  <td>{bikeRack.ubicacion}</td>
+                  <td>
+                    <select
+                      value={valorSelect}
+                      onChange={(e) => {
+                        const valor = e.target.value;
+                        handleAssignGuard(bikeRack.id_bicicletero, Number(valor));
+                      }}
+                      className="guard-select"
+                    >
+                      <option value="">- Sin guardia -</option>
+                      {guards.map((guard) => (
+                        <option key={guard.id} value={guard.id}>
+                          {guard.nombre} {guard.apellido}
+                        </option>
+                      ))}
+                    </select>
+                  </td>
+                </tr>
+              );
+            })
           ) : (
             <tr>
               <td colSpan="3">No hay bicicleteros registrados</td>
