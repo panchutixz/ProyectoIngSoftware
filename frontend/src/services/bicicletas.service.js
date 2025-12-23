@@ -5,7 +5,9 @@ export async function registerBicicletas(data) {
         const response = await axios.post('auth/register/bicicletas', data);
         return response.data;
     } catch (error) {
-        console.error("Error al registrar la bicicleta:", error);
+        const backendMessage = error.response?.data?.message || 
+        "Error en el servidor. Revisa los datos e inténtalo nuevamente.";
+        throw new Error(backendMessage);
     }
 }
 
@@ -22,7 +24,9 @@ export async function reIngresarBicicleta(data){
         const response = await axios.patch('/auth/reIngreso/bicicletas', data);
         return response.data;
     }catch(error){
-        console.error("Error al reingresar la bicicleta:", error);
+        const backendMessage = error.response?.data?.message || 
+        "Error en el servidor. Revisa los datos e inténtalo nuevamente.";
+        throw new Error(backendMessage);
     }
 }
 
@@ -32,6 +36,8 @@ export async function retirarBicicleta(data){
         const response = await axios.delete('/auth/retirar/bicicletas', { data });
         return response.data;
     }catch(error){
-        console.error("Error al retirar la bicicleta:", error);
+        const backendMessage = error.response?.data?.message || 
+        "Error en el servidor. Revisa los datos e inténtalo nuevamente.";
+        throw new Error(backendMessage);
     }
 }

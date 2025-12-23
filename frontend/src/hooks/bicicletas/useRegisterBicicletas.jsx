@@ -68,6 +68,8 @@ async function addBicicletasPopup() {
             Swal.showValidationMessage("Por favor, complete todos los campos");
             return false;
         }
+
+
         return {rut, marca, color, numero_serie, descripcion, estado, id_bicicletero};
     },
     });
@@ -89,11 +91,18 @@ export const registerBicicleta = (fetchRegisterBicicletas) => {
     const handleRegisterBicicleta = async () => {
         try{
             const value = await addBicicletasPopup();
-            if(value){
-                await registerBicicletas(value);
-                Swal.fire("Éxito", "Bicicleta registrada correctamente", "success");
-                fetchRegisterBicicletas();
+            if(!value) return;
+            
+            const response = await registerBicicletas(value);
+            if(response){
+                await Swal.fire({
+                title: "Bicicleta registrada correctamente",
+                icon: "success",
+                confirmButtonText: "Aceptar",
+                })
+                await fetchRegisterBicicletas();
             }
+
         }catch(error){
             console.error("Error al registrar la bicicleta:", error);
             await Swal.fire({
@@ -105,6 +114,6 @@ export const registerBicicleta = (fetchRegisterBicicletas) => {
         }
     };
     return { handleRegisterBicicleta };
-}
+};
 
 export default addBicicletasPopup;
