@@ -1,12 +1,4 @@
-.bicicleta-page{
-        margin-top: 40px;
-        margin-bottom: 20px;
-        text-align: left;
-        padding: 16px;
-        background: rgba(255,255,255,0.02);
-}
 
-/* Página de bicicletas (coincide con className "bicicletas-page") */
 .bicicletas-page {
     max-width: 1100px;
     margin: 28px 24px;
@@ -19,21 +11,28 @@
     align-items: center;
     margin-bottom: 16px;
 }
-
-.bicicleta-table{
-    width: 100%;
-    background: #fff;
-    border-collapse: collapse;
-    margin-top: 20px;
-    font-size: 15px;
-    color: #24323a;
-    }
-
-.bicicleta-table td {
-    padding: 8px 12px;
+.bicicletas-header .title-listar-bicicletas {
+    margin: 0;
+    font-size: 24px;
+    color: #e8f0f2;
+    letter-spacing: 0.2px;
+    font-weight: 700;
 }
 
-.bicicleta-table th {
+.bicicleta-table-wrapper {
+    background: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 8px 20px rgba(2,40,53,0.08);
+}
+.bicicleta-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 15px;
+    color: #24323a;
+}
+
+.bicicleta-table thead th {
     background: linear-gradient(90deg,#0a6b71,#0b9fb6);
     color: #fff;
     font-weight: 700;
@@ -45,8 +44,28 @@
     font-size: 14px;
 }
 
-.bicicleta-table thead {
-  background-color: rgba(0, 0, 0, 0.1);
+.bicicleta-table thead th { white-space: nowrap; }
+.bicicleta-table th, .bicicleta-table td { word-break: normal; }
+
+
+.bicicleta-table th:nth-child(8), .bicicleta-table td:nth-child(8) {
+    white-space: nowrap;
+    min-width: 150px;
+}
+
+.bicicleta-table th:nth-child(9), .bicicleta-table td:nth-child(9) {
+    width: 72px;
+    text-align: center;
+}
+
+.bicicleta-table tbody td {
+    padding: 14px 18px;
+    border-bottom: 1px solid #eef2f3;
+    vertical-align: middle;
+    background: #fff;
+}
+.bicicleta-table tbody tr:nth-child(even) td {
+    background: #fbfbfb;
 }
 
 .button-registrar-bicicleta {
@@ -74,7 +93,6 @@
 
 .button-reIngresar-bicicleta{
     border: none;
-    color: white;
     padding: 10px 20px;
     text-align: center;
     text-decoration: none;
@@ -84,6 +102,7 @@
     cursor: pointer;
     border-radius: 4px;
 }
+
 .title-register-bicicleta{
     color: #000000;
     margin-bottom: 20px;
