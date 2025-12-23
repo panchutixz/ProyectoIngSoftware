@@ -24,7 +24,7 @@ export const createValidation = Joi.object({
         "number.base": "Se debe ingresar obligatoriamente un número entero correspondiente a la capacidad",
         "number.integer": "La capacidad debe ser un número entero",
         "number.min": "La capacidad mínima admitida es de 3 espacios",
-        "number.max": "La capacidad máxima admitida es de 500 espacios"
+        "number.max": "La capacidad máxima admitida es de 35 espacios"
     }),
 
     ubicacion: Joi.string()
