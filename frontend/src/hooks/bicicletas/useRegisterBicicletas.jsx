@@ -99,6 +99,8 @@ export const registerBicicleta = (fetchRegisterBicicletas) => {
                 title: "Bicicleta registrada correctamente",
                 icon: "success",
                 confirmButtonText: "Aceptar",
+                timer: 2000,
+                timerProgressBar: true
                 })
                 await fetchRegisterBicicletas();
             }
@@ -110,6 +112,8 @@ export const registerBicicleta = (fetchRegisterBicicletas) => {
                 icon: "error",
                 text: error.message || "Ha ocurrido un error inesperado, intentalo nuevamente",
                 confirmButtonText: "Aceptar",
+                timer: 2000,
+                timerProgressBar: true
             });
         }
     };

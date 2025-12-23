@@ -66,6 +66,8 @@ export const retirarBicicletas = (fetchRetirarBicicletas) => {
                 title: "Bicicleta retirada correctamente",
                 icon: "success",
                 confirmButtonText: "Aceptar",
+                timer: 2000,
+                timerProgressBar: true
                 });
                 await fetchRetirarBicicletas();
             }
@@ -77,6 +79,8 @@ export const retirarBicicletas = (fetchRetirarBicicletas) => {
                 icon: "error",
                 text: error.message || "Ha ocurrido un error inesperado, intentalo nuevamente",
                 confirmButtonText: "Aceptar",
+                timer: 2000,
+                timerProgressBar: true
             });
         }
     };

@@ -117,6 +117,8 @@ export const useCreateUser = (fetchUsers) => {
                     title: "Usuario añadido exitosamente!",
                     icon: "success",
                     confirmButtonText: "Aceptar",
+                    timer: 2000,
+                    timerProgressBar: true
                 })
                 await fetchUsers();
             }
@@ -129,6 +131,8 @@ export const useCreateUser = (fetchUsers) => {
                 icon: "error",
                 text: error.message || "Error en el servidor. Revisa los datos e inténtalo nuevamente.",
                 confirmButtonText: "Aceptar",
+                timer: 2000,
+                timerProgressBar: true
             });
         } 
     };   
