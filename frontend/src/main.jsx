@@ -11,6 +11,7 @@ import Profile from '@pages/Profile';
 import Usuarios from '@pages/Usuarios';
 import Bicicletas from '@pages/Bicicletas';
 import RegistrarBicicletas from '@pages/RegistrarBicicletas';
+import Reclamos from '@pages/Reclamos'; 
 
 const router = createBrowserRouter([
   {
@@ -56,6 +57,12 @@ const router = createBrowserRouter([
         path: '/registrarBicicletas',
         element: <ProtectedRoute allowedRoles={["guardia"]}
         ><RegistrarBicicletas />
+        </ProtectedRoute>
+      },
+      {
+        path: '/reclamos',
+        element: <ProtectedRoute allowedRoles={["usuario"]}
+        ><Reclamos />
         </ProtectedRoute>
       }
     ]
