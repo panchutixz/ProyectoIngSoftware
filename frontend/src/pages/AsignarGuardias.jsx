@@ -25,7 +25,7 @@ const AsignarGuardias = () => {
           <tr>
             <th>Bicicletero</th>
             <th>Ubicación</th>
-            <th>Acción</th>
+            <th>Asignar guardia</th>
           </tr>
         </thead>
         <tbody>
