@@ -91,6 +91,14 @@ const Sidebar = () => {
               Mis Reclamos
             </button>
           </li>
+          <li>
+            <button
+              onClick={() => navigate("/historial")}
+              className="w-full text-left hover:bg-gray-700 p-2 rounded"
+            >
+              Historial
+            </button>
+          </li>
 
           <li className="flex-grow" />
 

@@ -4,6 +4,7 @@ import bikerackRoutes from "./bikeRack.routes.js";
 import profileRoutes from "./profile.routes.js";
 import userRoutes from "./user.routes.js";
 import reclamosRoutes from "./reclamo.routes.js";
+import historialRoutes from "./historial.routes.js";
 
 export function routerApi(app) {
   const router = Router();
@@ -13,5 +14,6 @@ export function routerApi(app) {
   router.use("/users", userRoutes);
   router.use("/bikeracks", bikerackRoutes);
   router.use("/reclamos", reclamosRoutes);
+  router.use("/historial", historialRoutes);
 }
 
