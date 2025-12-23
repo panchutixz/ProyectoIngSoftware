@@ -66,10 +66,13 @@ const Bicicletas = () => {
                             <td>{bici.descripcion}</td>
                             <td>{bici.estado}</td>
                             <td>{bici.usuario.rut}</td>
+                            {user.rol === 'Guardia' && (
                             <td>
-                                {user.rol === 'Guardia' && ( <button className="btn-icon" onClick={handleReIngresoBicicleta}> 
-                                    <i className="fa-solid fa-arrow-right-to-bracket"></i> </button> )}
+                            <button className="btn-icon" onClick={handleReIngresoBicicleta}>
+                                <i className="fa-solid fa-arrow-right-to-bracket"></i>
+                            </button>
                             </td>
+                        )}
                         </tr>
                     ))}
                 </tbody>
