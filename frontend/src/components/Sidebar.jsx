@@ -1,4 +1,4 @@
-    import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import { logout } from "../services/auth.service";
 
 const Sidebar = () => {
@@ -69,14 +69,16 @@ const Sidebar = () => {
             </button>
           </li>
 
-          <li>
-            <button
-              onClick={() => navigate("/asignarGuardias")}
-              className="w-full text-left hover:bg-gray-700 p-2 rounded"
-            >
-              Asignar Guardias
-            </button>
-          </li>
+          {userRole?.toLowerCase() === "administrador" && (
+            <li>
+              <button
+                onClick={() => navigate("/asignarGuardias")}
+                className="w-full text-left hover:bg-gray-700 p-2 rounded"
+              >
+                Asignar Guardias
+              </button>
+            </li>
+          )}
 
           <li>
             <NavLink to="/profile" className="w-full block hover:bg-gray-700 p-2 rounded">
@@ -88,8 +90,8 @@ const Sidebar = () => {
               onClick={() => navigate("/Misreclamos")}
               className="w-full text-left hover:bg-gray-700 p-2 rounded"
             >
-              {userRole?.toLowerCase() === "administrador" || userRole?.toLowerCase() === "guardia" 
-                ? "Reclamos" 
+              {userRole?.toLowerCase() === "administrador" || userRole?.toLowerCase() === "guardia"
+                ? "Reclamos"
                 : "Mis Reclamos"}
             </button>
           </li>
