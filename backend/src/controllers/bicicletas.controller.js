@@ -338,3 +338,47 @@ export async function retirarBicycle(req, res){
         return handleErrorServer(res, 500, "Error al eliminar bicicletas", error.message);
     }
 }
+
+export async function marcarOlvidadas() {
+    try {
+        const bicycleRepository = AppDataSource.getRepository(Bicicleta);
+        const historialRepository = AppDataSource.getRepository(Historial);
+
+        const ahora = new Date();
+
+        const bicicletas = await bicycleRepository.find({ where: { estado: "guardada" } });
+
+        for (const bici of bicicletas) {
+        const minutosPasados = (ahora - bici.updateAt) / (1000 * 60 );
+
+        if (minutosPasados >= 5) { //aqui se le puede bajar el tiempo para probar
+
+            let historial = await historialRepository.findOne({
+            where: {
+                bicicletas: { id: bici.id },
+                fecha_salida: null
+            }
+            });
+
+            if (historial) {
+            historial.fecha_salida = ahora;
+            await historialRepository.save(historial);
+            } else {
+            await historialRepository.save({
+                usuario: bici.usuario,
+                bicicletas: bici,
+                fecha_ingreso: null,
+                fecha_salida: ahora
+            });
+            }
+            bici.estado = "olvidada";
+            bici.updateAt = ahora;
+            await bicycleRepository.save(bici);
+
+            console.log(`Bicicleta ${bici.codigo} marcada como olvidada`);
+        }
+        }
+    } catch (error) {
+        console.error("Error al marcar bicicletas olvidadas:", error);
+    }
+}

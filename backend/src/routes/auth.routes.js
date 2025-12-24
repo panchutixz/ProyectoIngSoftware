@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { login, register } from "../controllers/auth.controller.js";
-import { registerBicycle, getBicycle, retirarBicycle, getUserBicycles, reIngresoBicycle } from "../controllers/bicicletas.controller.js";
+import { registerBicycle, getBicycle, retirarBicycle, getUserBicycles, reIngresoBicycle, marcarOlvidadas } from "../controllers/bicicletas.controller.js";
 import { getHistoryByUser } from "../controllers/historial.controller.js";
 import { createBikeRack, getAllBikeRacks, getBikeRackById, updateBikeRack, deleteBikeRack, asignarGuardia, desasignarGuardia, getCapacity, getAllGuardias} from "../controllers/bicicletero.controller.js";
 import { authMiddleware } from "../middleware/auth.middleware.js";
@@ -15,6 +15,7 @@ router.patch("/reIngreso/bicicletas", reIngresoBicycle);
 router.post("/register/bicicletas", registerBicycle);
 router.get("/obtener/bicicletas", authMiddleware, getBicycle);
 router.delete("/retirar/bicicletas", authMiddleware, retirarBicycle);
+router.patch("/bicicletas/marcarOlvidadas", authMiddleware, marcarOlvidadas);
 router.post("/create/bicicletero", authMiddleware, createBikeRack);
 router.get("/getAll/bicicletero", getAllBikeRacks);
 router.get("/get/bicicletero", getBikeRackById);

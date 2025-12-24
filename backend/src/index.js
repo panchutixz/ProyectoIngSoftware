@@ -5,6 +5,7 @@ import morgan from "morgan";
 import { createusers } from "./config/initDb.js";
 import { connectDB } from "./config/configDb.js";
 import { routerApi } from "./routes/index.routes.js";
+import "./nodecrone/bicicletasCron.js";
 
 
 const app = express();
