@@ -10,3 +10,4 @@ router.put("/:id", authMiddleware, actualizarReclamo);
 router.delete("/:id", authMiddleware, eliminarReclamo);
 
 export default router;
+//.
