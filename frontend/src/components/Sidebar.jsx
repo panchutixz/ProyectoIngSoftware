@@ -1,12 +1,15 @@
-    import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import { logout } from "../services/auth.service";
 
 const Sidebar = () => {
   const navigate = useNavigate();
+
+  // Obtención de datos del usuario
   const user = JSON.parse(sessionStorage.getItem("usuario")) || null;
   const displayName = user?.nombre || user?.name || user?.username || "";
   const userRole = user?.rol || user?.role || "";
 
+  // Lógica 1: Manejo del cierre de sesión
   const handleLogout = () => {
     try {
       logout();
@@ -16,10 +19,25 @@ const Sidebar = () => {
     }
   };
 
+  const handleBicicleterosClick = () => {
+    const role = userRole?.toLowerCase();
+
+    if (role === "administrador") {
+      navigate("/bicicleteros"); 
+    } else  {
+      navigate("/consultarBicicleteros");
+    } 
+  };
+
   return (
     <div className="w-64 h-screen bg-gray-800 text-white flex flex-col fixed top-0 left-0 z-50">
-      <div className="p-6 text-2xl font-bold border-b border-gray-700">Bicicletero UBB</div>
 
+      {/* Encabezado */}
+      <div className="p-6 text-2xl font-bold border-b border-gray-700">
+        Bicicletero UBB
+      </div>
+
+      {/* Info Usuario */}
       <div className="p-4 border-b border-gray-700">
         {displayName ? (
           <div>
@@ -31,8 +49,11 @@ const Sidebar = () => {
         )}
       </div>
 
+      {/* Navegación */}
       <nav className="flex-1 p-6">
         <ul className="space-y-4">
+
+          {/* Inicio */}
           <li>
             <button
               onClick={() => navigate("/home")}
@@ -42,6 +63,7 @@ const Sidebar = () => {
             </button>
           </li>
 
+          {/* Usuarios */}
           <li>
             <button
               onClick={() => navigate("/usuarios")}
@@ -51,6 +73,7 @@ const Sidebar = () => {
             </button>
           </li>
 
+          {/* Bicicletas */}
           <li>
             <button
               onClick={() => navigate("/bicicletas")}
@@ -60,39 +83,48 @@ const Sidebar = () => {
             </button>
           </li>
 
+          {/* Bicicleteros (Con lógica condicional) */}
           <li>
             <button
-              onClick={() => navigate("/bicicleteros")}
+              onClick={handleBicicleterosClick}
               className="w-full text-left hover:bg-gray-700 p-2 rounded"
             >
               Bicicleteros
             </button>
           </li>
 
-          <li>
-            <button
-              onClick={() => navigate("/asignarGuardias")}
-              className="w-full text-left hover:bg-gray-700 p-2 rounded"
-            >
-              Asignar Guardias
-            </button>
-          </li>
+          {/* Asignar Guardias (Solo Administrador) */}
+          {userRole?.toLowerCase() === "administrador" && (
+            <li>
+              <button
+                onClick={() => navigate("/asignarGuardias")}
+                className="w-full text-left hover:bg-gray-700 p-2 rounded"
+              >
+                Asignar Guardias
+              </button>
+            </li>
+          )}
 
+          {/* Perfil */}
           <li>
             <NavLink to="/profile" className="w-full block hover:bg-gray-700 p-2 rounded">
               Perfil
             </NavLink>
           </li>
+
+          {/* Reclamos */}
           <li>
             <button
               onClick={() => navigate("/Misreclamos")}
               className="w-full text-left hover:bg-gray-700 p-2 rounded"
             >
-              {userRole?.toLowerCase() === "administrador" || userRole?.toLowerCase() === "guardia" 
-                ? "Reclamos" 
+              {userRole?.toLowerCase() === "administrador" || userRole?.toLowerCase() === "guardia"
+                ? "Reclamos"
                 : "Mis Reclamos"}
             </button>
           </li>
+
+          {/* Historial */}
           <li>
             <button
               onClick={() => navigate("/historial")}
@@ -102,8 +134,10 @@ const Sidebar = () => {
             </button>
           </li>
 
+          {/* Espaciador para empujar el logout al fondo */}
           <li className="flex-grow" />
 
+          {/* Cerrar Sesión */}
           <li>
             <button
               onClick={handleLogout}
