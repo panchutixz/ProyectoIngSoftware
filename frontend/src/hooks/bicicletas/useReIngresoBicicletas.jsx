@@ -39,7 +39,7 @@ async function reIngresoBicicletasPopup(bicicleteros) {
         const numero_serie = document.getElementById("swal2-numero_serie").value.trim();
         const id_bicicletero = document.getElementById("swal2-id_bicicletero").value.trim();
 
-        if(!rut || !numero_serie || id_bicicletero){
+        if(!rut || !numero_serie || !id_bicicletero){
             Swal.showValidationMessage("Por favor, complete todos los campos");
             return false;
         }
@@ -49,7 +49,11 @@ async function reIngresoBicicletasPopup(bicicleteros) {
     },
     });
     if(value){
-        return value;
+        return{
+            rut: value.rut,
+            numero_serie: value.numero_serie,
+            id_bicicletero: value.id_bicicletero,
+        };
     }
     return null;
 }

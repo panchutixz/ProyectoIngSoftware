@@ -81,8 +81,8 @@ const Bicicletas = () => {
                     {bicicletas.map((bici) => (
                         <tr key={bici.id}>
                             <td>{bici.bicicletero.nombre}</td>
-                            <td>{bici.marca}</td>
-                            <td>{bici.color}</td>
+                            <td className="capitalize">{bici.marca}</td> 
+                            <td className="capitalize">{bici.color}</td>
                             <td>{bici.numero_serie}</td>
                             <td>{bici.codigo}</td>
                             <td>{bici.descripcion}</td>
