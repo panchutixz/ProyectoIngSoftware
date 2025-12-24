@@ -271,7 +271,7 @@ export async function retirarBicycle(req, res){
         const userRepository = AppDataSource.getRepository("User");
         const historialRepository = AppDataSource.getRepository(Historial);
 
-        const { error } = retiroValidation.validate(req.body);    // Validación de entrada
+        const { error } = retiroValidation.validate(req.body);
         if(error) return handleErrorClient(res, 400, error.details[0].message);
 
         // Obtener usuario objetivo
@@ -296,7 +296,7 @@ export async function retirarBicycle(req, res){
         });
 
         if (!bicicleta) {
-            return handleErrorClient(res, 404, "No se encontró una bicicleta con ese código para este usuario en este bicicletero");
+            return handleErrorClient(res, 404, "No se encontró una bicicleta con dicho código para el usuario en este bicicletero");
         }
         
         // Buscar el ingreso más reciente sin salida
