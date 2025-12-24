@@ -8,5 +8,6 @@ router.post("/", authMiddleware, crearReclamo);
 router.get("/mis-reclamos", authMiddleware, obtenerMisReclamos);
 router.put("/:id", authMiddleware, actualizarReclamo);
 router.delete("/:id", authMiddleware, eliminarReclamo);
+router.get('/debug/estructura', debugEstructuraReclamo);
 
 export default router;

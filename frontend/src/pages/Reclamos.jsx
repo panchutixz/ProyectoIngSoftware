@@ -11,6 +11,18 @@ const Reclamos = () => {
   const [creando, setCreando] = useState(false);
   const [mostrarFormulario, setMostrarFormulario] = useState(false); 
 
+  const [modalEditar, setModalEditar] = useState({
+    abierto: false,
+    id: null,
+    descripcion: ""
+  });
+  
+  const [modalEliminar, setModalEliminar] = useState({
+    abierto: false,
+    id: null,
+    descripcion: ""
+  });
+
   // Obtener usuario actual y rol
   const user = JSON.parse(sessionStorage.getItem("usuario")) || null;
   const userRole = user?.rol || user?.role || "";
@@ -115,6 +127,77 @@ const Reclamos = () => {
   }
 };
 
+  // Función para abrir modal de editar
+  const abrirModalEditar = (id, descripcionActual) => {
+    setModalEditar({
+      abierto: true,
+      id,
+      descripcion: descripcionActual
+    });
+  };
+
+  // Función para cerrar modal de editar
+  const cerrarModalEditar = () => {
+    setModalEditar({
+      abierto: false,
+      id: null,
+      descripcion: ""
+    });
+  };
+
+  // Función para guardar edición
+  const handleGuardarEdicion = async () => {
+    if (!modalEditar.descripcion.trim()) {
+      alert("La descripción no puede estar vacía");
+      return;
+    }
+
+    try {
+      await actualizarReclamo(modalEditar.id, { 
+        descripcion: modalEditar.descripcion.trim() 
+      });
+      
+      cerrarModalEditar();
+      await fetchReclamos();
+      alert("Reclamo actualizado exitosamente!");
+      
+    } catch (err) {
+      console.error("Error al actualizar reclamo:", err);
+      alert("Error al actualizar el reclamo");
+    }
+  };
+
+  // Función para abrir modal de eliminar
+  const abrirModalEliminar = (id, descripcionActual) => {
+    setModalEliminar({
+      abierto: true,
+      id,
+      descripcion: descripcionActual
+    });
+  };
+
+  // Función para cerrar modal de eliminar
+  const cerrarModalEliminar = () => {
+    setModalEliminar({
+      abierto: false,
+      id: null,
+      descripcion: ""
+    });
+  };
+
+  // Función para confirmar eliminación
+  const handleConfirmarEliminar = async () => {
+    try {
+      await eliminarReclamo(modalEliminar.id);
+      cerrarModalEliminar();
+      await fetchReclamos();
+      alert("Reclamo eliminado exitosamente");
+    } catch (err) {
+      console.error("Error al eliminar reclamo:", err);
+      alert("Error al eliminar el reclamo");
+    }
+  };
+
   // funcion para manejar la tecla Enter en el formulario
   const handleKeyPress = (e) => {
     if (e.key === 'Enter' && esUsuario) {
@@ -128,32 +211,6 @@ const Reclamos = () => {
     setIdBicicleta("");
     setMostrarFormulario(false);
     setError(null);
-  };
-
-  const handleActualizar = async (id) => {
-    const nuevaDescripcion = prompt("Nueva descripción del reclamo:");
-    if (!nuevaDescripcion) return;
-
-    try {
-      await actualizarReclamo(id, { descripcion: nuevaDescripcion });
-      fetchReclamos();
-    } catch (err) {
-      console.error("Error al actualizar reclamo:", err);
-      alert("Error al actualizar el reclamo");
-    }
-  };
-
-  const handleEliminar = async (id) => {
-    if (!window.confirm("¿Estás seguro de eliminar este reclamo?")) return;
-
-    try {
-      await eliminarReclamo(id);
-      fetchReclamos();
-      alert("Reclamo eliminado exitosamente");
-    } catch (err) {
-      console.error("Error al eliminar reclamo:", err);
-      alert("Error al eliminar el reclamo");
-    }
   };
 
 
@@ -280,13 +337,15 @@ const Reclamos = () => {
                     {esUsuario ? (
                       <>
                         <button 
-                          onClick={() => handleActualizar(reclamo.id)}
+                          onClick={() => abrirModalEditar(reclamo.id, reclamo.descripcion)}
+                  FUNCION        
                           className="btn-editar"
                         >
                           Editar
                         </button>
                         <button 
-                          onClick={() => handleEliminar(reclamo.id)}
+                          onClick={() => abrirModalEliminar(reclamo.id, reclamo.descripcion)}
+                  VA FUNCIÓN        
                           className="btn-eliminar"
                         >
                           Eliminar
@@ -294,7 +353,8 @@ const Reclamos = () => {
                       </>
                     ) : (
                       <button 
-                        onClick={() => handleEliminar(reclamo.id)}
+                        onClick={() => abrirModalEliminar(reclamo.id, reclamo.descripcion)}
+                  FUNCION      
                         className="admin-action-btn"
                       >
                         Eliminar
@@ -313,6 +373,70 @@ const Reclamos = () => {
           </tbody>
         </table>
       </div>
+
+    {error && <p className="error-message">{error}</p>}
+
+    {/* Modal para Editar */}
+    {modalEditar.abierto && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h3>Editar Reclamo</h3>
+              <button className="modal-close" onClick={cerrarModalEditar}>
+                ×
+              </button>
+            </div>
+            <div className="modal-body">
+              <div className="form-group">
+                <label>Descripción del reclamo</label>
+                <textarea
+                  value={modalEditar.descripcion}
+                  onChange={(e) => setModalEditar(prev => ({...prev, descripcion: e.target.value}))}
+                  placeholder="Describe el problema..."
+                  rows="4"
+                  autoFocus
+                />
+              </div>
+            </div>
+            <div className="modal-footer">
+              <button className="cancelar-btn" onClick={cerrarModalEditar}>
+                Cancelar
+              </button>
+              <button className="confirmar-btn" onClick={handleGuardarEdicion}>
+                Guardar Cambios
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+  {/* Modal para Eliminar */}
+      {modalEliminar.abierto && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h3>Confirmar Eliminación</h3>
+              <button className="modal-close" onClick={cerrarModalEliminar}>
+                ×
+              </button>
+            </div>
+            <div className="modal-body">
+              <div className="confirmacion-texto">
+                <p>¿Estás seguro de eliminar este reclamo?</p>
+                <p className="descripcion-reclamo">"{modalEliminar.descripcion}"</p>
+                <p className="advertencia">Esta acción no se puede deshacer.</p>
+              </div>
+            </div>
+            <div className="modal-footer">
+              <button className="cancelar-btn" onClick={cerrarModalEliminar}>
+                Cancelar
+              </button>
+              <button className="eliminar-btn" onClick={handleConfirmarEliminar}>
+                Sí, Eliminar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {error && <p className="error-message">{error}</p>}
     </div>

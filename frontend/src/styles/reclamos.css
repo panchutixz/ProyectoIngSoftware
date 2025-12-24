@@ -418,3 +418,261 @@
   }
   
 }
+
+/* MODALES/POPUPS */
+
+/* Overlay del modal */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* Contenido del modal */
+.modal-content {
+  background: white;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 500px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  animation: modalAppear 0.3s ease-out;
+  overflow: hidden;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes modalAppear {
+  from {
+    opacity: 0;
+    transform: scale(0.9) translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* Header del modal */
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  border-bottom: 1px solid #eef2f3;
+  background: linear-gradient(90deg, #0a6b71, #0b9fb6);
+}
+
+.modal-header h3 {
+  margin: 0;
+  color: white;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.modal-close {
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  font-size: 24px;
+  color: white;
+  cursor: pointer;
+  padding: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+}
+
+.modal-close:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: rotate(90deg);
+}
+
+/* Body del modal */
+.modal-body {
+  padding: 20px;
+}
+
+/* Footer del modal */
+.modal-footer {
+  padding: 20px;
+  border-top: 1px solid #eef2f3;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+/* Estilos específicos para formularios en modal */
+.form-group {
+  margin-bottom: 0;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: #24323a;
+  font-size: 14px;
+}
+
+.form-group textarea {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #eef2f3;
+  border-radius: 6px;
+  font-size: 14px;
+  color: #24323a;
+  background: #fbfbfb;
+  resize: vertical;
+  min-height: 100px;
+  font-family: inherit;
+}
+
+.form-group textarea:focus {
+  outline: none;
+  border-color: #0b9fb6;
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(11, 159, 182, 0.1);
+}
+
+/* Texto de confirmación para eliminar */
+.confirmacion-texto {
+  text-align: center;
+  padding: 10px 0;
+}
+
+.confirmacion-texto p {
+  margin: 0 0 10px 0;
+  color: #24323a;
+}
+
+.descripcion-reclamo {
+  font-style: italic;
+  color: #0a6b71;
+  background: #f0f8ff;
+  padding: 10px;
+  border-radius: 6px;
+  margin: 15px 0 !important;
+  border-left: 3px solid #0b9fb6;
+}
+
+.advertencia {
+  color: #dc2626;
+  font-weight: 500;
+  font-size: 14px;
+}
+
+/* Botones específicos para modales */
+.confirmar-btn {
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  min-width: 120px;
+}
+
+.confirmar-btn:hover {
+  background: linear-gradient(135deg, #0da271, #047857);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+.eliminar-btn {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  min-width: 120px;
+}
+
+.eliminar-btn:hover {
+  background: linear-gradient(135deg, #e03e3e, #c92323);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+
+/* Contenedor de acciones en tabla */
+.acciones-container {
+  display: flex;
+  gap: 8px;
+}
+
+/* Mensaje cuando no hay datos */
+.no-data {
+  text-align: center;
+  padding: 40px !important;
+  color: #6c757d;
+  font-style: italic;
+}
+
+/* Asegurar que los botones en la tabla sean consistentes */
+.reclamos-table .btn-editar,
+.reclamos-table .btn-eliminar,
+.reclamos-table .admin-action-btn {
+  padding: 6px 12px;
+  font-size: 13px;
+  min-width: 70px;
+}
+
+/* Responsive para modales (ESTE SÍ debe estar en media query) */
+@media (max-width: 768px) {
+  .modal-content {
+    width: 95%;
+    margin: 10px;
+  }
+  
+  .modal-footer {
+    flex-direction: column;
+  }
+  
+  .modal-footer button {
+    width: 100%;
+  }
+  
+  .acciones-container {
+    flex-direction: column;
+    gap: 5px;
+  }
+  
+  .reclamos-table .btn-editar,
+  .reclamos-table .btn-eliminar,
+  .reclamos-table .admin-action-btn {
+    width: 100%;
+    margin-right: 0;
+  }
+}
+
+/* Mejoras para el formulario de creación */
+.reclamo-form.expandido {
+  animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
