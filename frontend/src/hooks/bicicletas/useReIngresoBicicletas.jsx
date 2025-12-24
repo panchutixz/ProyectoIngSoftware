@@ -1,7 +1,11 @@
 import { reIngresarBicicleta } from "../../services/bicicletas.service";
+import { getAllBikeRacks } from "../../services/bicicleteros.service.js";
 import Swal from "sweetalert2";
 
-async function reIngresoBicicletasPopup() {
+async function reIngresoBicicletasPopup(bicicleteros) {
+    const bicicleteroOptionsArray = bicicleteros.map(b => { return `<option value="${b.id}">${b.nombre}</option>`;
+    });
+    const bicicleteroOptions = bicicleteroOptionsArray.join('\n');
     const {value } = await Swal.fire({
         title: "Re-Ingresar Bicicleta",
         html: `
@@ -20,10 +24,7 @@ async function reIngresoBicicletasPopup() {
         <label for="swal2-id_bicicletero" style="width: 120px;">Bicicletero</label>
         <select id="swal2-id_bicicletero" class="swal2-input">
             <option value="">Seleccione un bicicletero</option>
-            <option value="1">UBB - 1</option>
-            <option value="2">UBB - 2</option>
-            <option value="3">UBB - 3</option>
-            <option value="4">UBB - 4</option>
+                ${bicicleteroOptions}
         </select>
         </div>
     </div>
@@ -57,7 +58,8 @@ async function reIngresoBicicletasPopup() {
 export const reIngresoBicicleta = (fetchBicicletas) => {
     const handleReIngresoBicicleta = async () => {
     try {
-        const value = await reIngresoBicicletasPopup();
+        const bicicleteros =  await getAllBikeRacks();
+        const value = await reIngresoBicicletasPopup(bicicleteros);
         if (!value) return;
 
         const response = await reIngresarBicicleta(value);
