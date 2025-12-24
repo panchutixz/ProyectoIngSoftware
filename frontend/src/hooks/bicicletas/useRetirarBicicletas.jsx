@@ -3,9 +3,9 @@ import { getAllBikeRacks } from "../../services/bicicleteros.service.js";
 import Swal from "sweetalert2";
 
 async function retirarBicicletasPopup(bicicleteros) {
-    const bicicleteroOptionsArray = bicicleteros.map(b => { return `<option value="${b.id}">${b.nombre}</option>`;
-    });
-    const bicicleteroOptions = bicicleteroOptionsArray.join('\n');
+    const bicicleteroOptions = bicicleteros.filter(b => b && b.id_bicicletero != null && b.nombre).map(
+        b => `<option value="${b.id_bicicletero}">${b.id_bicicletero} (${b.nombre})</option>`);
+
     const {value } = await Swal.fire({
         title: "Retirar Bicicleta",
         html: `

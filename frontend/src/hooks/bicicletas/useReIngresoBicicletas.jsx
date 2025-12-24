@@ -3,9 +3,10 @@ import { getAllBikeRacks } from "../../services/bicicleteros.service.js";
 import Swal from "sweetalert2";
 
 async function reIngresoBicicletasPopup(bicicleteros) {
-    const bicicleteroOptionsArray = bicicleteros.map(b => { return `<option value="${b.id}">${b.nombre}</option>`;
-    });
-    const bicicleteroOptions = bicicleteroOptionsArray.join('\n');
+    const bicicleteroOptions = bicicleteros.filter(b => b && b.id_bicicletero != null && b.nombre).map(
+        b => `<option value="${b.id_bicicletero}">${b.id_bicicletero} (${b.nombre})</option>`);
+
+
     const {value } = await Swal.fire({
         title: "Re-Ingresar Bicicleta",
         html: `
@@ -38,19 +39,17 @@ async function reIngresoBicicletasPopup(bicicleteros) {
         const numero_serie = document.getElementById("swal2-numero_serie").value.trim();
         const id_bicicletero = document.getElementById("swal2-id_bicicletero").value.trim();
 
-        if(!rut || !numero_serie || !id_bicicletero){
+        if(!rut || !numero_serie || id_bicicletero){
             Swal.showValidationMessage("Por favor, complete todos los campos");
             return false;
         }
+
         return {rut, numero_serie, id_bicicletero};
+
     },
     });
     if(value){
-        return{
-            rut: value.rut,
-            numero_serie: value.numero_serie,
-            id_bicicletero: value.id_bicicletero,
-        };
+        return value;
     }
     return null;
 }
