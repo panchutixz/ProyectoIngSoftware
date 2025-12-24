@@ -88,7 +88,17 @@ const Sidebar = () => {
               onClick={() => navigate("/Misreclamos")}
               className="w-full text-left hover:bg-gray-700 p-2 rounded"
             >
-              Mis Reclamos
+              {userRole?.toLowerCase() === "administrador" || userRole?.toLowerCase() === "guardia" 
+                ? "Reclamos" 
+                : "Mis Reclamos"}
+            </button>
+          </li>
+          <li>
+            <button
+              onClick={() => navigate("/historial")}
+              className="w-full text-left hover:bg-gray-700 p-2 rounded"
+            >
+              Historial
             </button>
           </li>
 
