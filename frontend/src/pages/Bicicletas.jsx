@@ -1,7 +1,7 @@
 import "@styles/bicicletas.css";
 import { useState, useEffect } from 'react';
 import { getBicicletas} from '../services/bicicletas.service.js';
-import { reIngresoBicicleta } from '@hooks/bicicletas/useReIngresoBicicletas.jsx';
+import { reIngresoBicicleta} from '@hooks/bicicletas/useReIngresoBicicletas.jsx';
 import { registerBicicleta } from '@hooks/bicicletas/useRegisterBicicletas.jsx';
 import { retirarBicicletas } from '@hooks/bicicletas/useRetirarBicicletas.jsx';
 import { useAuth } from "../context/AuthContext.jsx";
@@ -46,9 +46,10 @@ const Bicicletas = () => {
         fetchBicicletas();
     }, []);
 
-    const {handleReIngresoBicicleta} = reIngresoBicicleta();
+    const { handleReIngresoBicicleta } = reIngresoBicicleta(fetchBicicletas);
     const { handleRegisterBicicleta } = registerBicicleta(fetchBicicletas);
     const { handleRetirarBicicleta } = retirarBicicletas(fetchBicicletas);
+
 
     return (
         <div className="bicicletas-page">

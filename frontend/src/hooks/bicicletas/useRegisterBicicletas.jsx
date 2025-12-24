@@ -13,12 +13,40 @@ async function addBicicletasPopup() {
 
         <div style="display: flex; align-items: center; gap: 10px;">
         <label for="swal2-marca" style="width: 120px;">Marca</label>
-        <input id="swal2-marca" class="swal2-input" placeholder="Marca de la bicicleta">
+        <select id="swal2-marca" class="swal2-input">
+            <option value="">Seleccione una marca</option>
+            <option value="Oxford">Oxford</option>
+            <option value="Bianchi">Bianchi</option>
+            <option value="Specialized">Specialized</option>
+            <option value="Trek">Trek</option>
+            <option value="Scott">Scott</option>
+            <option value="Giant">Giant</option>
+            <option value="Brabus">Brabus</option>
+            <option value="Atletis">Atletis</option>
+            <option value="Ozark Trail">Ozark Trail</option>
+            <option value="Ford Bikes">Ford Bikes</option>
+
+        </select>
         </div>
 
         <div style="display: flex; align-items: center; gap: 10px;">
         <label for="swal2-color" style="width: 120px;">Color</label>
-        <input id="swal2-color" class="swal2-input" placeholder="Color de la bicicleta">
+        <select id="swal2-color" class="swal2-input">
+            <option value="">Seleccione un color</option>
+            <option value="Rojo">Rojo</option>
+            <option value="Azul">Azul</option>
+            <option value="Celeste">Celeste</option>
+            <option value="Amarillo">Amarillo</option>
+            <option value="Verde">Verde</option>
+            <option value="Anaranjado">Anaranjado</option>
+            <option value="Morado">Morado</option>
+            <option value="Rosado">Rosado</option>
+            <option value="Negro">Negro</option>
+            <option value="Café">Café</option>
+            <option value="Blanco">Blanco</option>
+            <option value="Gris">Gris</option>
+
+        </select>
         </div>
 
         <div style="display: flex; align-items: center; gap: 10px;">

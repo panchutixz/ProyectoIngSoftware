@@ -54,36 +54,38 @@ async function reIngresoBicicletasPopup() {
     return null;
 }
 
-export const reIngresoBicicleta = (fetchReIngresoBicicletas) => {
+export const reIngresoBicicleta = (fetchBicicletas) => {
     const handleReIngresoBicicleta = async () => {
-        try{
-            const value = await reIngresoBicicletasPopup();
-            if(!value) return;
-            
-            const response = await reIngresarBicicleta(value);
-            if(response){
-                await Swal.fire({
-                title: "Bicicleta re ingresada correctamente",
-                icon: "success",
-                confirmButtonText: "Aceptar",
-                timer: 2000,
-                timerProgressBar: true
-                })
-                await fetchReIngresoBicicletas();
-            }
-        }catch(error){
-            console.error("Error al re ingresar la bicicleta:", error);
-            await Swal.fire({
-                title: "No se pudo re ingresar la bicicleta",
-                icon: "error",
-                text: error.message || "Ha ocurrido un error inesperado, intentalo nuevamente",
-                confirmButtonText: "Aceptar",
-                timer: 2000,
-                timerProgressBar: true
-            });
+    try {
+        const value = await reIngresoBicicletasPopup();
+        if (!value) return;
+
+        const response = await reIngresarBicicleta(value);
+        if (response) {
+        await Swal.fire({
+        title: "Bicicleta re ingresada correctamente",
+        icon: "success",
+        confirmButtonText: "Aceptar",
+        timer: 2000,
+        timerProgressBar: true
+        });
+        await fetchBicicletas();
         }
+    } catch (error) {
+        console.error("Error al re ingresar la bicicleta:", error);
+        await Swal.fire({
+        title: "No se pudo re ingresar la bicicleta",
+        icon: "error",
+        text: error.message || "Ha ocurrido un error inesperado, intentalo nuevamente",
+        confirmButtonText: "Aceptar",
+        timer: 2000,
+        timerProgressBar: true
+        });
+    }
     };
     return { handleReIngresoBicicleta };
-}
+};
+
+
 
 export default reIngresoBicicletasPopup;
