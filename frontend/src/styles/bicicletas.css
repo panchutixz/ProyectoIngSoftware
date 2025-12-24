@@ -128,3 +128,6 @@
 .estadpo-olvidada{
     color: red
 }
+.capitalize {
+  text-transform: capitalize;
+}

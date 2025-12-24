@@ -271,7 +271,7 @@ export async function retirarBicycle(req, res){
         const userRepository = AppDataSource.getRepository("User");
         const historialRepository = AppDataSource.getRepository(Historial);
 
-        const { error } = retiroValidation.validate(req.body);    // Validación de entrada
+        const { error } = retiroValidation.validate(req.body);
         if(error) return handleErrorClient(res, 400, error.details[0].message);
 
         // Obtener usuario objetivo
@@ -296,7 +296,7 @@ export async function retirarBicycle(req, res){
         });
 
         if (!bicicleta) {
-            return handleErrorClient(res, 404, "No se encontró una bicicleta con ese código para este usuario en este bicicletero");
+            return handleErrorClient(res, 404, "No se encontró una bicicleta con dicho código para el usuario en este bicicletero");
         }
         
         // Buscar el ingreso más reciente sin salida
@@ -336,5 +336,49 @@ export async function retirarBicycle(req, res){
     } catch (error) {
         console.error("Error al eliminar bicicletas", error);
         return handleErrorServer(res, 500, "Error al eliminar bicicletas", error.message);
+    }
+}
+
+export async function marcarOlvidadas() {
+    try {
+        const bicycleRepository = AppDataSource.getRepository(Bicicleta);
+        const historialRepository = AppDataSource.getRepository(Historial);
+
+        const ahora = new Date();
+
+        const bicicletas = await bicycleRepository.find({ where: { estado: "guardada" } });
+
+        for (const bici of bicicletas) {
+        const minutosPasados = (ahora - bici.updateAt) / (1000 * 60 );
+
+        if (minutosPasados >= 5) { //aqui se le puede bajar el tiempo para probar
+
+            let historial = await historialRepository.findOne({
+            where: {
+                bicicletas: { id: bici.id },
+                fecha_salida: null
+            }
+            });
+
+            if (historial) {
+            historial.fecha_salida = ahora;
+            await historialRepository.save(historial);
+            } else {
+            await historialRepository.save({
+                usuario: bici.usuario,
+                bicicletas: bici,
+                fecha_ingreso: null,
+                fecha_salida: ahora
+            });
+            }
+            bici.estado = "olvidada";
+            bici.updateAt = ahora;
+            await bicycleRepository.save(bici);
+
+            console.log(`Bicicleta ${bici.codigo} marcada como olvidada`);
+        }
+        }
+    } catch (error) {
+        console.error("Error al marcar bicicletas olvidadas:", error);
     }
 }

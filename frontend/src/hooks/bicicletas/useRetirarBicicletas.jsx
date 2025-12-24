@@ -1,7 +1,11 @@
 import { retirarBicicleta } from "../../services/bicicletas.service";
+import { getAllBikeRacks } from "../../services/bicicleteros.service.js";
 import Swal from "sweetalert2";
 
-async function retirarBicicletasPopup() {
+async function retirarBicicletasPopup(bicicleteros) {
+    const bicicleteroOptions = bicicleteros.filter(b => b && b.id_bicicletero != null && b.nombre).map(
+        b => `<option value="${b.id_bicicletero}">${b.id_bicicletero} (${b.nombre})</option>`);
+
     const {value } = await Swal.fire({
         title: "Retirar Bicicleta",
         html: `
@@ -20,10 +24,7 @@ async function retirarBicicletasPopup() {
         <label for="swal2-id_bicicletero" style="width: 120px;">Bicicletero</label>
         <select id="swal2-id_bicicletero" class="swal2-input">
             <option value="">Seleccione un bicicletero</option>
-            <option value="1">UBB - 1</option>
-            <option value="2">UBB - 2</option>
-            <option value="3">UBB - 3</option>
-            <option value="4">UBB - 4</option>
+                    ${bicicleteroOptions}
         </select>
         </div>
     </div>
@@ -57,7 +58,8 @@ async function retirarBicicletasPopup() {
 export const retirarBicicletas = (fetchRetirarBicicletas) => {
     const handleRetirarBicicleta = async () => {
         try{
-            const value = await retirarBicicletasPopup();
+            const bicicleteros =  await getAllBikeRacks();
+            const value = await retirarBicicletasPopup(bicicleteros);
             if(!value)return;
 
             const response = await retirarBicicleta(value);

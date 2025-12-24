@@ -1,7 +1,11 @@
 import { registerBicicletas } from "../../services/bicicletas.service.js";
+import { getAllBikeRacks } from "../../services/bicicleteros.service.js";
 import Swal from "sweetalert2";
 
-async function addBicicletasPopup() {
+async function addBicicletasPopup(bicicleteros){
+       const bicicleteroOptions = bicicleteros.filter(b => b && b.id_bicicletero != null && b.nombre).map(
+        b => `<option value="${b.id_bicicletero}">${b.id_bicicletero} (${b.nombre})</option>`);
+
     const {value } = await Swal.fire({
         title: "Añadir Bicicleta",
         html: `
@@ -13,12 +17,40 @@ async function addBicicletasPopup() {
 
         <div style="display: flex; align-items: center; gap: 10px;">
         <label for="swal2-marca" style="width: 120px;">Marca</label>
-        <input id="swal2-marca" class="swal2-input" placeholder="Marca de la bicicleta">
+        <select id="swal2-marca" class="swal2-input">
+            <option value="">Seleccione una marca</option>
+            <option value="Oxford">Oxford</option>
+            <option value="Bianchi">Bianchi</option>
+            <option value="Specialized">Specialized</option>
+            <option value="Trek">Trek</option>
+            <option value="Scott">Scott</option>
+            <option value="Giant">Giant</option>
+            <option value="Brabus">Brabus</option>
+            <option value="Atletis">Atletis</option>
+            <option value="Ozark Trail">Ozark Trail</option>
+            <option value="Ford Bikes">Ford Bikes</option>
+
+        </select>
         </div>
 
         <div style="display: flex; align-items: center; gap: 10px;">
         <label for="swal2-color" style="width: 120px;">Color</label>
-        <input id="swal2-color" class="swal2-input" placeholder="Color de la bicicleta">
+        <select id="swal2-color" class="swal2-input">
+            <option value="">Seleccione un color</option>
+            <option value="Rojo">Rojo</option>
+            <option value="Azul">Azul</option>
+            <option value="Celeste">Celeste</option>
+            <option value="Amarillo">Amarillo</option>
+            <option value="Verde">Verde</option>
+            <option value="Anaranjado">Anaranjado</option>
+            <option value="Morado">Morado</option>
+            <option value="Rosado">Rosado</option>
+            <option value="Negro">Negro</option>
+            <option value="Café">Café</option>
+            <option value="Blanco">Blanco</option>
+            <option value="Gris">Gris</option>
+
+        </select>
         </div>
 
         <div style="display: flex; align-items: center; gap: 10px;">
@@ -43,10 +75,7 @@ async function addBicicletasPopup() {
         <label for="swal2-id_bicicletero" style="width: 120px;">Bicicletero</label>
         <select id="swal2-id_bicicletero" class="swal2-input">
             <option value="">Seleccione un bicicletero</option>
-            <option value="1">UBB - 1</option>
-            <option value="2">UBB - 2</option>
-            <option value="3">UBB - 3</option>
-            <option value="4">UBB - 4</option>
+                ${bicicleteroOptions}
         </select>
         </div>
     </div>
@@ -90,7 +119,8 @@ async function addBicicletasPopup() {
 export const registerBicicleta = (fetchRegisterBicicletas) => {
     const handleRegisterBicicleta = async () => {
         try{
-            const value = await addBicicletasPopup();
+            const bicicleteros =  await getAllBikeRacks();
+            const value = await addBicicletasPopup(bicicleteros);
             if(!value) return;
             
             const response = await registerBicicletas(value);
