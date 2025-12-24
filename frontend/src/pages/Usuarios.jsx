@@ -4,21 +4,44 @@ import useDeleteUser from "@hooks/usuario/useDeleteUser.jsx";
 import useCreateUser from "@hooks/usuario/useCreateUser.jsx";
 import { useEffect } from "react";
 
+// 🎨 Colores por rol
+const rolColors = {
+    administrador: '#0d47a1',   // azul oscuro
+    guardia: '#0288d1',         // celeste/azul
+    estudiante: '#2e7d32',      // verde
+    funcionario: '#e65100',     // naranjo fuerte
+    academico: '#6a1b9a'        // púrpura
+};
+
+// 🔧 Función para estilo dinámico
+function rolStyle(rol) {
+    const color = rolColors[rol?.toLowerCase().trim()] || '#6c757d';
+
+    return {
+        backgroundColor: color,
+        color: '#fff',
+        padding: '4px 8px',
+        borderRadius: 12,
+        display: 'inline-block',
+        fontWeight: 'bold',
+        textTransform: 'capitalize'
+    };
+}
+
 const Users = () => {
     const { users, fetchUsers } = useGetUser();
     const { handleDeleteUser } = useDeleteUser(fetchUsers);
     const { handleCreateUser } = useCreateUser(fetchUsers);
 
-    
     useEffect(() => {
         fetchUsers();
     },[]);
 
     return (
         <div className="users-page">
-            <div className = "users-header">
-            <h2>Lista de Usuarios</h2>   
-            <button className="users-addbtn" onClick={() => handleCreateUser()}>Añadir</button>
+            <div className="users-header">
+                <h2>Lista de Usuarios</h2>   
+                <button className="users-addbtn" onClick={() => handleCreateUser()}>Añadir</button>
             </div>
 
             <table className="users-table">
@@ -33,32 +56,33 @@ const Users = () => {
                         <th>Acciones</th>
                     </tr>
                 </thead>
-            <tbody>
-                {Array.isArray(users) && users.length > 0 ? (
-                    users.map((user) => (
-                        <tr key={user.id}>
-                            <td>{user.rut}</td>
-                            <td>{user.nombre}</td>
-                            <td>{user.apellido}</td>
-                            <td>{user.email}</td>
-                            <td>{user.rol}</td>
-                            <td>{user.telefono}</td>
-                            <td>
-                                <button className="delete" onClick={() => handleDeleteUser(user.id)}>Eliminar</button>
-                                
-                            </td>
+                <tbody>
+                    {Array.isArray(users) && users.length > 0 ? (
+                        users.map((user) => (
+                            <tr key={user.id}>
+                                <td>{user.rut}</td>
+                                <td>{user.nombre}</td>
+                                <td>{user.apellido}</td>
+                                <td>{user.email}</td>
+                                <td>
+                                    <span style={rolStyle(user.rol)}>
+                                        {user.rol}
+                                    </span>
+                                </td>
+                                <td>{user.telefono}</td>
+                                <td>
+                                    <button className="delete" onClick={() => handleDeleteUser(user.id)}>Eliminar</button>
+                                </td>
+                            </tr>
+                        ))
+                    ) : (
+                        <tr>
+                            <td colSpan="7">No hay usuarios disponibles</td>
                         </tr>
-                    ))
-                ) : (
-                    <tr>
-                        <td colSpan="6">No hay usuarios disponibles</td>
-                    </tr>
-                )
-
-                }
-            </tbody>
-        </table>
-    </div>
+                    )}
+                </tbody>
+            </table>
+        </div>
     )
 }
 

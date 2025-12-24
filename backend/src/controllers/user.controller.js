@@ -54,15 +54,10 @@ export async function createUser(req, res) {
     const { rut, nombre, apellido, rol , password, email, telefono } = req.body;
 
     // Validación para ingresar rol como Estudiante, Funcionario o Académico solamente
-    if (rol.toLowerCase() !== "estudiante" && rol.toLowerCase() !== "funcionario" && rol.toLowerCase() !== "académico") {
+    if (rol.toLowerCase() !== "estudiante" && rol.toLowerCase() !== "funcionario" && rol.toLowerCase() !== "académico" && rol.toLowerCase() !== "academico") {
       return res.status(400).json({ message: "El rol solo puede ser 'estudiante', 'funcionario' o 'académico' al momento de crear un usuario." });
-    const { rut, nombre, apellido, rol , password, email, telefono } = req.body;
     }
-    
-    // Validación para ingresar rol como Estudiante, Funcionario o Académico solamente
-    if (rol.toLowerCase() !== "estudiante" && rol.toLowerCase() !== "funcionario" && rol.toLowerCase() !== "academico") {
-      return res.status(400).json({ message: "El rol solo puede ser 'estudiante', 'funcionario' o 'academico' al momento de crear un usuario." });
-    }
+  
 
     // Verificar si el RUT ya existe
     const existingUser = await userRepository.findOne({ where: { rut } });
