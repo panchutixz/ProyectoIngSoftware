@@ -43,7 +43,7 @@ export async function crearReclamo(req, res) {
         const nuevoReclamo = reclamoRepository.create({
             descripcion,
             usuario,
-            bicicleta
+            bicicletas: bicicleta
         });
 
         await reclamoRepository.save(nuevoReclamo);
@@ -64,7 +64,7 @@ export async function obtenerMisReclamos(req, res) {
 
         let reclamos;
 
-        if (rol === "Admin") {
+        if (rol === "Admin" || rol === "administrador") {
             // si es admin, ve todos los reclamos
             reclamos = await reclamoRepository.find({
                 relations: ["usuario", "bicicletas"],
@@ -77,7 +77,20 @@ export async function obtenerMisReclamos(req, res) {
                 relations: ["usuario", "bicicletas"],
                 order: { fecha_creacion: "DESC" }
             });
+            console.log(`Usuario ${userId} ve ${reclamos.length} reclamos`);
         }
+
+         // DEBUG: Ver estructura de cada reclamo
+        reclamos.forEach((r, i) => {
+            console.log(`Reclamo ${i+1}:`, {
+                id: r.id,
+                descripcion: r.descripcion,
+                usuarioId: r.usuario?.id,
+                usuarioRut: r.usuario?.rut,
+                tieneBicicleta: !!r.bicicletas,
+                bicicletaId: r.bicicletas?.id
+            });
+        });
 
         return handleSuccess(res, 200, "Reclamos obtenidos correctamente", reclamos);
     } catch (error) {
@@ -124,6 +137,55 @@ export async function actualizarReclamo(req, res) {
     }
 }
 
+// Endpoint para ver la estructura exacta de la entidad
+export async function debugEstructuraReclamo(req, res) {
+    const reclamoRepository = AppDataSource.getRepository(Reclamo);
+    
+    try {
+        // Obtener metadatos de la entidad
+        const metadata = reclamoRepository.metadata;
+        
+        console.log("=== METADATOS ENTIDAD RECLAMO ===");
+        console.log("Nombre:", metadata.name);
+        console.log("Tabla:", metadata.tableName);
+        console.log("Columnas:");
+        metadata.columns.forEach(col => {
+            console.log(`  - ${col.propertyName}: ${col.type}`);
+        });
+        console.log("Relaciones:");
+        metadata.relations.forEach(rel => {
+            console.log(`  - ${rel.propertyName} -> ${rel.inverseEntityMetadata.name}`);
+        });
+        
+        // Ver un reclamo de ejemplo
+        const reclamoEjemplo = await reclamoRepository.findOne({
+            relations: metadata.relations.map(r => r.propertyName)
+        });
+        
+        return handleSuccess(res, 200, "Debug estructura", {
+            metadata: {
+                name: metadata.name,
+                tableName: metadata.tableName,
+                columns: metadata.columns.map(c => ({
+                    name: c.propertyName,
+                    type: c.type,
+                    databaseName: c.databaseName
+                })),
+                relations: metadata.relations.map(r => ({
+                    name: r.propertyName,
+                    target: r.inverseEntityMetadata.name,
+                    type: r.relationType
+                }))
+            },
+            ejemplo: reclamoEjemplo
+        });
+        
+    } catch (error) {
+        console.error("Error en debug:", error);
+        return handleErrorServer(res, 500, "Error en debug");
+    }
+}
+
 //eliminar reclamo
 export async function eliminarReclamo(req, res) {
     const reclamoRepository = AppDataSource.getRepository(Reclamo);
@@ -154,4 +216,6 @@ export async function eliminarReclamo(req, res) {
         console.error("Error al eliminar reclamo:", error);
         return handleErrorServer(res, 500, "Error al eliminar reclamo.");
     }
+
+
 }
