@@ -1,7 +1,11 @@
 import { registerBicicletas } from "../../services/bicicletas.service.js";
+import { getAllBikeRacks } from "../../services/bicicleteros.service.js";
 import Swal from "sweetalert2";
 
-async function addBicicletasPopup() {
+async function addBicicletasPopup(bicicleteros){
+    const bicicleteroOptionsArray = bicicleteros.map(b => { return `<option value="${b.id}">${b.nombre}</option>`;
+    });
+    const bicicleteroOptions = bicicleteroOptionsArray.join('\n');
     const {value } = await Swal.fire({
         title: "Añadir Bicicleta",
         html: `
@@ -71,10 +75,7 @@ async function addBicicletasPopup() {
         <label for="swal2-id_bicicletero" style="width: 120px;">Bicicletero</label>
         <select id="swal2-id_bicicletero" class="swal2-input">
             <option value="">Seleccione un bicicletero</option>
-            <option value="1">UBB - 1</option>
-            <option value="2">UBB - 2</option>
-            <option value="3">UBB - 3</option>
-            <option value="4">UBB - 4</option>
+                ${bicicleteroOptions}
         </select>
         </div>
     </div>
@@ -118,7 +119,8 @@ async function addBicicletasPopup() {
 export const registerBicicleta = (fetchRegisterBicicletas) => {
     const handleRegisterBicicleta = async () => {
         try{
-            const value = await addBicicletasPopup();
+            const bicicleteros =  await getAllBikeRacks();
+            const value = await addBicicletasPopup(bicicleteros);
             if(!value) return;
             
             const response = await registerBicicletas(value);
