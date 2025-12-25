@@ -11,3 +11,4 @@ router.delete("/:id", authMiddleware, eliminarReclamo);
 
 export default router;
 
+
