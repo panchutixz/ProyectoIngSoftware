@@ -18,7 +18,7 @@ export async function crearReclamo(req, res) {
             return handleErrorClient(res, 400, mensajes);
         }
 
-        const { descripcion, id_bicicleta } = req.body;
+        const { descripcion, numero_serie_bicicleta } = req.body;
         const { sub: userId, rol } = req.user; 
 
         //valida el rol autorizado
@@ -27,14 +27,14 @@ export async function crearReclamo(req, res) {
             return handleErrorClient(res, 403, "Solo estudiantes, académicos o funcionarios pueden crear reclamos.");
         }
 
-        //buscar usuario por id 
-        const usuario = await userRepository.findOne({ where: { id: userId } });
+        //buscar usuario por id para obtener su rut
+        const usuario = await userRepository.findOne({ where: { id: userId} });
         if (!usuario) {
             return handleErrorClient(res, 404, "Usuario no encontrado.");
         }
 
         //verificar que la bicicleta exista
-        const bicicleta = await bicycleRepository.findOne({ where: { id: id_bicicleta } });
+        const bicicleta = await bicycleRepository.findOne({ where: { numero_serie: numero_serie_bicicleta } });
         if (!bicicleta) {
             return handleErrorClient(res, 404, "Bicicleta no encontrada.");
         }
@@ -42,6 +42,8 @@ export async function crearReclamo(req, res) {
         //crear reclamo
         const nuevoReclamo = reclamoRepository.create({
             descripcion,
+            rut_user: usuario.rut,
+            numero_serie_bicicleta,
             usuario,
             bicicletas: bicicleta
         });
@@ -58,43 +60,76 @@ export async function crearReclamo(req, res) {
 //obtener todos los reclamos del usuario autenticado
 export async function obtenerMisReclamos(req, res) {
     const reclamoRepository = AppDataSource.getRepository(Reclamo);
+    const userRepository = AppDataSource.getRepository(User);
 
     try {
-        const { sub: userId, rol } = req.user; 
+        console.log("Obteniendo reclamos registrados...");
 
-        let reclamos;
+        const { sub: userId, rol } = req.user;
+        const rolLowerCase = rol.toLowerCase();
 
-        if (rol === "Admin" || rol === "administrador") {
-            // si es admin, ve todos los reclamos
-            reclamos = await reclamoRepository.find({
-                relations: ["usuario", "bicicletas"],
-                order: { fecha_creacion: "DESC" }
-            });
-        } else {
-            //si es estudiante, academico o funcionario, solo los suyos
-            reclamos = await reclamoRepository.find({
-                where: { usuario: { id: userId } },
-                relations: ["usuario", "bicicletas"],
-                order: { fecha_creacion: "DESC" }
-            });
-            console.log(`Usuario ${userId} ve ${reclamos.length} reclamos`);
+        console.log(`Usuario ID del token: ${userId}, Rol: ${rol}`);
+
+        // obtener usuario por id para saber su rut
+        const usuarioActual = await userRepository.findOne({ 
+            where: { id: userId } 
+        });
+
+        if (!usuarioActual) {
+            console.log("Usuario no encontrado en BD");
+            return handleErrorClient(res, 404, "Usuario no encontrado.");
         }
 
-         // DEBUG: Ver estructura de cada reclamo
-        reclamos.forEach((r, i) => {
-            console.log(`Reclamo ${i+1}:`, {
-                id: r.id,
-                descripcion: r.descripcion,
-                usuarioId: r.usuario?.id,
-                usuarioRut: r.usuario?.rut,
-                tieneBicicleta: !!r.bicicletas,
-                bicicletaId: r.bicicletas?.id
+        console.log(`Usuario encontrado: ${usuarioActual.nombre} ${usuarioActual.apellido}, RUT: ${usuarioActual.rut}`);
+
+        let reclamos;
+        
+        // roles que pueden ver TODOS los reclamos
+        const rolesVerTodos = ["admin", "administrador", "guardia"];
+        
+        if (rolesVerTodos.includes(rolLowerCase)) {
+            // tanto el admin como el guardia ven todos los reclamos
+            reclamos = await reclamoRepository.find({
+                relations: ["usuario", "bicicletas"],
+                order: { fecha_creacion: "DESC" }
             });
-        });
+            console.log(`${rol} ve TODOS los reclamos: ${reclamos.length} encontrados`);
+        } else {
+            // estudiantes, academicos y funcionarios ven solo sus reclamos (buscar por rut)
+            console.log(`${rol} busca reclamos con RUT: ${usuarioActual.rut}`);
+            reclamos = await reclamoRepository.find({
+                where: { rut_user: usuarioActual.rut }, // esto sirve para buscar po rut
+                relations: ["usuario", "bicicletas"],
+                order: { fecha_creacion: "DESC" }
+            });
+            console.log(`${rol} ve SUS reclamos: ${reclamos.length} encontrados`);
+        }
+
+        // debug: ver estructura de cada reclamo
+        if (reclamos.length > 0) {
+            console.log(`=== DETALLE DE RECLAMOS ENCONTRADOS ===`);
+            reclamos.forEach((r, i) => {
+                console.log(`Reclamo ${i+1}:`, {
+                    id: r.id,
+                    descripcion: r.descripcion,
+                    rut_user: r.rut_user,
+                    numero_serie_bicicleta: r.numero_serie_bicicleta,
+                    fecha_creacion: r.fecha_creacion,
+                    tieneUsuario: !!r.usuario,
+                    usuarioRut: r.usuario?.rut,
+                    tieneBicicleta: !!r.bicicletas,
+                    bicicletaNumSerie: r.bicicletas?.numero_serie
+                });
+            });
+        } else {
+            console.log("No se encontraron reclamos");
+        }
 
         return handleSuccess(res, 200, "Reclamos obtenidos correctamente", reclamos);
     } catch (error) {
-        console.error("Error al obtener reclamos:", error);
+        console.error("Error completo al obtener reclamos:", error);
+        console.error("Mensaje:", error.message);
+        console.error("Stack:", error.stack);
         return handleErrorServer(res, 500, "Error al obtener reclamos");
     }
 }
@@ -113,6 +148,16 @@ export async function actualizarReclamo(req, res) {
             return handleErrorClient(res, 400, mensajes);
         }
 
+        // obtener usuario actual para saber su rut
+        const usuarioActual = await userRepository.findOne({ 
+            where: { id: userId } 
+        });
+
+        if (!usuarioActual) {
+            return handleErrorClient(res, 404, "Usuario no encontrado.");
+        }
+
+        // buscar reclamo por id
         const reclamo = await reclamoRepository.findOne({
             where: { id },
             relations: ["usuario"],
@@ -122,8 +167,8 @@ export async function actualizarReclamo(req, res) {
             return handleErrorClient(res, 404, "Reclamo no encontrado.");
         }
 
-        //solo el dueño del reclamo puede editarlo
-        if (reclamo.usuario.id !== userId) {
+        // verifica que el reclamo pertenezca al usuario comparando ruts
+        if (reclamo.rut_user !== usuarioActual.rut) {
             return handleErrorClient(res, 403, "No puedes editar reclamos de otro usuario.");
         }
 
@@ -137,62 +182,25 @@ export async function actualizarReclamo(req, res) {
     }
 }
 
-// Endpoint para ver la estructura exacta de la entidad
-export async function debugEstructuraReclamo(req, res) {
-    const reclamoRepository = AppDataSource.getRepository(Reclamo);
-    
-    try {
-        // Obtener metadatos de la entidad
-        const metadata = reclamoRepository.metadata;
-        
-        console.log("=== METADATOS ENTIDAD RECLAMO ===");
-        console.log("Nombre:", metadata.name);
-        console.log("Tabla:", metadata.tableName);
-        console.log("Columnas:");
-        metadata.columns.forEach(col => {
-            console.log(`  - ${col.propertyName}: ${col.type}`);
-        });
-        console.log("Relaciones:");
-        metadata.relations.forEach(rel => {
-            console.log(`  - ${rel.propertyName} -> ${rel.inverseEntityMetadata.name}`);
-        });
-        
-        // Ver un reclamo de ejemplo
-        const reclamoEjemplo = await reclamoRepository.findOne({
-            relations: metadata.relations.map(r => r.propertyName)
-        });
-        
-        return handleSuccess(res, 200, "Debug estructura", {
-            metadata: {
-                name: metadata.name,
-                tableName: metadata.tableName,
-                columns: metadata.columns.map(c => ({
-                    name: c.propertyName,
-                    type: c.type,
-                    databaseName: c.databaseName
-                })),
-                relations: metadata.relations.map(r => ({
-                    name: r.propertyName,
-                    target: r.inverseEntityMetadata.name,
-                    type: r.relationType
-                }))
-            },
-            ejemplo: reclamoEjemplo
-        });
-        
-    } catch (error) {
-        console.error("Error en debug:", error);
-        return handleErrorServer(res, 500, "Error en debug");
-    }
-}
 
 //eliminar reclamo
 export async function eliminarReclamo(req, res) {
     const reclamoRepository = AppDataSource.getRepository(Reclamo);
+    const userRepository = AppDataSource.getRepository(User);
 
     try {
         const { id } = req.params;
         const { sub: userId, rol } = req.user;
+        const rolLowerCase = rol.toLowerCase();
+
+        // obtener usuario actual para saber su rut
+        const usuarioActual = await userRepository.findOne({ 
+            where: { id: userId } 
+        });
+        
+        if (!usuarioActual) {
+            return handleErrorClient(res, 404, "Usuario no encontrado.");
+        }
 
         //busca el reclamo por id
         const reclamo = await reclamoRepository.findOne({
@@ -204,9 +212,18 @@ export async function eliminarReclamo(req, res) {
             return handleErrorClient(res, 404, "Reclamo no encontrado.");
         }
 
-        //solo el dueño del reclamo o un administrador pueden eliminarlo
-        if (reclamo.usuario.id !== userId && rol.toLowerCase() !== "administrador") {
-            return handleErrorClient(res, 403, "No tienes permiso para eliminar este reclamo.");
+        // roles que pueden eliminar cualquier reclamo
+        const rolesEliminarTodos = ["admin", "administrador", "guardia"];
+        
+        if (rolesEliminarTodos.includes(rolLowerCase)) {
+            // admin y guardia pueden eliminar cualquier reclamo
+            console.log(`${rol} elimina reclamo ${id} de cualquier usuario.`);
+        } else {
+            // estudiantes, academicos y funcionarios solo pueden eliminar SUS reclamos
+            if (reclamo.rut_user !== usuarioActual.rut) {
+                return handleErrorClient(res, 403, "No tienes permiso para eliminar este reclamo.");
+            }
+            console.log(`${rol} elimina SU reclamo ${id}`);
         }
 
         await reclamoRepository.remove(reclamo);
@@ -216,6 +233,4 @@ export async function eliminarReclamo(req, res) {
         console.error("Error al eliminar reclamo:", error);
         return handleErrorServer(res, 500, "Error al eliminar reclamo.");
     }
-
-
 }

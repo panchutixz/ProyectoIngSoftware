@@ -6,7 +6,7 @@ import { obtenerReclamos, crearReclamo, actualizarReclamo, eliminarReclamo } fro
 const Reclamos = () => {
   const [reclamos, setReclamos] = useState([]);
   const [descripcion, setDescripcion] = useState("");
-  const [idBicicleta, setIdBicicleta] = useState("");
+  const [numeroSerie, setNumeroSerie] = useState("");
   const [error, setError] = useState(null);
   const [creando, setCreando] = useState(false);
   const [mostrarFormulario, setMostrarFormulario] = useState(false); 
@@ -23,12 +23,20 @@ const Reclamos = () => {
     descripcion: ""
   });
 
-  // Obtener usuario actual y rol
+  // obtener usuario actual y rol
   const user = JSON.parse(sessionStorage.getItem("usuario")) || null;
   const userRole = user?.rol || user?.role || "";
-  const esAdmin = userRole?.toLowerCase() === "administrador";
+  const userRut = user?.rut || "";
+
+  // definir tipos de usuario
+  const esAdmin = userRole?.toLowerCase() === "administrador" || userRole?.toLowerCase() === "admin";
   const esGuardia = userRole?.toLowerCase() === "guardia";
-  const esUsuario = !esAdmin && !esGuardia; //estudiantes, academicos y/o funcionarios
+  const esEstudiante = userRole?.toLowerCase() === "estudiante";
+  const esAcademico = userRole?.toLowerCase() === "académico" || userRole?.toLowerCase() === "academico";
+  const esFuncionario = userRole?.toLowerCase() === "funcionario";
+
+  // Usuarios que pueden crear reclamos
+  const puedeCrearReclamo = esEstudiante || esAcademico || esFuncionario;
 
   // para navegacion
   const navigate = useNavigate();
@@ -47,7 +55,7 @@ const Reclamos = () => {
   const handleCrear = async (e) => {
     e?.preventDefault();
 
-    // Verificar que el usuario tenga un rol válido para crear reclamos
+    // Verificar que el usuario tenga un rol valido para crear reclamos
   const rolesPermitidos = ["estudiante", "académico", "funcionario", "Estudiante", "Académico", "Funcionario"];
   const userRol = user?.rol || "";
   
@@ -106,7 +114,7 @@ const Reclamos = () => {
       if (err.response.data && err.response.data.message) {
         errorMessage = err.response.data.message;
         
-        // Si hay múltiples mensajes (array)
+        // Si hay multiples mensajes (array)
         if (Array.isArray(errorMessage)) {
           errorMessage = errorMessage.join(", ");
         }
@@ -200,7 +208,7 @@ const Reclamos = () => {
 
   // funcion para manejar la tecla Enter en el formulario
   const handleKeyPress = (e) => {
-    if (e.key === 'Enter' && esUsuario) {
+    if (e.key === 'Enter' && puedeCrearReclamo) {
       handleCrear(e);
     }
   };
@@ -229,10 +237,15 @@ const Reclamos = () => {
   return (
     <div className="reclamos-page">
       {/* titulo condicional segun rol */}
-      <h1>{esUsuario ? "Mis Reclamos" : "Reclamos"}</h1>
+      <h1>{esAdmin || esGuardia 
+          ? "Reclamos" 
+          : puedeCrearReclamo 
+            ? "Mis Reclamos" 
+            : "Reclamos"}
+      </h1>
 
       {/* Mostrar botón para abrir formulario SOLO para usuarios */}
-      {esUsuario && !mostrarFormulario && (
+      {puedeCrearReclamo && !mostrarFormulario && (
         <div className="crear-reclamo-btn-container">
           <button 
             className="reclamos-addbtn"
@@ -244,7 +257,7 @@ const Reclamos = () => {
       )}
 
       {/* Mostrar formulario de creación cuando mostrarFormulario es true */}
-      {esUsuario && mostrarFormulario && (
+      {puedeCrearReclamo && mostrarFormulario && (
         <div className="reclamo-form expandido">
           <div className="form-header">
             <h3>Nuevo Reclamo</h3>
@@ -300,79 +313,101 @@ const Reclamos = () => {
       )}
 
       {/* Tabla */}
-      <div className="reclamos-table-wrapper">
-        <table className="reclamos-table">
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Descripción</th>
-              <th>Fecha</th>
-              <th>Bicicleta</th>
-              <th>Usuario</th>
-              <th>Acciones</th>
+<div className="reclamos-table-wrapper">
+  <table className="reclamos-table">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Descripción</th>
+        <th>Fecha</th>
+        <th>Bicicleta</th>
+        <th>Usuario</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      {reclamos && reclamos.length > 0 ? (
+        reclamos.map((reclamo) => {
+          // Extraer datos de forma segura
+          const usuarioRut = reclamo.usuario?.rut || 
+                            reclamo.usuario_rut || 
+                            "No disponible";
+          
+          const bicicletaId = reclamo.bicicletas?.id || 
+                             reclamo.bicicleta?.id || 
+                             reclamo.id_bicicleta || 
+                             "N/A";
+          
+          const fechaFormateada = reclamo.fecha_creacion ? 
+            new Date(reclamo.fecha_creacion).toLocaleDateString('es-CL', {
+              year: 'numeric',
+              month: 'short',
+              day: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit'
+            }) : "Fecha no disponible";
+
+          return (
+            <tr key={reclamo.id}>
+              <td data-label="ID">{reclamo.id}</td>
+              <td data-label="Descripción">{reclamo.descripcion}</td>
+              <td data-label="Fecha">{fechaFormateada}</td>
+              <td data-label="Bicicleta">{bicicletaId}</td>
+              <td data-label="Usuario">
+                {usuarioRut !== "No disponible" ? (
+                  <span
+                    onClick={() => verPerfilUsuario(usuarioRut)}
+                    className="rut-clickable"
+                    title="Ver perfil del usuario"
+                  >
+                    {usuarioRut}
+                  </span>
+                ) : (
+                  <span className="rut-no-disponible">{usuarioRut}</span>
+                )}
+              </td>
+              <td data-label="Acciones">
+                {puedeCrearReclamo ? (
+                  // estudiantes, academicos y funcionarios pueden editar y eliminar sus reclamos
+                  <>
+                    <button 
+                      onClick={() => abrirModalEditar(reclamo.id, reclamo.descripcion)}
+                      className="btn-editar"
+                    >
+                      Editar
+                    </button>
+                    <button 
+                      onClick={() => abrirModalEliminar(reclamo.id, reclamo.descripcion)}
+                      className="btn-eliminar"
+                    >
+                      Eliminar
+                    </button>
+                  </>
+                ) : (
+                  // administradores y guardias solo pueden eliminar reclamos (cualquiera)
+                  <button 
+                    onClick={() => abrirModalEliminar(reclamo.id, reclamo.descripcion)}
+                    className="admin-action-btn"
+                  >
+                    Eliminar
+                  </button>
+                )}
+              </td>
             </tr>
-          </thead>
-          <tbody>
-            {reclamos.length > 0 ? (
-              reclamos.map((reclamo) => (
-                <tr key={reclamo.id}>
-                  <td data-label="ID">{reclamo.id}</td>
-                  <td data-label="Descripción">{reclamo.descripcion}</td>
-                  <td data-label="Fecha">{reclamo.fecha_creacion}</td>
-                  <td data-label="Bicicleta">{reclamo.bicicleta?.id || reclamo.id_bicicleta}</td>
-                  <td data-label="Usuario">
-                    {reclamo.usuario?.rut ? (
-                      <span
-                        onClick={() => verPerfilUsuario(reclamo.usuario.rut)}
-                        className="rut-clickable"
-                        title="Ver perfil del usuario"
-                      >
-                        {reclamo.usuario.rut}
-                      </span>
-                    ) : (
-                      <span className="rut-no-disponible">No disponible</span>
-                    )}
-                  </td>
-                  <td data-label="Acciones">
-                    {esUsuario ? (
-                      <>
-                        <button 
-                          onClick={() => abrirModalEditar(reclamo.id, reclamo.descripcion)}
-                  FUNCION        
-                          className="btn-editar"
-                        >
-                          Editar
-                        </button>
-                        <button 
-                          onClick={() => abrirModalEliminar(reclamo.id, reclamo.descripcion)}
-                  VA FUNCIÓN        
-                          className="btn-eliminar"
-                        >
-                          Eliminar
-                        </button>
-                      </>
-                    ) : (
-                      <button 
-                        onClick={() => abrirModalEliminar(reclamo.id, reclamo.descripcion)}
-                  FUNCION      
-                        className="admin-action-btn"
-                      >
-                        Eliminar
-                      </button>
-                    )}
-                  </td>
-                </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan="6" style={{ textAlign: 'center', padding: '40px' }}>
-                  No hay reclamos registrados
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
+          );
+        })
+      ) : (
+        <tr>
+          <td colSpan="6" style={{ textAlign: 'center', padding: '40px' }}>
+            {esAdmin || esGuardia 
+              ? "No hay reclamos registrados en el sistema" 
+              : "No tienes reclamos registrados"}
+          </td>
+        </tr>
+      )}
+    </tbody>
+  </table>
+</div>
 
     {error && <p className="error-message">{error}</p>}
 
