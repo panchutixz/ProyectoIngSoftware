@@ -107,14 +107,14 @@ const Bicicletas = () => {
             {Array.isArray(bicicletas) && bicicletas.length > 0 ? (
                 bicicletas.map((bici) => (
                 <tr key={bici.id}>
-                    <td>{bici.bicicletero?.nombre || "Sin bicicletero"}</td>
+                    <td>{bici.bicicletero.nombre}</td>
                     <td className="capitalize">{bici.marca}</td>
                     <td className="capitalize">{bici.color}</td>
                     <td>{bici.numero_serie}</td>
                     <td>{bici.codigo}</td>
                     <td>{bici.descripcion}</td>
                     <td><span style={estadoStyle(bici.estado)}>{bici.estado}</span></td>
-                    <td>{bici.usuario.rut}</td>
+                    <td>{bici.usuario?.rut || user.rut}</td>
                     {user.rol === 'Guardia' && (
                     <td>
                         <button className="btn-icon" onClick={handleReIngresoBicicleta}>
