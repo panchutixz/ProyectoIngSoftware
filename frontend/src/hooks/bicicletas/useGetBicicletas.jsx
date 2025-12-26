@@ -31,7 +31,6 @@ export const useGetBicicletas = () => {
             setBicicletas([]);
         }
         
- 
     return { bicicletas, fetchBicicletas };
     }
 };

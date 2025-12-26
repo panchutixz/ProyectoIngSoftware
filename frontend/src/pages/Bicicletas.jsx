@@ -55,7 +55,7 @@ const Bicicletas = () => {
         <div className="bicicletas-page">
             <div className="bicicletas-header">
                 <h1 className="title-listar-bicicletas">Listado de Bicicletas</h1>
-                {user && user.rol === 'Guardia' && (
+                {user && user.rol === 'Guardia' && (user.bicicleroId || user.bicicletero_id) &&(
                     <>
                         <button className="button-registrar-bicicleta" onClick={handleRegisterBicicleta}>Registrar Bicicleta</button>
                         <button className="button-retirar-bicicleta" onClick={handleRetirarBicicleta}>Retirar Bicicleta</button>
@@ -88,7 +88,7 @@ const Bicicletas = () => {
                     <td>{bici.codigo}</td>
                     <td>{bici.descripcion}</td>
                     <td><span style={estadoStyle(bici.estado)}>{bici.estado}</span></td>
-                    <td>{bici.usuario?.rut || "N/A"}</td>
+                    <td>{bici.usuario.rut}</td>
                     {user.rol === 'Guardia' && (
                     <td>
                         <button className="btn-icon" onClick={handleReIngresoBicicleta}>
