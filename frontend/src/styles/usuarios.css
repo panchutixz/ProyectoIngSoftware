@@ -75,27 +75,6 @@
   font-weight: 600;
 }
 
-/* Badges para rol */
-.role-badge {
-  display: inline-block;
-  padding: 6px 10px;
-  border-radius: 999px;
-  font-size: 13px;
-  font-weight: 600;
-  text-transform: capitalize;
-}
-.role-estudiante {
-  background: #e8f5e9;
-  color: #2e7d32;
-}
-.role-funcionario {
-  background: #e3f2fd;
-  color: #0277bd;
-}
-.role-academico, .role-administrador {
-  background: #f3e5f5;
-  color: #6a1b9a;
-}
 
 /* Responsive */
 @media (max-width: 980px) {

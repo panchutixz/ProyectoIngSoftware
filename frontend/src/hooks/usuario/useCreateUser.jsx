@@ -28,10 +28,8 @@ async function addUserPopup(){
         <div>
           <label for="swal2-rol">Rol</label>
           <select id="swal2-rol" class="swal2-input swal2-select">
-            <option value="" disabled selected>Seleccione su rol</option>
-            <option value="Estudiante">Estudiante</option>
-            <option value="Funcionario">Funcionario</option>
-            <option value="Academico">Académico</option>
+            <option value="" disabled selected>Seleccione el rol</option>
+            <option value="Guardia">Guardia</option>
           </select>
         </div>
         <div>

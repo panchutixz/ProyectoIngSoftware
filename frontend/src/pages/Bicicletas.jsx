@@ -1,6 +1,6 @@
 import "@styles/bicicletas.css";
 import { useState, useEffect } from 'react';
-import { getBicicletas} from '../services/bicicletas.service.js';
+import { getBicicletas, getUserBicycles} from '../services/bicicletas.service.js';
 import { reIngresoBicicleta} from '@hooks/bicicletas/useReIngresoBicicletas.jsx';
 import { registerBicicleta } from '@hooks/bicicletas/useRegisterBicicletas.jsx';
 import { retirarBicicletas } from '@hooks/bicicletas/useRetirarBicicletas.jsx';
@@ -34,16 +34,25 @@ const Bicicletas = () => {
 
     const fetchBicicletas = async () => {
         try {
-            const data = await getBicicletas();
-            console.log("Respuesta del backend:", data); 
-            setBicicletas(data);
+            let bicicletaData;
+            if (user.rol.toLowerCase() === "estudiante" || user.rol.toLowerCase() === "academico" || user.rol.toLowerCase() === "funcionario") {
+                bicicletaData = await getUserBicycles(user.rut);
+            } else {
+                bicicletaData = await getBicicletas();
+            }
+            setBicicletas(bicicletaData);
         } catch (error) {
             console.error("Error al cargar las bicicletas:", error);
         }
     };
 
     useEffect(() => {
+        console.log("Usuario autenticado:", user);
         fetchBicicletas();
+        const interval = setInterval(() => {
+            fetchBicicletas();
+        }, 60000); // Actualiza cada 60 segundos
+        return () => clearInterval(interval);
     }, []);
 
     const { handleReIngresoBicicleta } = reIngresoBicicleta(fetchBicicletas);
@@ -55,7 +64,7 @@ const Bicicletas = () => {
         <div className="bicicletas-page">
             <div className="bicicletas-header">
                 <h1 className="title-listar-bicicletas">Listado de Bicicletas</h1>
-                {user && user.rol === 'Guardia' && (
+                {user && user.rol === 'Guardia' && (user.bicicleroId || user.bicicletero_id) &&(
                     <>
                         <button className="button-registrar-bicicleta" onClick={handleRegisterBicicleta}>Registrar Bicicleta</button>
                         <button className="button-retirar-bicicleta" onClick={handleRetirarBicicleta}>Retirar Bicicleta</button>
@@ -77,27 +86,36 @@ const Bicicletas = () => {
                         {user && user.rol === 'Guardia' && <th>Re-Ingresar</th>}
                     </tr>
                 </thead>
-                <tbody>
-                    {bicicletas.map((bici) => (
-                        <tr key={bici.id}>
-                            <td>{bici.bicicletero.nombre}</td>
-                            <td className="capitalize">{bici.marca}</td> 
-                            <td className="capitalize">{bici.color}</td>
-                            <td>{bici.numero_serie}</td>
-                            <td>{bici.codigo}</td>
-                            <td>{bici.descripcion}</td>
-                            <td> <span style={estadoStyle(bici.estado)}>{bici.estado}</span> </td>
-                            <td>{bici.usuario.rut}</td>
-                            {user.rol === 'Guardia' && (
-                            <td>
-                            <button className="btn-icon" onClick={handleReIngresoBicicleta}>
-                                <i className="fa-solid fa-arrow-right-to-bracket"></i>
-                            </button>
-                            </td>
-                        )}
-                        </tr>
-                    ))}
+                    <tbody>
+            {Array.isArray(bicicletas) && bicicletas.length > 0 ? (
+                bicicletas.map((bici) => (
+                <tr key={bici.id}>
+                    <td>{bici.bicicletero.nombre}</td>
+                    <td className="capitalize">{bici.marca}</td>
+                    <td className="capitalize">{bici.color}</td>
+                    <td>{bici.numero_serie}</td>
+                    <td>{bici.codigo}</td>
+                    <td>{bici.descripcion}</td>
+                    <td><span style={estadoStyle(bici.estado)}>{bici.estado}</span></td>
+                    <td>{bici.usuario.rut}</td>
+                    {user.rol === 'Guardia' && (
+                    <td>
+                        <button className="btn-icon" onClick={handleReIngresoBicicleta}>
+                        <i className="fa-solid fa-arrow-right-to-bracket"></i>
+                        </button>
+                    </td>
+                    )}
+                </tr>
+                ))
+            ) : (
+                <tr>
+                <td colSpan={user.rol === 'Guardia' ? 9 : 8}>
+                    No tiene bicicletas registradas
+                </td>
+                </tr>
+            )}
                 </tbody>
+
             </table>
 
             {error && <p className="error-message">{error}</p>}

@@ -11,8 +11,8 @@ const router = Router();
 router.post("/login", login);
 router.post("/register", register);
 
-router.patch("/reIngreso/bicicletas", reIngresoBicycle);
-router.post("/register/bicicletas", registerBicycle);
+router.patch("/reIngreso/bicicletas", authMiddleware, reIngresoBicycle);
+router.post("/register/bicicletas", authMiddleware, registerBicycle);
 router.get("/obtener/bicicletas", authMiddleware, getBicycle);
 router.delete("/retirar/bicicletas", authMiddleware, retirarBicycle);
 router.patch("/bicicletas/marcarOlvidadas", authMiddleware, marcarOlvidadas);
@@ -24,7 +24,7 @@ router.delete("/delete/bicicletero", authMiddleware, deleteBikeRack);
 
 router.post("/asignar/bicicletero", authMiddleware, asignarGuardia);
 router.post("/historial/rut", authMiddleware, getHistoryByUser);
-router.get("/usuario/:rut", authMiddleware, getUserBicycles);
+router.get("/usuario/:rut", getUserBicycles);
 router.patch("/desasignar/bicicletero", authMiddleware, desasignarGuardia);
 router.get("/getCapacity/bicicletero", getCapacity);
 router.get("/guardias", authMiddleware, getAllGuardias);

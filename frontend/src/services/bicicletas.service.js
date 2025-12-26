@@ -17,8 +17,24 @@ export async function getBicicletas() {
         return response.data.message.data;
     }catch(error){
         console.error("Error al obtener las bicicletas:", error);
+        const backendMessage = error.response?.data?.message || 
+        "Error en el servidor. Revisa los datos e inténtalo nuevamente.";
+        throw new Error(backendMessage);
     }
 }
+export async function getUserBicycles(rut){
+    try{
+        const response = await axios.get(`/auth/usuario/${rut}`);
+        console.log("Respuesta getUserBicycles:", response.data.message.data);
+        return response.data.message.data;
+    }catch(error){
+        console.error("Error al obtener las bicicletas del usuario:", error);
+        const backendMessage = error.response?.data?.message || 
+        "Error en el servidor. Revisa los datos e inténtalo nuevamente.";
+        throw new Error(backendMessage);
+    }
+}
+
 export async function reIngresarBicicleta(data){
     try{
         const response = await axios.patch('/auth/reIngreso/bicicletas', data);
