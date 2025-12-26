@@ -36,7 +36,7 @@ const Bicicletas = () => {
         try {
             const data = await getBicicletas();
             console.log("Respuesta del backend:", data); 
-            setBicicletas(data);
+            setBicicletas(data || []);
         } catch (error) {
             console.error("Error al cargar las bicicletas:", error);
         }
@@ -77,27 +77,36 @@ const Bicicletas = () => {
                         {user && user.rol === 'Guardia' && <th>Re-Ingresar</th>}
                     </tr>
                 </thead>
-                <tbody>
-                    {bicicletas.map((bici) => (
-                        <tr key={bici.id}>
-                            <td>{bici.bicicletero.nombre}</td>
-                            <td className="capitalize">{bici.marca}</td> 
-                            <td className="capitalize">{bici.color}</td>
-                            <td>{bici.numero_serie}</td>
-                            <td>{bici.codigo}</td>
-                            <td>{bici.descripcion}</td>
-                            <td> <span style={estadoStyle(bici.estado)}>{bici.estado}</span> </td>
-                            <td>{bici.usuario.rut}</td>
-                            {user.rol === 'Guardia' && (
-                            <td>
-                            <button className="btn-icon" onClick={handleReIngresoBicicleta}>
-                                <i className="fa-solid fa-arrow-right-to-bracket"></i>
-                            </button>
-                            </td>
-                        )}
-                        </tr>
-                    ))}
+                    <tbody>
+            {Array.isArray(bicicletas) && bicicletas.length > 0 ? (
+                bicicletas.map((bici) => (
+                <tr key={bici.id}>
+                    <td>{bici.bicicletero?.nombre || "Sin bicicletero"}</td>
+                    <td className="capitalize">{bici.marca}</td>
+                    <td className="capitalize">{bici.color}</td>
+                    <td>{bici.numero_serie}</td>
+                    <td>{bici.codigo}</td>
+                    <td>{bici.descripcion}</td>
+                    <td><span style={estadoStyle(bici.estado)}>{bici.estado}</span></td>
+                    <td>{bici.usuario?.rut || "N/A"}</td>
+                    {user.rol === 'Guardia' && (
+                    <td>
+                        <button className="btn-icon" onClick={handleReIngresoBicicleta}>
+                        <i className="fa-solid fa-arrow-right-to-bracket"></i>
+                        </button>
+                    </td>
+                    )}
+                </tr>
+                ))
+            ) : (
+                <tr>
+                <td colSpan={user.rol === 'Guardia' ? 9 : 8}>
+                    No tiene bicicletas registradas
+                </td>
+                </tr>
+            )}
                 </tbody>
+
             </table>
 
             {error && <p className="error-message">{error}</p>}
