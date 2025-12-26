@@ -19,6 +19,12 @@ export async function registerBicycle(req, res){
     const { error } = registerValidation.validate(req.body);
     if(error) return handleErrorClient(res, 400, error.details[0].message);
 
+    if (req.user.rol === "Guardia"){
+        if (!req.user.bicicleteroId || req.user.bicicleteroId !== id_bicicletero){
+            return handleErrorClient(res, 403, "No puedes registrar bicicletas en otro bicicletero");
+        }
+    }
+
     const usuario = await userRepository.findOne({ where: {rut}});
     if(!usuario){
         return handleErrorClient(res, 404, "No se encontró un usuario con ese RUT");
@@ -98,6 +104,13 @@ export async function reIngresoBicycle(req, res) {
     const { error } = reIngresoValidation.validate(req.body);
 
     if(error) return handleErrorClient(res, 400, error.details[0].message);
+
+    if (req.user.rol === "Guardia"){
+        if (id_bicicletero !== req.user.bicicleteroId){
+            return handleErrorClient(res, 403, "No puedes re-ingresar bicicletas en otro bicicletero");
+        }
+    }
+
     const bicicleta = await bicycleRepository.findOne({
         where: { numero_serie: In([numero_serie, numero_serie.toLowerCase(), numero_serie.toUpperCase()]) },
         relations: ["usuario", "bicicletero"]

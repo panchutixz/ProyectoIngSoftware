@@ -11,8 +11,8 @@ const router = Router();
 router.post("/login", login);
 router.post("/register", register);
 
-router.patch("/reIngreso/bicicletas", reIngresoBicycle);
-router.post("/register/bicicletas", registerBicycle);
+router.patch("/reIngreso/bicicletas", authMiddleware, reIngresoBicycle);
+router.post("/register/bicicletas", authMiddleware, registerBicycle);
 router.get("/obtener/bicicletas", authMiddleware, getBicycle);
 router.delete("/retirar/bicicletas", authMiddleware, retirarBicycle);
 router.patch("/bicicletas/marcarOlvidadas", authMiddleware, marcarOlvidadas);
