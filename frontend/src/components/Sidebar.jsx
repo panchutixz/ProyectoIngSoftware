@@ -64,6 +64,7 @@ const Sidebar = () => {
           </li>
 
           {/* Usuarios */}
+          {userRole?.toLowerCase() === "administrador" && userRole?.toLowerCase() === "guardia" && (
           <li>
             <button
               onClick={() => navigate("/usuarios")}
@@ -72,6 +73,7 @@ const Sidebar = () => {
               Usuarios
             </button>
           </li>
+          )}
 
           {/* Bicicletas */}
           <li>
