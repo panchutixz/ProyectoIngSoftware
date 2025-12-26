@@ -19,8 +19,11 @@ export async function registerBicycle(req, res){
     const { error } = registerValidation.validate(req.body);
     if(error) return handleErrorClient(res, 400, error.details[0].message);
 
+
     if (req.user.rol === "Guardia"){
-        if (!req.user.bicicleteroId || req.user.bicicleteroId !== id_bicicletero){
+        const guardiaBicicleteroId = Number(req.user.bicicleteroId || req.user.bicicletero_id);
+        const bodyBicicleteroId = Number(id_bicicletero);
+        if (!guardiaBicicleteroId || guardiaBicicleteroId !== bodyBicicleteroId){
             return handleErrorClient(res, 403, "No puedes registrar bicicletas en otro bicicletero");
         }
     }
@@ -30,7 +33,10 @@ export async function registerBicycle(req, res){
         return handleErrorClient(res, 404, "No se encontró un usuario con ese RUT");
     }
 
-    const bicicletasUsuario = await bicycleRepository.count({where: { usuario: { rut }, estado: "guardada" }}); 
+    const bicicletasUsuario = await bicycleRepository.count(
+        {where: 
+            { usuario: { rut },
+                estado: In(["guardada", "olvidada"])}}); 
     if (bicicletasUsuario >= 2) {
         return handleErrorClient(res, 400, "El usuario ya tiene el máximo de bicicletas permitidas (2)");
     }
@@ -106,7 +112,9 @@ export async function reIngresoBicycle(req, res) {
     if(error) return handleErrorClient(res, 400, error.details[0].message);
 
     if (req.user.rol === "Guardia"){
-        if (id_bicicletero !== req.user.bicicleteroId){
+        const guardiaBicicleteroId = Number(req.user.bicicleteroId || req.user.bicicletero_id);
+        const bodyBicicleteroId = Number(id_bicicletero);
+        if (!guardiaBicicleteroId || guardiaBicicleteroId !== bodyBicicleteroId){
             return handleErrorClient(res, 403, "No puedes re-ingresar bicicletas en otro bicicletero");
         }
     }
@@ -278,8 +286,8 @@ export async function retirarBicycle(req, res){
             return handleErrorClient(res, 403, "Solo los guardias pueden eliminar bicicletas");
         }
 
-        const { rut, codigo } = req.body;
-        if (!rut || !codigo) return handleErrorClient(res, 400, "Se requiere el RUT del usuario y el código de la bicicleta");
+        const { rut, codigo, id_bicicletero } = req.body;
+        if (!rut || !codigo || !id_bicicletero) return handleErrorClient(res, 400, "Se requiere el RUT, el código de la bicicleta y el bicicletero");
 
         const bicycleRepository = AppDataSource.getRepository(Bicicleta);
         const userRepository = AppDataSource.getRepository("User");
@@ -292,25 +300,32 @@ export async function retirarBicycle(req, res){
         const usuario = await userRepository.findOne({ where: { rut } });
         if (!usuario) return handleErrorClient(res, 404, "Usuario no encontrado");
 
-        // Comprobar que el guardia y el usuario pertenezcan al mismo bicicletero
-        const guardiaBicicleteroId = guardia.bicicleteroId || guardia.bicicletero_id || null;
-        const usuarioBicicleteroId = usuario.bicicletero_id || usuario.bicicleteroId || null;
-
-        if (!guardiaBicicleteroId) return handleErrorClient(res, 400, "Guardia sin bicicletero asignado");
-        if (guardiaBicicleteroId !== usuarioBicicleteroId) {
-            return handleErrorClient(res, 403, "No puedes eliminar bicicletas de otro bicicletero");
-        }
-
         const bicicleta = await bicycleRepository.findOne({
             where: {
                 codigo,
                 usuario: { rut },
-                bicicletero: { id_bicicletero: guardiaBicicleteroId }
-            }
+                bicicletero: { id_bicicletero }
+                
+            },
+            relations: ["bicicletero"]
         });
 
         if (!bicicleta) {
-            return handleErrorClient(res, 404, "No se encontró una bicicleta con dicho código para el usuario en este bicicletero");
+            return handleErrorClient(res, 404, "No se encontró una bicicleta con ese código en el bicicletero indicado");
+        }
+        if (bicicleta.estado === "entregada") {
+            return handleErrorClient(res, 400, "La bicicleta ya está retirada");
+        }
+
+        // Comprobar que el guardia y el usuario pertenezcan al mismo bicicletero
+        const guardiaBicicleteroId = Number(guardia.bicicleteroId || guardia.bicicletero_id);
+        const bicicletaBicicleteroId = Number(bicicleta.bicicletero.id_bicicletero);
+
+        if (!guardiaBicicleteroId) {
+            return handleErrorClient(res, 400, "Guardia sin bicicletero asignado");
+        }
+        if (guardiaBicicleteroId !== bicicletaBicicleteroId) {
+            return handleErrorClient(res, 403, "No puedes retirar bicicletas de otro bicicletero");
         }
         
         // Buscar el ingreso más reciente sin salida
