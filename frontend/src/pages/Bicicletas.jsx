@@ -32,22 +32,6 @@ const Bicicletas = () => {
     const [bicicletas, setBicicletas] = useState([]);
     const [error] = useState(null);
 
-    /*const fetchBicicletas = async () => {
-        try {
-            let response;
-            if (user.rol === 'Usuario') {
-                response = await getBicicletas(user.rut);
-            } else {
-                response = await getBicicletas();
-            }
-            const data = await getBicicletas();
-            console.log("Respuesta del backend:", data); 
-            setBicicletas(data || []);
-        } catch (error) {
-            console.error("Error al cargar las bicicletas:", error);
-        }
-    };*/
-
     const fetchBicicletas = async () => {
         try {
             let bicicletaData;
@@ -56,7 +40,6 @@ const Bicicletas = () => {
             } else {
                 bicicletaData = await getBicicletas();
             }
-            console.log("Respuesta del backend:", bicicletaData);
             setBicicletas(bicicletaData);
         } catch (error) {
             console.error("Error al cargar las bicicletas:", error);
@@ -114,7 +97,7 @@ const Bicicletas = () => {
                     <td>{bici.codigo}</td>
                     <td>{bici.descripcion}</td>
                     <td><span style={estadoStyle(bici.estado)}>{bici.estado}</span></td>
-                    <td>{bici.usuario?.rut || user.rut}</td>
+                    <td>{bici.usuario.rut}</td>
                     {user.rol === 'Guardia' && (
                     <td>
                         <button className="btn-icon" onClick={handleReIngresoBicicleta}>
