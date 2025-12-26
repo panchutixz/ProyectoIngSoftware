@@ -97,7 +97,7 @@ export async function createUser(req, res) {
     console.error("Error en añadir nuevo usuario", error);
     res.status(500).json({ message: "Error interno del servidor." });
   }
-}
+}//.
 // Actualizar un usuario por ID
 export async function updateUserById(req, res) {
   try {
