@@ -1,6 +1,6 @@
 import "@styles/bicicletas.css";
 import { useState, useEffect } from 'react';
-import { getBicicletas} from '../services/bicicletas.service.js';
+import { getBicicletas, getUserBicycles} from '../services/bicicletas.service.js';
 import { reIngresoBicicleta} from '@hooks/bicicletas/useReIngresoBicicletas.jsx';
 import { registerBicicleta } from '@hooks/bicicletas/useRegisterBicicletas.jsx';
 import { retirarBicicletas } from '@hooks/bicicletas/useRetirarBicicletas.jsx';
@@ -34,15 +34,20 @@ const Bicicletas = () => {
 
     const fetchBicicletas = async () => {
         try {
-            const data = await getBicicletas();
-            console.log("Respuesta del backend:", data); 
-            setBicicletas(data || []);
+            let bicicletaData;
+            if (user.rol.toLowerCase() === "estudiante" || user.rol.toLowerCase() === "academico" || user.rol.toLowerCase() === "funcionario") {
+                bicicletaData = await getUserBicycles(user.rut);
+            } else {
+                bicicletaData = await getBicicletas();
+            }
+            setBicicletas(bicicletaData);
         } catch (error) {
             console.error("Error al cargar las bicicletas:", error);
         }
     };
 
     useEffect(() => {
+        console.log("Usuario autenticado:", user);
         fetchBicicletas();
         const interval = setInterval(() => {
             fetchBicicletas();
@@ -85,7 +90,7 @@ const Bicicletas = () => {
             {Array.isArray(bicicletas) && bicicletas.length > 0 ? (
                 bicicletas.map((bici) => (
                 <tr key={bici.id}>
-                    <td>{bici.bicicletero?.nombre || "Sin bicicletero"}</td>
+                    <td>{bici.bicicletero.nombre}</td>
                     <td className="capitalize">{bici.marca}</td>
                     <td className="capitalize">{bici.color}</td>
                     <td>{bici.numero_serie}</td>
