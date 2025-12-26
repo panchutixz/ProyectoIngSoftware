@@ -317,7 +317,7 @@ export async function retirarBicycle(req, res){
             return handleErrorClient(res, 400, "La bicicleta ya está retirada");
         }
 
-        // Comprobar que el guardia y el usuario pertenezcan al mismo bicicletero
+        // Comprobar que el guardia y la bici pertenezcan al mismo bicicletero
         const guardiaBicicleteroId = Number(guardia.bicicleteroId || guardia.bicicletero_id);
         const bicicletaBicicleteroId = Number(bicicleta.bicicletero.id_bicicletero);
 
@@ -368,46 +368,70 @@ export async function retirarBicycle(req, res){
     }
 }
 
-export async function marcarOlvidadas() {
-    try {
-        const bicycleRepository = AppDataSource.getRepository(Bicicleta);
-        const historialRepository = AppDataSource.getRepository(Historial);
+    //LOGICA PARA MARCAR BICICLETAS OLVIDADAS
+async function marcarBicicletasOlvidadas() {
+    const bicycleRepository = AppDataSource.getRepository(Bicicleta);
+    const historialRepository = AppDataSource.getRepository(Historial);
 
-        const ahora = new Date();
+    const ahora = new Date();
 
-        const bicicletas = await bicycleRepository.find({ where: { estado: "guardada" } });
+    const bicicletas = await bicycleRepository.find({ where: { estado: "guardada" } });
 
-        for (const bici of bicicletas) {
-        const minutosPasados = (ahora - bici.updateAt) / (1000 * 60 );
+    for (const bici of bicicletas) {
+        const minutosPasados = (ahora - bici.updateAt) / (1000 * 60);
 
-        if (minutosPasados >= 5) { //aqui se le puede bajar el tiempo para probar
-
-            let historial = await historialRepository.findOne({
+        if (minutosPasados >= 5) { // puedes bajar el tiempo para pruebas
+        let historial = await historialRepository.findOne({
             where: {
-                bicicletas: { id: bici.id },
-                fecha_salida: null
+            bicicletas: { id: bici.id },
+            fecha_salida: null
             }
-            });
+        });
 
-            if (historial) {
+        if (historial) {
             historial.fecha_salida = ahora;
             await historialRepository.save(historial);
-            } else {
+        } else {
             await historialRepository.save({
-                usuario: bici.usuario,
-                bicicletas: bici,
-                fecha_ingreso: null,
-                fecha_salida: ahora
+            usuario: bici.usuario,
+            bicicletas: bici,
+            fecha_ingreso: null,
+            fecha_salida: ahora
             });
-            }
-            bici.estado = "olvidada";
-            bici.updateAt = ahora;
-            await bicycleRepository.save(bici);
+        }
 
-            console.log(`Bicicleta ${bici.codigo} marcada como olvidada`);
+        bici.estado = "olvidada";
+        bici.updateAt = ahora;
+        await bicycleRepository.save(bici);
+
+        console.log(`Bicicleta ${bici.codigo} marcada como olvidada`);
         }
+    }
+}
+
+    //valdacion de rol para consultar por POSTMAN
+export async function marcarOlvidadas(req, res) {
+    try {
+        const user = req.user;
+        const rol = (user?.rol || "").toString().trim().toLowerCase();
+
+        if (rol !== "guardia") {
+        return handleErrorClient(res, 403, "No tienes permisos para marcar bicicletas como olvidadas");
         }
+
+        await marcarBicicletasOlvidadas();
+        return handleSuccess(res, 200, "Bicicletas olvidadas marcadas correctamente");
     } catch (error) {
         console.error("Error al marcar bicicletas olvidadas:", error);
+        return handleErrorServer(res, 500, "Error al marcar bicicletas olvidadas", error.message);
+    }
+}
+
+    // nodecrone sin validación de rol
+export async function marcarOlvidadasCron() {
+    try {
+        await marcarBicicletasOlvidadas();
+    } catch (error) {
+        console.error("Error en nodeCrone marcarOlvidadas:", error);
     }
 }
