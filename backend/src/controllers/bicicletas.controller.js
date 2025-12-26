@@ -178,12 +178,13 @@ export async function getBicycle(req, res) {
 
     if (rol === "Guardia") {
         if (!bicicleteroId) {
-        return handleErrorClient(res, 400, "Guardia sin bicicletero asignado");
+        return handleErrorClient(res, 400, "Guardia sin bicicletero asignado", []); //cambio aqui
         }
 
     const bicicletas = await bicycleRepository.find({
         where: { 
             bicicletero: { id_bicicletero: bicicleteroId },
+            usuario: { id: req.user.id },
             estado: In(["guardada", "entregada", "olvidada"])
         },
             select: {
