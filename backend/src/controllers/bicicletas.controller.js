@@ -264,8 +264,9 @@ export async function getUserBicycles(req, res) {
             descripcion: bici.descripcion,
             telefono: bici.telefono,
             rut: bici.rut,
-            bicicletero: bici.bicicletero?.nombre || "No asignado",
-            ubicacion: bici.bicicletero?.ubicacion || "Desconocida",
+            bicicletero: { id_bicicletero: bici.bicicletero?.id_bicicletero, 
+                            nombre: bici.bicicletero?.nombre, 
+                            ubicacion: bici.bicicletero?.ubicacion },
         }));
         console.log("Resultado bicicletas usuario:", resultado);
         return handleSuccess(res, 200, { message: "Bicicletas del usuario", data: resultado });
