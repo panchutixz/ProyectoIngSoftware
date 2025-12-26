@@ -68,7 +68,7 @@ const Register = () => {
         <input
           type="text"
           name="rut"
-          placeholder="RUT"
+          placeholder="RUT (xx.xxx.xxx-x)"
           value={form.rut}
           onChange={handleChange}
           required
@@ -77,7 +77,7 @@ const Register = () => {
         <input
           type="email"
           name="email"
-          placeholder="Email"
+          placeholder="Email (@alumnos.ubiobio.cl o @ubiobio.cl)"
           value={form.email}
           onChange={handleChange}
           required
@@ -86,7 +86,7 @@ const Register = () => {
         <input
           type="password"
           name="password"
-          placeholder="Password"
+          placeholder="Contraseña"
           value={form.password}
           onChange={handleChange}
           required
@@ -95,7 +95,7 @@ const Register = () => {
         <input
           type="tel"
           name="telefono"
-          placeholder="Teléfono"
+          placeholder="Teléfono (+569XXXXXXXX)"
           value={form.telefono}
           onChange={handleChange}
           required

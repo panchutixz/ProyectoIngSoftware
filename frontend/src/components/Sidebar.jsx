@@ -64,16 +64,17 @@ const Sidebar = () => {
           </li>
 
           {/* Usuarios */}
-          {userRole?.toLowerCase() === "administrador" && userRole?.toLowerCase() === "guardia" && (
-          <li>
-            <button
-              onClick={() => navigate("/usuarios")}
-              className="w-full text-left hover:bg-gray-700 p-2 rounded"
-            >
+          {["administrador", "guardia"].includes(userRole?.toLowerCase()) && (
+           <li>
+             <button
+                onClick={() => navigate("/usuarios")}
+                className="w-full text-left hover:bg-gray-700 p-2 rounded"
+             >
               Usuarios
             </button>
           </li>
           )}
+
 
           {/* Bicicletas */}
           <li>
