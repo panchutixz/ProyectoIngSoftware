@@ -44,6 +44,10 @@ const Bicicletas = () => {
 
     useEffect(() => {
         fetchBicicletas();
+        const interval = setInterval(() => {
+            fetchBicicletas();
+        }, 60000); // Actualiza cada 60 segundos
+        return () => clearInterval(interval);
     }, []);
 
     const { handleReIngresoBicicleta } = reIngresoBicicleta(fetchBicicletas);
