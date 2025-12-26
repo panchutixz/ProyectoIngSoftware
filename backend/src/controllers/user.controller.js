@@ -53,16 +53,11 @@ export async function createUser(req, res) {
     const userRepository = AppDataSource.getRepository(UserEntity);
     const { rut, nombre, apellido, rol , password, email, telefono } = req.body;
 
-    // Validación para ingresar rol como Estudiante, Funcionario o Académico solamente
-    if (rol.toLowerCase() !== "estudiante" && rol.toLowerCase() !== "funcionario" && rol.toLowerCase() !== "académico") {
-      return res.status(400).json({ message: "El rol solo puede ser 'estudiante', 'funcionario' o 'académico' al momento de crear un usuario." });
-    const { rut, nombre, apellido, rol , password, email, telefono } = req.body;
+    // Validación para ingresar rol como Guardia solamente
+    if (rol.toLowerCase() !== "guardia") {
+      return res.status(400).json({ message: "El rol solo puede ser 'estudiante', 'funcionario', 'académico' o 'guardia' al momento de crear un usuario." });
     }
-    
-    // Validación para ingresar rol como Estudiante, Funcionario o Académico solamente
-    if (rol.toLowerCase() !== "estudiante" && rol.toLowerCase() !== "funcionario" && rol.toLowerCase() !== "academico") {
-      return res.status(400).json({ message: "El rol solo puede ser 'estudiante', 'funcionario' o 'academico' al momento de crear un usuario." });
-    }
+  
 
     // Verificar si el RUT ya existe
     const existingUser = await userRepository.findOne({ where: { rut } });
@@ -121,7 +116,7 @@ export async function updateUserById(req, res) {
       return res.status(404).json({ message: "Usuario no encontrado." });
     }
 // Validar que el nuevo rol sea uno permitido, si se está intentando actualizar
-    const rolesValidos = ["Estudiante", "Funcionario", "Académico"];
+    const rolesValidos = ["Estudiante", "Funcionario", "Académico", "Guardia"];
     if (rol && !rolesValidos.includes(rol.toLowerCase())) {
       return res.status(400).json({ message: `Rol inválido. Solo se permiten: ${rolesValidos.join(", ")}.` });
     }
