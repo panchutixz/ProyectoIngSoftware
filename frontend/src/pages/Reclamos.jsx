@@ -2,6 +2,7 @@ import "@styles/reclamos.css";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { obtenerReclamos, crearReclamo, actualizarReclamo, eliminarReclamo } from "../services/reclamos.service.js";
+import { showErrorAlert, showSuccessAlert } from "../helpers/sweetAlert.js";
 
 const Reclamos = () => {
   const [reclamos, setReclamos] = useState([]);
@@ -35,8 +36,10 @@ const Reclamos = () => {
   const esAcademico = userRole?.toLowerCase() === "académico" || userRole?.toLowerCase() === "academico";
   const esFuncionario = userRole?.toLowerCase() === "funcionario";
 
-  // Usuarios que pueden crear reclamos
+  // usuarios que pueden crear reclamos
   const puedeCrearReclamo = esEstudiante || esAcademico || esFuncionario;
+  // usuarios que pueden ver todos los reclamos
+  const puedeVerTodos = esAdmin || esGuardia;
 
   // para navegacion
   const navigate = useNavigate();
@@ -60,30 +63,42 @@ const Reclamos = () => {
   const userRol = user?.rol || "";
   
   if (!rolesPermitidos.includes(userRol)) {
-    alert("Solo estudiantes, académicos o funcionarios pueden crear reclamos. Tu rol actual no está autorizado.");
-    setMostrarFormulario(false); // Cerrar formulario si no tiene permiso
+    showErrorAlert("No autorizado", "Solo estudiantes, académicos o funcionarios pueden crear reclamos. Tu rol actual no está autorizado.");
+    setMostrarFormulario(false); //cerrar formulario si no tiene permiso
     return;
   }
 
     // Validar campos
     if (!descripcion.trim()) {
-      alert("Por favor, ingresa una descripción del reclamo");
+      showErrorAlert("Campo requerido", "Por favor, ingresa una descripción del reclamo");
       return;
     }
     
-    if (!idBicicleta.trim()) {
-      alert("Por favor, ingresa el ID de la bicicleta");
+    if (!numeroSerie.trim()) {
+      showErrorAlert("Campo requerido", "Por favor, ingresa el número de serie de la bicicleta");
+      return;
+    }
+
+    // validar longitud minima de descripcion (segun backend son minimo 10 caracteres)
+    if (descripcion.trim().length < 10) {
+      alert("La descripción debe tener al menos 10 caracteres");
+      return;
+    }
+
+    // validar que la descripcion contenga letras segun backend
+    const tieneLetras = /[A-Za-zÁÉÍÓÚáéíóúÑñ]/.test(descripcion);
+    if (!tieneLetras) {
+      alert("La descripción debe contener al menos una letra");
       return;
     }
     
     setCreando(true);
     try {
-      console.log("Creando reclamo con:", { descripcion, idBicicleta });
+      console.log("Creando reclamo con:", { descripcion, numeroSerie });
       
       const nuevoReclamo = {
       descripcion: descripcion.trim(),
-      id_bicicleta: idBicicleta.trim()  
-      // 
+      numero_serie_bicicleta: numeroSerie.trim()
     };
 
     console.log("Datos enviados al backend:", nuevoReclamo);
@@ -92,51 +107,62 @@ const Reclamos = () => {
       
     // Limpiar formulario y cerrarlo
     setDescripcion("");
-    setIdBicicleta("");
+    setNumeroSerie("");
     setError(null);
     setMostrarFormulario(false); // 
       
-    // Recargar la lista
-    await fetchReclamos();
+     //recargar la lista
+      await fetchReclamos();
       
-    alert("Reclamo creado exitosamente!");
+      showSuccessAlert("Reclamo creado", "Reclamo creado exitosamente!");
       
     } catch (err) {
-    console.error("Error al crear reclamo:", err);
-    
-    let errorMessage = "Error al crear el reclamo";
-
-    if (err.response) {
-      // Error del servidor
-      console.error("Response data:", err.response.data);
-      console.error("Response status:", err.response.status);
+      console.error("Error al crear reclamo:", err);
       
-      if (err.response.data && err.response.data.message) {
-        errorMessage = err.response.data.message;
+      let errorMessage = "Error al crear el reclamo";
+
+      if (err.response) {
+        // error del servidor
+        console.error("Response data:", err.response.data);
+        console.error("Response status:", err.response.status);
         
-        // Si hay multiples mensajes (array)
-        if (Array.isArray(errorMessage)) {
-          errorMessage = errorMessage.join(", ");
+        if (err.response.data && err.response.data.message) {
+          errorMessage = err.response.data.message;
+          
+          //si hay multiples mensajes
+          if (Array.isArray(errorMessage)) {
+            errorMessage = errorMessage.join(", ");
+          }
+        } else if (err.response.data && err.response.data.error) {
+          errorMessage = err.response.data.error;
         }
+      } else if (err.request) {
+        //error de red
+        errorMessage = "Error de conexión. Verifica tu internet.";
+      } else {
+        //otros errores
+        errorMessage = err.message;
       }
-    } else if (err.request) {
-      // Error de red
-      errorMessage = "Error de conexión. Verifica tu internet.";
-    } else {
-      // Otros errores
-      errorMessage = err.message;
+      
+      setError(errorMessage);
+      showErrorAlert("Error al crear reclamo", errorMessage);
+      
+    } finally {
+      setCreando(false);
+    }
+  };
+
+  //funcion para abrir modal de editar con la validacion
+  const abrirModalEditar = (id, descripcionActual, rutUsuarioReclamo) => {
+      //verificar si el usuario puede editar este reclamo
+      if (puedeCrearReclamo) {
+      //si es estudiante/academico/funcionario solo puede editar sus propios reclamos
+      if (rutUsuarioReclamo !== userRut) {
+        showErrorAlert("Sin permiso", "No puedes editar reclamos de otros usuarios");
+        return;
+      }
     }
     
-    setError(errorMessage);
-    alert("Error: " + errorMessage);
-    
-  } finally {
-    setCreando(false);
-  }
-};
-
-  // Función para abrir modal de editar
-  const abrirModalEditar = (id, descripcionActual) => {
     setModalEditar({
       abierto: true,
       id,
@@ -144,7 +170,7 @@ const Reclamos = () => {
     });
   };
 
-  // Función para cerrar modal de editar
+  // funcion para cerrar modal de editar
   const cerrarModalEditar = () => {
     setModalEditar({
       abierto: false,
@@ -153,10 +179,22 @@ const Reclamos = () => {
     });
   };
 
-  // Función para guardar edición
+  //funcion para guardar edición
   const handleGuardarEdicion = async () => {
     if (!modalEditar.descripcion.trim()) {
       alert("La descripción no puede estar vacía");
+      return;
+    }
+
+    //validaciones similares a la creacion
+    if (modalEditar.descripcion.trim().length < 10) {
+      alert("La descripción debe tener al menos 10 caracteres");
+      return;
+    }
+
+    const tieneLetras = /[A-Za-zÁÉÍÓÚáéíóúÑñ]/.test(modalEditar.descripcion);
+    if (!tieneLetras) {
+      alert("La descripción debe contener al menos una letra");
       return;
     }
 
@@ -167,15 +205,22 @@ const Reclamos = () => {
       
       cerrarModalEditar();
       await fetchReclamos();
-      alert("Reclamo actualizado exitosamente!");
+      showSuccessAlert("Reclamo actualizado", "Reclamo actualizado exitosamente!");
       
     } catch (err) {
       console.error("Error al actualizar reclamo:", err);
-      alert("Error al actualizar el reclamo");
+      let errorMsg = "Error al actualizar el reclamo";
+      if (err.response?.data?.message) {
+        errorMsg = err.response.data.message;
+        if (Array.isArray(errorMsg)) {
+          errorMsg = errorMsg.join(", ");
+        }
+      }
+      showErrorAlert("Error al actualizar", errorMsg);
     }
   };
 
-  // Función para abrir modal de eliminar
+  // funcion para abrir modal de eliminar
   const abrirModalEliminar = (id, descripcionActual) => {
     setModalEliminar({
       abierto: true,
@@ -184,7 +229,7 @@ const Reclamos = () => {
     });
   };
 
-  // Función para cerrar modal de eliminar
+  // funcion para cerrar modal de eliminar
   const cerrarModalEliminar = () => {
     setModalEliminar({
       abierto: false,
@@ -193,20 +238,24 @@ const Reclamos = () => {
     });
   };
 
-  // Función para confirmar eliminación
+  // funcion para confirmar eliminación
   const handleConfirmarEliminar = async () => {
     try {
       await eliminarReclamo(modalEliminar.id);
       cerrarModalEliminar();
       await fetchReclamos();
-      alert("Reclamo eliminado exitosamente");
+      showSuccessAlert("Reclamo eliminado", "Reclamo eliminado exitosamente");
     } catch (err) {
       console.error("Error al eliminar reclamo:", err);
-      alert("Error al eliminar el reclamo");
+      let errorMsg = "Error al eliminar el reclamo";
+      if (err.response?.data?.message) {
+        errorMsg = err.response.data.message;
+      }
+      showErrorAlert("Error al eliminar", errorMsg);
     }
   };
 
-  // funcion para manejar la tecla Enter en el formulario
+  //funcion para manejar la tecla Enter en el formulario
   const handleKeyPress = (e) => {
     if (e.key === 'Enter' && puedeCrearReclamo) {
       handleCrear(e);
@@ -216,15 +265,15 @@ const Reclamos = () => {
   // funcion para cancelar el formulario
   const handleCancelar = () => {
     setDescripcion("");
-    setIdBicicleta("");
+    setNumeroSerie("");
     setMostrarFormulario(false);
     setError(null);
   };
 
 
-  // Función para redirigir al perfil del usuario
+  // funcion para redirigir al perfil del usuario
   const verPerfilUsuario = (rut) => {
-    if (rut) {
+    if (rut && rut !== "No disponible") {
       navigate(`/usuarios?rut=${rut}`);
     }
   };
@@ -233,18 +282,100 @@ const Reclamos = () => {
     fetchReclamos();
   }, []);
 
+  //funcion para generar las filas de la tabla
+  const renderReclamos = () => {
+    if (!reclamos || reclamos.length === 0) {
+      return (
+        <tr>
+          <td colSpan="6" className="no-data">
+            {puedeVerTodos 
+              ? "No hay reclamos registrados en el sistema" 
+              : "No tienes reclamos registrados"}
+          </td>
+        </tr>
+      );
+    }
+
+    return reclamos.map((reclamo) => {
+      const usuarioRut = reclamo.usuario?.rut || reclamo.rut_user || "No disponible";
+      const bicicletaNumSerie = reclamo.bicicletas?.numero_serie || reclamo.numero_serie_bicicleta || "N/A";
+      
+      const fechaFormateada = reclamo.fecha_creacion ? 
+        new Date(reclamo.fecha_creacion).toLocaleDateString('es-CL', {
+          year: 'numeric',
+          month: 'short',
+          day: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit'
+        }) : "Fecha no disponible";
+
+      return (
+        <tr key={reclamo.id}>
+          <td data-label="ID">{reclamo.id}</td>
+          <td data-label="Descripción" className="descripcion-celda">
+            <span title={reclamo.descripcion}>
+              {reclamo.descripcion.length > 100 
+                ? `${reclamo.descripcion.substring(0, 100)}...`
+                : reclamo.descripcion}
+            </span>
+          </td>
+          <td data-label="Fecha">{fechaFormateada}</td>
+          <td data-label="Bicicleta">
+            <span title={`N° Serie: ${bicicletaNumSerie}`}>
+              {bicicletaNumSerie}
+            </span>
+          </td>
+          <td data-label="Usuario">
+            {usuarioRut !== "No disponible" ? (
+              <span
+                onClick={() => verPerfilUsuario(usuarioRut)}
+                className="rut-clickable"
+                title="Ver perfil del usuario"
+              >
+                {usuarioRut}
+              </span>
+            ) : (
+              <span className="rut-no-disponible">{usuarioRut}</span>
+            )}
+          </td>
+          <td data-label="Acciones">
+            <div className="acciones-container">
+              {(puedeCrearReclamo && usuarioRut === userRut) && (
+                <button 
+                  onClick={() => abrirModalEditar(reclamo.id, reclamo.descripcion, usuarioRut)}
+                  className="btn-editar"
+                  title="Editar reclamo"
+                >
+                  Editar
+                </button>
+              )}
+              
+              <button 
+                onClick={() => abrirModalEliminar(reclamo.id, reclamo.descripcion)}
+                className="btn-eliminar"
+                title="Eliminar reclamo"
+              >
+                Eliminar
+              </button>
+            </div>
+          </td>
+        </tr>
+      );
+    });
+  };
+
  
   return (
     <div className="reclamos-page">
-      {/* titulo condicional segun rol */}
-      <h1>{esAdmin || esGuardia 
+      {/* titulo correspondiente segun rol */}
+      <h1>{puedeVerTodos 
           ? "Reclamos" 
           : puedeCrearReclamo 
             ? "Mis Reclamos" 
             : "Reclamos"}
       </h1>
 
-      {/* Mostrar botón para abrir formulario SOLO para usuarios */}
+      {/* mostrar boton para abrir formulario SOLO para usuarios */}
       {puedeCrearReclamo && !mostrarFormulario && (
         <div className="crear-reclamo-btn-container">
           <button 
@@ -256,7 +387,7 @@ const Reclamos = () => {
         </div>
       )}
 
-      {/* Mostrar formulario de creación cuando mostrarFormulario es true */}
+      {/* mostrar formulario de creacion cuando mostrarFormulario es true */}
       {puedeCrearReclamo && mostrarFormulario && (
         <div className="reclamo-form expandido">
           <div className="form-header">
@@ -274,19 +405,20 @@ const Reclamos = () => {
           <div className="form-inputs">
             <input
               type="text"
-              placeholder="Descripción del reclamo"
+              placeholder="Descripción del reclamo (mínimo 10 caracteres)"
               value={descripcion}
               onChange={(e) => setDescripcion(e.target.value)}
               onKeyPress={handleKeyPress}
               disabled={creando}
               autoFocus
               required
+              minLength="10"
             />
             <input
-              type="number"
-              placeholder="ID Bicicleta"
-              value={idBicicleta}
-              onChange={(e) => setIdBicicleta(e.target.value)}
+              type="text"
+              placeholder="número Serie de Bicicleta"
+              value={numeroSerie}
+              onChange={(e) => setNumeroSerie(e.target.value)}
               onKeyPress={handleKeyPress}
               disabled={creando}
               required
@@ -304,11 +436,18 @@ const Reclamos = () => {
             <button 
               className="reclamos-addbtn" 
               onClick={handleCrear}
-              disabled={creando || !descripcion.trim() || !idBicicleta.trim()}
+              disabled={creando || !numeroSerie.trim() || !descripcion.trim() || descripcion.trim().length < 10}
+              title={descripcion.trim().length < 10 ? "La descripción debe tener al menos 10 caracteres" : ""}
             >
               {creando ? "Creando..." : "Crear Reclamo"}
             </button>
           </div>
+
+          {descripcion.trim().length > 0 && descripcion.trim().length < 10 && (
+            <p className="error-validacion" style={{color: 'red', fontSize: '12px', marginTop: '5px'}}>
+              La descripción debe tener al menos 10 caracteres ({descripcion.trim().length}/10)
+            </p>
+          )}
         </div>
       )}
 
@@ -326,93 +465,15 @@ const Reclamos = () => {
       </tr>
     </thead>
     <tbody>
-      {reclamos && reclamos.length > 0 ? (
-        reclamos.map((reclamo) => {
-          // Extraer datos de forma segura
-          const usuarioRut = reclamo.usuario?.rut || 
-                            reclamo.usuario_rut || 
-                            "No disponible";
-          
-          const bicicletaId = reclamo.bicicletas?.id || 
-                             reclamo.bicicleta?.id || 
-                             reclamo.id_bicicleta || 
-                             "N/A";
-          
-          const fechaFormateada = reclamo.fecha_creacion ? 
-            new Date(reclamo.fecha_creacion).toLocaleDateString('es-CL', {
-              year: 'numeric',
-              month: 'short',
-              day: 'numeric',
-              hour: '2-digit',
-              minute: '2-digit'
-            }) : "Fecha no disponible";
+      {renderReclamos()}
+          </tbody>
+        </table>
+      </div>
 
-          return (
-            <tr key={reclamo.id}>
-              <td data-label="ID">{reclamo.id}</td>
-              <td data-label="Descripción">{reclamo.descripcion}</td>
-              <td data-label="Fecha">{fechaFormateada}</td>
-              <td data-label="Bicicleta">{bicicletaId}</td>
-              <td data-label="Usuario">
-                {usuarioRut !== "No disponible" ? (
-                  <span
-                    onClick={() => verPerfilUsuario(usuarioRut)}
-                    className="rut-clickable"
-                    title="Ver perfil del usuario"
-                  >
-                    {usuarioRut}
-                  </span>
-                ) : (
-                  <span className="rut-no-disponible">{usuarioRut}</span>
-                )}
-              </td>
-              <td data-label="Acciones">
-                {puedeCrearReclamo ? (
-                  // estudiantes, academicos y funcionarios pueden editar y eliminar sus reclamos
-                  <>
-                    <button 
-                      onClick={() => abrirModalEditar(reclamo.id, reclamo.descripcion)}
-                      className="btn-editar"
-                    >
-                      Editar
-                    </button>
-                    <button 
-                      onClick={() => abrirModalEliminar(reclamo.id, reclamo.descripcion)}
-                      className="btn-eliminar"
-                    >
-                      Eliminar
-                    </button>
-                  </>
-                ) : (
-                  // administradores y guardias solo pueden eliminar reclamos (cualquiera)
-                  <button 
-                    onClick={() => abrirModalEliminar(reclamo.id, reclamo.descripcion)}
-                    className="admin-action-btn"
-                  >
-                    Eliminar
-                  </button>
-                )}
-              </td>
-            </tr>
-          );
-        })
-      ) : (
-        <tr>
-          <td colSpan="6" style={{ textAlign: 'center', padding: '40px' }}>
-            {esAdmin || esGuardia 
-              ? "No hay reclamos registrados en el sistema" 
-              : "No tienes reclamos registrados"}
-          </td>
-        </tr>
-      )}
-    </tbody>
-  </table>
-</div>
+      {error && <p className="error-message">{error}</p>}
 
-    {error && <p className="error-message">{error}</p>}
-
-    {/* Modal para Editar */}
-    {modalEditar.abierto && (
+      {/* modal para editar */}
+      {modalEditar.abierto && (
         <div className="modal-overlay">
           <div className="modal-content">
             <div className="modal-header">
@@ -423,7 +484,7 @@ const Reclamos = () => {
             </div>
             <div className="modal-body">
               <div className="form-group">
-                <label>Descripción del reclamo</label>
+                <label>Descripción del reclamo (mínimo 10 caracteres, debe contener letras)</label>
                 <textarea
                   value={modalEditar.descripcion}
                   onChange={(e) => setModalEditar(prev => ({...prev, descripcion: e.target.value}))}
@@ -431,20 +492,30 @@ const Reclamos = () => {
                   rows="4"
                   autoFocus
                 />
+                {modalEditar.descripcion.length > 0 && modalEditar.descripcion.length < 10 && (
+                  <p className="error-validacion" style={{color: 'red', fontSize: '12px', marginTop: '5px'}}>
+                    Mínimo 10 caracteres ({modalEditar.descripcion.length}/10)
+                  </p>
+                )}
               </div>
             </div>
             <div className="modal-footer">
               <button className="cancelar-btn" onClick={cerrarModalEditar}>
                 Cancelar
               </button>
-              <button className="confirmar-btn" onClick={handleGuardarEdicion}>
+              <button 
+                className="confirmar-btn" 
+                onClick={handleGuardarEdicion}
+                disabled={modalEditar.descripcion.trim().length < 10}
+              >
                 Guardar Cambios
               </button>
             </div>
           </div>
         </div>
       )}
-  {/* Modal para Eliminar */}
+
+      {/* modal para eliminar */}
       {modalEliminar.abierto && (
         <div className="modal-overlay">
           <div className="modal-content">
@@ -472,8 +543,6 @@ const Reclamos = () => {
           </div>
         </div>
       )}
-
-      {error && <p className="error-message">{error}</p>}
     </div>
   );
 };
