@@ -380,7 +380,7 @@ async function marcarBicicletasOlvidadas() {
     for (const bici of bicicletas) {
         const minutosPasados = (ahora - bici.updateAt) / (1000 * 60);
 
-        if (minutosPasados >= 5) { // puedes bajar el tiempo para pruebas
+        if (minutosPasados >= 2) { // puedes bajar el tiempo para pruebas
         let historial = await historialRepository.findOne({
             where: {
             bicicletas: { id: bici.id },
