@@ -24,7 +24,7 @@ router.delete("/delete/bicicletero", authMiddleware, deleteBikeRack);
 
 router.post("/asignar/bicicletero", authMiddleware, asignarGuardia);
 router.post("/historial/rut", authMiddleware, getHistoryByUser);
-router.get("/usuario/:rut", authMiddleware, getUserBicycles);
+router.get("/usuario/:rut", getUserBicycles);
 router.patch("/desasignar/bicicletero", authMiddleware, desasignarGuardia);
 router.get("/getCapacity/bicicletero", getCapacity);
 router.get("/guardias", authMiddleware, getAllGuardias);

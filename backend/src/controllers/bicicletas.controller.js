@@ -259,10 +259,15 @@ export async function getUserBicycles(req, res) {
             marca: bici.marca,
             color: bici.color,
             estado: bici.estado,
+            numero_serie: bici.numero_serie,
+            codigo: bici.codigo,
+            descripcion: bici.descripcion,
+            telefono: bici.telefono,
+            rut: bici.rut,
             bicicletero: bici.bicicletero?.nombre || "No asignado",
             ubicacion: bici.bicicletero?.ubicacion || "Desconocida",
         }));
-
+        console.log("Resultado bicicletas usuario:", resultado);
         return handleSuccess(res, 200, { message: "Bicicletas del usuario", data: resultado });
 
     } catch (error) {
