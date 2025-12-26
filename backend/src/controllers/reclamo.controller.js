@@ -137,6 +137,7 @@ export async function obtenerMisReclamos(req, res) {
 //actualizar reclamo
 export async function actualizarReclamo(req, res) {
     const reclamoRepository = AppDataSource.getRepository(Reclamo);
+    const userRepository = AppDataSource.getRepository(User);
     const { id } = req.params;
     const { descripcion } = req.body;
     const { sub: userId } = req.user;

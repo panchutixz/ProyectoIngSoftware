@@ -94,10 +94,18 @@
 
 /* para asegurar que las celdas mantengan su estructura */
 .reclamos-table td {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  white-space: normal;
+  overflow: visible;
+  text-overflow: clip;
   max-width: 200px;
+  word-wrap: break-word;
+}
+
+.reclamos-table td:nth-child(2) {  /* Columna de descripción */
+  white-space: normal;
+  word-wrap: break-word;
+  min-width: 200px;
+  max-width: 300px;
 }
 
 /* Encabezados */
