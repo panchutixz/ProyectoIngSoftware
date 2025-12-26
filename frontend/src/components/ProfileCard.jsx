@@ -1,13 +1,31 @@
 import "@styles/profile.css";
-import profilePic from "@assets/gatodosekai.png";
+
+// Importa las imágenes por rol
+import academicoPic from "@assets/roles/academico.png";
+import administradorPic from "@assets/roles/administrador.png";
+import estudiantePic from "@assets/roles/estudiante.png";
+import funcionarioPic from "@assets/roles/funcionario.png";
+import guardiaPic from "@assets/roles/guardia.png";
+import defaultPic from "@assets/gatodosekai.png";
+
+const roleImages = {
+  academico: academicoPic,
+  administrador: administradorPic,
+  estudiante: estudiantePic,
+  funcionario: funcionarioPic,
+  guardia: guardiaPic,
+};
 
 const ProfileCard = ({ user }) => {
+  // Si el usuario tiene rol, se usa la imagen correspondiente, si no, se usa la default
+  const profileImage = roleImages[user.rol?.toLowerCase()] || defaultPic;
+
   return (
     <div className="profile-card">
       <h1 className="profile-header"><strong>Perfil de Usuario</strong></h1>
       <div className="profile-content">
         <div className="profile-image">
-          <img src={profilePic} alt={`${user.nombre}'s profile`} />
+          <img src={profileImage} alt={`${user.nombre}'s profile`} />
         </div>
         <div className="profile-info">
           <p>
