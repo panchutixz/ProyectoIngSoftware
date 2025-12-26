@@ -263,7 +263,7 @@ export async function getUserBicycles(req, res) {
             codigo: bici.codigo,
             descripcion: bici.descripcion,
             telefono: bici.telefono,
-            rut: bici.rut,
+            usuario: { rut: usuario.rut },
             bicicletero: { id_bicicletero: bici.bicicletero?.id_bicicletero, 
                             nombre: bici.bicicletero?.nombre, 
                             ubicacion: bici.bicicletero?.ubicacion },
