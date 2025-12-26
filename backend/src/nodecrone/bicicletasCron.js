@@ -6,5 +6,5 @@ cron.schedule("* * * * *", async () => {
   await marcarOlvidadas();
 });
 
-//para todos los dias a las 21 horas seira cron.schedule("0 21 * * *", async () => {
+//para todos los dias a las 21 horas seria cron.schedule("0 21 * * *", async () => {
 // astericos todo es ejecutando cada minuto

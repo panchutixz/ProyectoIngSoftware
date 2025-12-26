@@ -24,7 +24,7 @@ export const Historial = new EntitySchema({
         bicicletas: {
             type: "many-to-one",
             target: "Bicicleta",
-            joinColumn: { name: "id_bicicleta" },
+            joinColumn: { name: "numero_serie_bicicleta" },
             eager: true,
             nullable: false,
         },

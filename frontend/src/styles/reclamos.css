@@ -91,6 +91,15 @@
   font-size: 15px;
   color: #24323a;
 }
+
+/* para asegurar que las celdas mantengan su estructura */
+.reclamos-table td {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 200px;
+}
+
 /* Encabezados */
 .reclamos-table thead th {
   background: linear-gradient(90deg,#0a6b71,#0b9fb6);
@@ -145,6 +154,12 @@
   font-weight: 600;
   font-size: 13px;
   transition: all 0.2s ease;
+}
+
+/* Contenedor de acciones */
+.reclamos-table td:last-child {
+  white-space: nowrap;
+  min-width: 150px;
 }
 
 /* Boton Editar (solo para usuarios) */
@@ -229,7 +244,6 @@
   font-weight: 500;
 }
 
-/* formulario expandible */
 
 /* Botón para abrir formulario */
 .crear-reclamo-btn-container {

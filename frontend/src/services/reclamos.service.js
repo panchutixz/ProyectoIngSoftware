@@ -16,7 +16,11 @@ export async function crearReclamo(payload) {
 export async function obtenerReclamos() {
   try {
       const response = await axios.get('/reclamos/mis-reclamos');
-      return response.data.data;
+      console.log("=== SERVICIO: Respuesta completa ===");
+      console.log("Status:", response.status);
+      console.log("Data completa:", response.data);
+      console.log("Data.data:", response.data.data);
+      return response.data.data || [];
     } catch (error) {
         console.error("Error al obtener los reclamos:", error);
         throw error;
