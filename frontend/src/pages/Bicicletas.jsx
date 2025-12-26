@@ -1,6 +1,6 @@
 import "@styles/bicicletas.css";
 import { useState, useEffect } from 'react';
-import { getBicicletas} from '../services/bicicletas.service.js';
+import { getBicicletas, getUserBicycles} from '../services/bicicletas.service.js';
 import { reIngresoBicicleta} from '@hooks/bicicletas/useReIngresoBicicletas.jsx';
 import { registerBicicleta } from '@hooks/bicicletas/useRegisterBicicletas.jsx';
 import { retirarBicicletas } from '@hooks/bicicletas/useRetirarBicicletas.jsx';
@@ -32,17 +32,39 @@ const Bicicletas = () => {
     const [bicicletas, setBicicletas] = useState([]);
     const [error] = useState(null);
 
-    const fetchBicicletas = async () => {
+    /*const fetchBicicletas = async () => {
         try {
+            let response;
+            if (user.rol === 'Usuario') {
+                response = await getBicicletas(user.rut);
+            } else {
+                response = await getBicicletas();
+            }
             const data = await getBicicletas();
             console.log("Respuesta del backend:", data); 
             setBicicletas(data || []);
         } catch (error) {
             console.error("Error al cargar las bicicletas:", error);
         }
+    };*/
+
+    const fetchBicicletas = async () => {
+        try {
+            let bicicletaData;
+            if (user.rol.toLowerCase() === "estudiante" || user.rol.toLowerCase() === "academico" || user.rol.toLowerCase() === "funcionario") {
+                bicicletaData = await getUserBicycles(user.rut);
+            } else {
+                bicicletaData = await getBicicletas();
+            }
+            console.log("Respuesta del backend:", bicicletaData);
+            setBicicletas(bicicletaData);
+        } catch (error) {
+            console.error("Error al cargar las bicicletas:", error);
+        }
     };
 
     useEffect(() => {
+        console.log("Usuario autenticado:", user);
         fetchBicicletas();
         const interval = setInterval(() => {
             fetchBicicletas();
