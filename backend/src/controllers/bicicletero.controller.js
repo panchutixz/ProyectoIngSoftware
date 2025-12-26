@@ -4,12 +4,12 @@ import Bicicletero from "../entities/bicicletero.entity.js";
 import Bicicleta from "../entities/bicicletas.entity.js";
 import User from "../entities/user.entity.js";
 import { handleErrorClient, handleErrorServer, handleSuccess } from "../handlers/responseHandlers.js";
-import { Not } from "typeorm";
+import { ILike, Not } from "typeorm";
 
 // Crear bicicletero
 export async function createBikeRack(req, res) {
     const bikeRackRepository = AppDataSource.getRepository(Bicicletero);
-    const { nombre, capacidad, ubicacion, estado } = req.body;
+    let { nombre, capacidad, ubicacion, estado } = req.body;
     // Validar autentificación de administrador
     const admin = req.user;
 
@@ -33,14 +33,15 @@ export async function createBikeRack(req, res) {
         });
     }
     try {
-        const existeNombre = await bikeRackRepository.findOne({ where: { nombre } });
+        nombre = nombre.trim();
+        const existeNombre = await bikeRackRepository.findOne({ where: { nombre: ILike(nombre) } });
         if (existeNombre) {
             return res.status(404).json({
                 message: `Ya existe un bicicletero con el nombre "${nombre}".`,
             });
         }
-
-        const existeUbicacion = await bikeRackRepository.findOne({ where: { ubicacion } });
+        ubicacion = ubicacion.trim();
+        const existeUbicacion = await bikeRackRepository.findOne({ where: { ubicacion: ILike(ubicacion) } });
 
         if (existeUbicacion) {
             return res.status(400).json({
@@ -108,7 +109,7 @@ export async function getBikeRackById(req, res) {
 export async function updateBikeRack(req, res) {
     const bikeRackRepository = AppDataSource.getRepository(Bicicletero);
     const { id_bicicletero } = req.query;
-    const { nombre, capacidad, ubicacion, estado } = req.body;
+    let { nombre, capacidad, ubicacion, estado } = req.body;
     // Validar autentificación de administrador
     const admin = req.user;
     if (!admin) return handleErrorClient(res, 401, "Usuario no autenticado");
@@ -131,9 +132,10 @@ export async function updateBikeRack(req, res) {
             return handleErrorClient(res, 404, `No existe un bicicletero con id: ${id_bicicletero}`);
         }
 
+        nombre = nombre.trim();
         const existeNombre = await bikeRackRepository.findOne({
             where: {
-                nombre: nombre,
+                nombre: ILike(nombre),
                 id_bicicletero: Not(id_bicicletero) 
             }
         });
@@ -144,9 +146,10 @@ export async function updateBikeRack(req, res) {
             });
         }
 
-        const existeUbicacion = await bikeRackRepository.findOne({
-            where: {
-                ubicacion: ubicacion,
+        ubicacion = ubicacion.trim();
+        const existeUbicacion = await bikeRackRepository.findOne({ 
+            where: { 
+                ubicacion: ILike(ubicacion),
                 id_bicicletero: Not(id_bicicletero) 
             }
         });
