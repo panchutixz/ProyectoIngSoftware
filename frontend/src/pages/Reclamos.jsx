@@ -2,6 +2,7 @@ import "@styles/reclamos.css";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { obtenerReclamos, crearReclamo, actualizarReclamo, eliminarReclamo } from "../services/reclamos.service.js";
+import { showErrorAlert, showSuccessAlert } from "../helpers/sweetAlert.js";
 
 const Reclamos = () => {
   const [reclamos, setReclamos] = useState([]);
@@ -62,19 +63,19 @@ const Reclamos = () => {
   const userRol = user?.rol || "";
   
   if (!rolesPermitidos.includes(userRol)) {
-    alert("Solo estudiantes, académicos o funcionarios pueden crear reclamos. Tu rol actual no está autorizado.");
+    showErrorAlert("No autorizado", "Solo estudiantes, académicos o funcionarios pueden crear reclamos. Tu rol actual no está autorizado.");
     setMostrarFormulario(false); //cerrar formulario si no tiene permiso
     return;
   }
 
     // Validar campos
     if (!descripcion.trim()) {
-      alert("Por favor, ingresa una descripción del reclamo");
+      showErrorAlert("Campo requerido", "Por favor, ingresa una descripción del reclamo");
       return;
     }
     
     if (!numeroSerie.trim()) {
-      alert("Por favor, ingresa el número de serie de la bicicleta");
+      showErrorAlert("Campo requerido", "Por favor, ingresa el número de serie de la bicicleta");
       return;
     }
 
@@ -113,7 +114,7 @@ const Reclamos = () => {
      //recargar la lista
       await fetchReclamos();
       
-      alert("Reclamo creado exitosamente!");
+      showSuccessAlert("Reclamo creado", "Reclamo creado exitosamente!");
       
     } catch (err) {
       console.error("Error al crear reclamo:", err);
@@ -144,7 +145,7 @@ const Reclamos = () => {
       }
       
       setError(errorMessage);
-      alert("Error: " + errorMessage);
+      showErrorAlert("Error al crear reclamo", errorMessage);
       
     } finally {
       setCreando(false);
@@ -154,10 +155,10 @@ const Reclamos = () => {
   //funcion para abrir modal de editar con la validacion
   const abrirModalEditar = (id, descripcionActual, rutUsuarioReclamo) => {
       //verificar si el usuario puede editar este reclamo
-    if (puedeCrearReclamo) {
+      if (puedeCrearReclamo) {
       //si es estudiante/academico/funcionario solo puede editar sus propios reclamos
       if (rutUsuarioReclamo !== userRut) {
-        alert("No puedes editar reclamos de otros usuarios");
+        showErrorAlert("Sin permiso", "No puedes editar reclamos de otros usuarios");
         return;
       }
     }
@@ -204,7 +205,7 @@ const Reclamos = () => {
       
       cerrarModalEditar();
       await fetchReclamos();
-      alert("Reclamo actualizado exitosamente!");
+      showSuccessAlert("Reclamo actualizado", "Reclamo actualizado exitosamente!");
       
     } catch (err) {
       console.error("Error al actualizar reclamo:", err);
@@ -215,7 +216,7 @@ const Reclamos = () => {
           errorMsg = errorMsg.join(", ");
         }
       }
-      alert(errorMsg);
+      showErrorAlert("Error al actualizar", errorMsg);
     }
   };
 
@@ -243,14 +244,14 @@ const Reclamos = () => {
       await eliminarReclamo(modalEliminar.id);
       cerrarModalEliminar();
       await fetchReclamos();
-      alert("Reclamo eliminado exitosamente");
+      showSuccessAlert("Reclamo eliminado", "Reclamo eliminado exitosamente");
     } catch (err) {
       console.error("Error al eliminar reclamo:", err);
       let errorMsg = "Error al eliminar el reclamo";
       if (err.response?.data?.message) {
         errorMsg = err.response.data.message;
       }
-      alert(errorMsg);
+      showErrorAlert("Error al eliminar", errorMsg);
     }
   };
 
