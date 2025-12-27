@@ -121,7 +121,7 @@ const Bicicletas = () => {
                 ))
             ) : (
                 <tr>
-                <td colSpan="9">
+                <td colSpan="10">
                     {user.rol === "Guardia" && !user.bicicletero_id && "No tiene biciclero asignado, contacte con el Administrador."}
                     {user.rol === "Guardia" && user.bicicletero_id && "No tiene bicicletas registradas."}
                     {user.rol === "Administrador" && "No hay bicicletas registradas"}
