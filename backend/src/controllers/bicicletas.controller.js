@@ -28,6 +28,24 @@ export async function registerBicycle(req, res){
         }
     }
 
+        // Buscar bicicletero
+        const bicicleteroBusqueda = await bicicleteroRepository.findOne({ where: { id_bicicletero } });
+        if (!bicicleteroBusqueda) {
+            return handleErrorClient(res, 400, "No existe el bicicletero");
+        }
+
+        if (bicicleteroBusqueda.estado !== "Abierto") {
+            return handleErrorClient(res, 403, "El bicicletero no está habilitado para registrar bicicletas");
+        }
+
+        // Validar capacidad
+        const bicicletasEnBicicletero = await bicycleRepository.count({
+            where: { bicicletero: { id_bicicletero }, estado: "guardada" }
+        });
+        if (bicicletasEnBicicletero >= bicicleteroBusqueda.capacidad) {
+            return handleErrorClient(res, 403, "El bicicletero está lleno");
+        }
+
     const usuario = await userRepository.findOne({ where: {rut}});
     if(!usuario){
         return handleErrorClient(res, 404, "No se encontró un usuario con ese RUT");
@@ -48,10 +66,7 @@ export async function registerBicycle(req, res){
     if(!bicicletero){
         return handleErrorClient(res, 404, "No se encontró un bicicletero con ese ID");
     }
-    const bicicletasEnBicicletero = await bicycleRepository.count({ where: { bicicletero } });
-    if (bicicletasEnBicicletero >= bicicletero.capacidad) {
-    return handleErrorClient(res, 400, "El bicicletero está lleno");
-    }
+
 
     const existingBicycle = await bicycleRepository.findOne({
         where: { numero_serie }
@@ -104,6 +119,7 @@ export async function reIngresoBicycle(req, res) {
     const bicycleRepository = AppDataSource.getRepository(Bicicleta);
     const userRepository = AppDataSource.getRepository(User);
     const historialRepository = AppDataSource.getRepository(Historial);
+    const bicicleteroRepository = AppDataSource.getRepository(Bicicletero);
 
     let { numero_serie, rut, id_bicicletero } = req.body;
     numero_serie = numero_serie ? numero_serie.toString().toUpperCase() : numero_serie;
@@ -138,6 +154,19 @@ export async function reIngresoBicycle(req, res) {
     if (!usuario) {
         return handleErrorClient(res, 404, "Usuario no encontrado");
     }
+
+    const bicicleteroBusqueda = await bicicleteroRepository.findOne({ where: {id_bicicletero}});
+    if(!bicicleteroBusqueda){
+        return handleErrorClient(res, 400, "No existe el bicicletero");
+    }
+
+    const bicicletasEnBicicletero = await bicycleRepository.count({
+        where : {bicicletero : {id_bicicletero}, estado: "guardada"}
+    });
+    if(bicicletasEnBicicletero >= bicicleteroBusqueda.capacidad){
+        return handleErrorClient(res, 403, "El bicicletero esta lleno, no se puede re-ingresar la bicicleta");
+    }
+    
 
     bicicleta.estado = "guardada";
     bicicleta.usuario = usuario;
