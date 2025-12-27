@@ -41,10 +41,10 @@ export const registerValidation = Joi.object({
     descripcion: Joi.string()
     .min(10)
     .max(30)
-    .pattern(/^[A-Za-zÁÉÍÓÚáéíóúÑñ]+(?: [A-Za-zÁÉÍÓÚáéíóúÑñ]+)*$/)
+    .pattern(/^[A-Za-z0-9ÁÉÍÓÚáéíóúÑñ]+(?: [A-Za-z0-9ÁÉÍÓÚáéíóúÑñ]+)*$/)
     .required()
     .messages({
-        "string.pattern.base": "La descripción no debe contener números ni carácteres especiales",
+        "string.pattern.base": "La descripción no debe carácteres especiales",
         "string.min": "La descripción debe tener una extensión mínima de 10 carácteres",
         "string.max": "La descripción debe tener una extensión máxima de 30 carácteres",
         "string.empty": "La descripción de la bicicleta es obligatoria",
