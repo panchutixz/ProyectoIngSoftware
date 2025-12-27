@@ -72,11 +72,6 @@ export async function registerBicycle(req, res){
         return handleErrorClient(res, 404, "No se encontró un bicicletero con ese ID");
     }
 
-    const bicicletasEnBicicletero = await bicycleRepository.count({ where: { bicicletero } });
-    if (bicicletasEnBicicletero >= bicicletero.capacidad) {
-        return handleErrorClient(res, 400, "El bicicletero está lleno");
-    }
-
     const existingBicycle = await bicycleRepository.findOne({
         where: { numero_serie }
     });
@@ -496,9 +491,9 @@ async function marcarBicicletasOlvidadas() {
 
             console.log(`Bicicleta ${bici.codigo} marcada como olvidada.`);
             }
-    }
+        }
+    }   
 }
-
     //valdacion de rol para consultar por POSTMAN
 export async function marcarOlvidadas(req, res) {
     try {

@@ -1,4 +1,4 @@
-import cron from "node-cron";
+/*import cron from "node-cron";
 import { marcarOlvidadasCron } from "../controllers/bicicletas.controller.js";
 
 cron.schedule("* * * * *", async () => {
@@ -8,3 +8,4 @@ cron.schedule("* * * * *", async () => {
 
 //para todos los dias a las 21 horas seria cron.schedule("0 21 * * *", async () => {
 // astericos todo es ejecutando cada minuto
+*/
