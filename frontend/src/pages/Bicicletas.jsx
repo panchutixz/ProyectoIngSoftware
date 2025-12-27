@@ -110,11 +110,13 @@ const Bicicletas = () => {
             ) : (
                 <tr>
                 <td colSpan="9">
-                            {user.rol === "Guardia" ? "No tiene biciclero asignado, contacte con el administrador." : ""}
-                            {user.rol === "estudiante"  ? "No tienes bicicletas registradas en tu cuenta."  : ""} 
-                            {user.rol === "Academico" ? "No se encontraron bicicletas." : ""}
-                            {user.rol === "Funcionario" ? "No se encontraron bicicletas." : ""}
+                    {user.rol === "Guardia" && !user.bicicletero_id && "No tiene biciclero asignado, contacte con el Administrador."}
+                    {user.rol === "Guardia" && user.bicicletero_id && "No tiene bicicletas registradas."}
+                    {user.rol === "Administrador" && "No hay bicicletas registradas"}
+                    {user.rol === "Estudiante" && "No tienes bicicletas registradas en tu cuenta."}
+                    {(user.rol === "Academico" || user.rol === "Funcionario") && "No se encontraron bicicletas."}
                 </td>
+
 
                 </tr>
             )}
