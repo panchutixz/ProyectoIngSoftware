@@ -109,9 +109,13 @@ const Bicicletas = () => {
                 ))
             ) : (
                 <tr>
-                <td colSpan={user.rol === 'Guardia' ? 9 : 8}>
-                    No tiene bicicletas registradas
+                <td colSpan="9">
+                            {user.rol === "Guardia" ? "No tiene biciclero asignado, contacte con el administrador." : ""}
+                            {user.rol === "estudiante"  ? "No tienes bicicletas registradas en tu cuenta."  : ""} 
+                            {user.rol === "Academico" ? "No se encontraron bicicletas." : ""}
+                            {user.rol === "Funcionario" ? "No se encontraron bicicletas." : ""}
                 </td>
+
                 </tr>
             )}
                 </tbody>
