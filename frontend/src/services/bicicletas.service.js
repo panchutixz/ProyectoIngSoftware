@@ -57,3 +57,25 @@ export async function retirarBicicleta(data){
         throw new Error(backendMessage);
     }
 }
+
+export async function eliminarBicycle(){
+    try{
+        const response = await axios.delete('/auth/eliminar/bicicleta', {data});
+        return response.data;
+    }catch{error}{
+        const backendMessage = error.response?.data?.message || 
+        "Error en el servidor. Revisa los datos e inténtalo nuevamente.";
+        throw new Error(backendMessage);
+    }
+}
+    
+export async function editarBicycle(){
+    try{
+        const response = await axios.patch('/auth/editar/bicicleta', data);
+        return response.data;
+    }catch{error}{
+        const backendMessage = error.response?.data?.message || 
+        "Error en el servidor. Revisa los datos e inténtalo nuevamente.";
+        throw new Error(backendMessage);
+    }
+}
