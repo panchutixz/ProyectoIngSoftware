@@ -74,6 +74,14 @@
   cursor: pointer;
   font-weight: 600;
 }
+/* Acciones (botón eliminar) */
+.users-table .edit {
+  background: transparent;
+  border: none;
+  color: #2b82c0;
+  cursor: pointer;
+  font-weight: 600;
+}
 
 
 /* Responsive */

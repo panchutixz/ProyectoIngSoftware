@@ -13,7 +13,7 @@ const domainEmailValidator = (value, helpers) => {
 
 
 const passwordRegex = /^[a-zA-Z0-9]+$/;
-const allowedRoles = ["Estudiante", "Funcionario", "Academico", "estudiante", "funcionario", "academico", "guardia", "Guardia"];
+const allowedRoles = ["Estudiante", "Funcionario", "Académico", "estudiante", "funcionario", "académico", "guardia", "Guardia"];
 
 
 export const registerValidation = Joi.object({
@@ -145,7 +145,7 @@ export async function validateRegister(data, checkEmailExists) {
     if (!email.endsWith("@alumnos.ubiobio.cl")) {
       throw new Error("Para el rol estudiante el correo debe terminar en @alumnos.ubiobio.cl.");
     }
-  } else if (role === "funcionario" || role === "academico" || role === "guardia") {
+  } else if (role === "funcionario" || role === "académico" || role === "guardia") {
     if (!email.endsWith("@ubiobio.cl")) {
       throw new Error(
         "Para el rol funcionario, académico o guardia, el correo debe terminar en @ubiobio.cl."

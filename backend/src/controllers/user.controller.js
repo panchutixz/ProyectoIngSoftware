@@ -115,8 +115,9 @@ export async function updateUserById(req, res) {
     if (!user) {
       return res.status(404).json({ message: "Usuario no encontrado." });
     }
-// Validar que el nuevo rol sea uno permitido, si se está intentando actualizar
-    const rolesValidos = ["Estudiante", "Funcionario", "Académico", "Guardia"];
+
+    // Validar que el nuevo rol sea uno permitido, si se está intentando actualizar
+    const rolesValidos = ["Estudiante", "Funcionario", "Académico", "Guardia","Administrador","estudiante","funcionario","académico","guardia","administrador"];
     if (rol && !rolesValidos.includes(rol.toLowerCase())) {
       return res.status(400).json({ message: `Rol inválido. Solo se permiten: ${rolesValidos.join(", ")}.` });
     }

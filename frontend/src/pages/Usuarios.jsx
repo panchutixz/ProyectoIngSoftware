@@ -2,8 +2,10 @@ import "@styles/usuarios.css";
 import useGetUser  from "@hooks/usuario/useGetUser.jsx";
 import useDeleteUser from "@hooks/usuario/useDeleteUser.jsx";
 import useCreateUser from "@hooks/usuario/useCreateUser.jsx";
+import useEditUser from "@hooks/usuario/useEditUser.jsx";
 import { useEffect } from "react";
 import { useAuth } from "../context/AuthContext.jsx";
+
 
 // 🎨 Colores por rol
 const rolColors = {
@@ -11,7 +13,7 @@ const rolColors = {
     guardia: '#0288d1',         // celeste/azul
     estudiante: '#2e7d32',      // verde
     funcionario: '#e65100',     // naranjo fuerte
-    academico: '#6a1b9a'        // púrpura
+    académico: '#6a1b9a'        // púrpura
 };
 
 // 🔧 Función para estilo dinámico
@@ -34,6 +36,7 @@ const Users = () => {
     const { users, fetchUsers } = useGetUser();
     const { handleDeleteUser } = useDeleteUser(fetchUsers);
     const { handleCreateUser } = useCreateUser(fetchUsers);
+    const { handleEditUser } = useEditUser(fetchUsers);
 
     useEffect(() => {
         fetchUsers();
@@ -77,7 +80,9 @@ const Users = () => {
                                 {authUser?.rol === 'Administrador' && (
                                     <td>
                                         <button className="delete" onClick={() => handleDeleteUser(u.id)}>Eliminar</button>
+                                        <button className="edit" style={{ marginLeft: "8px" }} onClick={() => handleEditUser(u.id, u)}>Editar</button>
                                     </td>
+
                                 )}
                             </tr>
                         ))
