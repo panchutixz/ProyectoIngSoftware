@@ -11,7 +11,6 @@ export const Historial = new EntitySchema({
         },
         fecha_ingreso: {
             type: "timestamp",
-            nullable: false,
             default: () => "CURRENT_TIMESTAMP",
         },
         fecha_salida: {
@@ -21,21 +20,27 @@ export const Historial = new EntitySchema({
         },
     },
     relations: {
-        bicicletas: {
-            type: "many-to-one",
-            target: "Bicicleta",
-            joinColumn: { name: "id_bicicleta" },
-            eager: true,
-            nullable: false,
-        },
         usuario: {
             type: "many-to-one",
             target: "User",
-            joinColumn: { name: "rut_user" },
+            joinColumn: { 
+                name: "rut_user",
+                referencedColumnName: "rut"
+            },
+            eager: true, 
+        },
+        bicicletas: {
+            type: "many-to-one",
+            target: "Bicicleta",
+            joinColumn: {
+                name: "numero_serie_bicicleta",
+                referencedColumnName: "numero_serie"
+            },
             eager: true,
-            nullable: false,
+            nullable: true,
         },
     },
 });
 
 export default Historial;
+//a

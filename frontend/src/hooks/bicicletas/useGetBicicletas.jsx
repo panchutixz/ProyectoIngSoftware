@@ -5,14 +5,15 @@ export const useGetBicicletas = () => {
     const [bicicletas, setBicicletas] = useState([]);
 
     const fetchBicicletas = async () => {
-        try{
-            const data = await getBicicletas();
-            setBicicletas(data);
-        }catch(error){
-            console.error("Error al obtener las bicicletas:", error);
+        try {
+            const response = await getBicicletas();
+            setBicicletas(response.data || []);
+        } catch (error) {
+        console.error("Error al cargar las bicicletas:", error);
+            setBicicletas([]);
         }
     };
     return { bicicletas, fetchBicicletas };
-}
+};
 
 export default useGetBicicletas;

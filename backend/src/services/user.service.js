@@ -4,10 +4,7 @@ import { AppDataSource } from "../config/configDb.js";
 import { UserEntity } from "../entities/user.entity.js";
 import bcrypt from "bcrypt";
 
-<<<<<<< HEAD
 const userRepository = AppDataSource.getRepository(UserEntity);
-=======
->>>>>>> ec29eab9ff6119951f25eddf3e5a319dc7fe49aa
 
 
 export async function register(req, res) {

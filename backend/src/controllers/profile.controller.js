@@ -21,7 +21,11 @@ export async function getPrivateProfile(req, res) {
       message: `¡Hola, ${user.email}! Este es tu perfil privado. Solo tú puedes verlo.`,
       userData: {
         email: user.email,
-        password: user.password
+        password: user.password,
+        nombre: user.nombre,
+        apellido: user.apellido,
+        rol: user.rol,
+        rut: user.rut
       }
     });
   } catch (error) {

@@ -14,15 +14,11 @@ export const createReclamoValidation = Joi.object({
             "string.empty": "La descripción del reclamo es obligatoria."
         }),
 
-    id_bicicleta: Joi.number()
-        .integer()
-        .positive()
+    numero_serie_bicicleta: Joi.string()
         .required()
         .messages({
-            "number.base": "El ID de la bicicleta debe ser un número.",
-            "number.integer": "El ID de la bicicleta debe ser un número entero.",
-            "number.positive": "El ID de la bicicleta debe ser positivo.",
-            "any.required": "El ID de la bicicleta es obligatorio."
+            "string.empty": "El número de serie de la bicicleta es obligatorio.",
+            "any.required": "El número de serie de la bicicleta es obligatorio."
         })
 });
 

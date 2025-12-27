@@ -3,15 +3,10 @@
 import { AppDataSource } from "../config/configDb.js";
 import { UserEntity } from "../entities/user.entity.js";
 import { registerValidation} from "../validations/usuario.validation.js";
-<<<<<<< HEAD
 import { encryptPassword } from "../helpers/bcrypt.helper.js";
 
-=======
-import { encryptPassword } from "../handlers/bcrypt.helper.js";
 
 
-
->>>>>>> ec29eab9ff6119951f25eddf3e5a319dc7fe49aa
 // Obtener todos los usuarios
 export async function getUsers(req, res) {
   try {
@@ -29,7 +24,13 @@ export async function getUserById(req, res) {
   try {
     const userRepository = AppDataSource.getRepository(UserEntity);
     const { id } = req.params;
-    const user = await userRepository.findOne({ where: { id } });
+    const idNum = parseInt(id, 10);
+
+    if (Number.isNaN(idNum)) {
+      return res.status(400).json({ message: "ID de usuario inválido." });
+    }
+
+    const user = await userRepository.findOne({ where: { id: idNum } });
 
     if (!user) {
       return res.status(404).json({ message: "Usuario no encontrado." });
@@ -50,20 +51,13 @@ export async function createUser(req, res) {
   }
   try {
     const userRepository = AppDataSource.getRepository(UserEntity);
-<<<<<<< HEAD
-    const { rut, nombre, apellido, rol , password, email } = req.body;
-
-    // Validación para ingresar rol como Estudiante, Funcionario o Académico solamente
-    if (rol.toLowerCase() !== "estudiante" && rol.toLowerCase() !== "funcionario" && rol.toLowerCase() !== "académico") {
-      return res.status(400).json({ message: "El rol solo puede ser 'estudiante', 'funcionario' o 'académico' al momento de crear un usuario." });
-=======
     const { rut, nombre, apellido, rol , password, email, telefono } = req.body;
 
-    // Validación para ingresar rol como Estudiante, Funcionario o Académico solamente
-    if (rol.toLowerCase() !== "estudiante" && rol.toLowerCase() !== "funcionario" && rol.toLowerCase() !== "academico") {
-      return res.status(400).json({ message: "El rol solo puede ser 'estudiante', 'funcionario' o 'academico' al momento de crear un usuario." });
->>>>>>> ec29eab9ff6119951f25eddf3e5a319dc7fe49aa
+    // Validación para ingresar rol como Guardia solamente
+    if (rol.toLowerCase() !== "guardia") {
+      return res.status(400).json({ message: "El rol solo puede ser 'estudiante', 'funcionario', 'académico' o 'guardia' al momento de crear un usuario." });
     }
+  
 
     // Verificar si el RUT ya existe
     const existingUser = await userRepository.findOne({ where: { rut } });
@@ -75,9 +69,7 @@ export async function createUser(req, res) {
     if (existingEmail) {
       return res.status(400).json({ message: "Ya existe un usuario con este correo electrónico." });
     }
-<<<<<<< HEAD
 
-=======
     // Verificar si el teléfono ya existe
     if (telefono) {
       const existingTelefono = await userRepository.findOne({ where: { telefono } });
@@ -85,7 +77,6 @@ export async function createUser(req, res) {
         return res.status(400).json({ message: "Ya existe un usuario con este teléfono." });
       }
     }
->>>>>>> ec29eab9ff6119951f25eddf3e5a319dc7fe49aa
 
     // Encriptar la contraseña antes de guardar
     const hashedPassword = await encryptPassword(password);
@@ -96,7 +87,8 @@ export async function createUser(req, res) {
       apellido,
       rol,
       password: hashedPassword,
-      email 
+      email,
+      telefono
     });
 
     const savedUser = await userRepository.save(newUser);
@@ -111,23 +103,55 @@ export async function updateUserById(req, res) {
   try {
     const userRepository = AppDataSource.getRepository(UserEntity);
     const { id } = req.params;
-    const { nombre, apellido, rol, email } = req.body;
+    const { nombre, apellido, rol, email, telefono, rut } = req.body;
 
-    const user = await userRepository.findOne({ where: { id } });
+    const idNum = parseInt(id, 10);
+    if (Number.isNaN(idNum)) {
+      return res.status(400).json({ message: "ID de usuario inválido." });
+    }
 
+    const user = await userRepository.findOne({ where: { id: idNum } });
     if (!user) {
       return res.status(404).json({ message: "Usuario no encontrado." });
     }
-// Validar que el nuevo rol sea uno permitido, si se está intentando actualizar
-    const rolesValidos = ["Estudiante", "Funcionario", "Académico"];
-    if (rol && !rolesValidos.includes(rol.toLowerCase())) {
+
+    // Validar rol
+    const rolesValidos = ["Estudiante", "Funcionario", "Académico", "Guardia", "Administrador"];
+    if (rol && !rolesValidos.map(r => r.toLowerCase()).includes(rol.toLowerCase())) {
       return res.status(400).json({ message: `Rol inválido. Solo se permiten: ${rolesValidos.join(", ")}.` });
     }
 
+    // Validar que el nuevo RUT no esté ocupado por otro usuario
+    if (rut && rut !== user.rut) {
+      const existingRut = await userRepository.findOne({ where: { rut } });
+      if (existingRut) {
+        return res.status(400).json({ message: "Ya existe un usuario con este RUT." });
+      }
+      user.rut = rut;
+    }
+
+    // Validar que el nuevo email no esté ocupado por otro usuario
+    if (email && email !== user.email) {
+      const existingEmail = await userRepository.findOne({ where: { email } });
+      if (existingEmail) {
+        return res.status(400).json({ message: "Ya existe un usuario con este correo electrónico." });
+      }
+      user.email = email;
+    }
+
+    // Validar que el nuevo teléfono no esté ocupado por otro usuario
+    if (telefono && telefono !== user.telefono) {
+      const existingTelefono = await userRepository.findOne({ where: { telefono } });
+      if (existingTelefono) {
+        return res.status(400).json({ message: "Ya existe un usuario con este teléfono." });
+      }
+      user.telefono = telefono;
+    }
+
+    // Actualizar otros campos
     user.nombre = nombre ?? user.nombre;
     user.apellido = apellido ?? user.apellido;
     user.rol = rol ?? user.rol;
-    user.email = email ?? user.email;
 
     await userRepository.save(user);
 
@@ -138,12 +162,19 @@ export async function updateUserById(req, res) {
   }
 }
 
+
 // Eliminar un usuario por ID
 export async function deleteUserById(req, res) {
   try {
     const userRepository = AppDataSource.getRepository(UserEntity);
     const { id } = req.params;
-    const user = await userRepository.findOne({ where: { id } });
+
+    const idNum = parseInt(id, 10);
+    if (Number.isNaN(idNum)) {
+      return res.status(400).json({ message: "ID de usuario inválido." });
+    }
+
+    const user = await userRepository.findOne({ where: { id: idNum } });
 
     if (!user) {
       return res.status(404).json({ message: "Usuario no encontrado." });
@@ -157,3 +188,4 @@ export async function deleteUserById(req, res) {
     res.status(500).json({ message: "Error interno del servidor." });
   }
 }
+//a.

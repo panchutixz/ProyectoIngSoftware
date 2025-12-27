@@ -7,10 +7,15 @@ import Root from '@pages/Root';
 import ProtectedRoute from '@components/ProtectedRoute';
 import '@styles/styles.css';
 import Register from '@pages/Register';
-import Profile from '@pages/Profile';
+import Profile from '@pages/Profile'
 import Usuarios from '@pages/Usuarios';
 import Bicicletas from '@pages/Bicicletas';
-import RegistrarBicicletas from '@pages/RegistrarBicicletas';
+import Bicicleteros from '@pages/Bicicleteros';
+import ConsultarBicicleteros from '@pages/ConsultarBicicleteros';
+//import RegistrarBicicletas from '@pages/RegistrarBicicletas';
+import Reclamos from '@pages/Reclamos'; 
+import AsignarGuardias from '@pages/AsignarGuardias';
+
 
 const router = createBrowserRouter([
   {
@@ -53,9 +58,27 @@ const router = createBrowserRouter([
         </ProtectedRoute>
       },
       {
-        path: '/registrarBicicletas',
-        element: <ProtectedRoute allowedRoles={["guardia"]}
-        ><RegistrarBicicletas />
+        path: '/bicicleteros',
+        element: <ProtectedRoute allowedRoles={["admin", "guardia"]}
+        ><Bicicleteros/>
+        </ProtectedRoute>
+      },
+      {
+        path: '/consultarBicicleteros',
+        element: <ProtectedRoute allowedRoles={["admin", "guardia"]}
+        ><ConsultarBicicleteros/>
+        </ProtectedRoute>
+      },
+      {
+        path: '/Misreclamos',
+        element: <ProtectedRoute allowedRoles={["estudiante", "academico", "funcionario"]}
+        ><Reclamos />
+        </ProtectedRoute>
+      },
+      {
+        path: '/asignarGuardias',
+        element: <ProtectedRoute allowedRoles={["admin", "guardia"]}
+        ><AsignarGuardias/>
         </ProtectedRoute>
       }
     ]

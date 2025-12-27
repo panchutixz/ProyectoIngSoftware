@@ -1,31 +1,133 @@
-.bicicleta-page{
-    margin-top: 40px;
-    margin-bottom: 20px;
-    text-align: left;
-    padding: 16px;
-    background: rgba(255,255,255,0.02);
+
+.bicicletas-page {
+    max-width: 1100px;
+    margin: 28px 24px;
+    padding: 20px;
 }
 
-.bicicleta-table{
+.bicicletas-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+.bicicletas-header .title-listar-bicicletas {
+    margin: 0;
+    font-size: 24px;
+    color: #e8f0f2;
+    letter-spacing: 0.2px;
+    font-weight: 700;
+}
+
+.bicicleta-table-wrapper {
+    background: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 8px 20px rgba(2,40,53,0.08);
+}
+.bicicleta-table {
     width: 100%;
     border-collapse: collapse;
-    margin-top: 20px;
-    color: #000;
-    border: 1px solid rgba(0,0,0,0.06);
+    font-size: 15px;
+    color: #24323a;
 }
 
-.bicicleta-table td {
-    padding: 8px 12px;
+.bicicleta-table thead th {
+    background: linear-gradient(90deg,#0a6b71,#0b9fb6);
+    color: #fff;
+    font-weight: 700;
+    padding: 12px 18px;
+    text-align: left;
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    font-size: 14px;
 }
 
-.bicicleta-table th {
-  padding: 8px 12px;
-  background-color: rgba(255, 255, 255, 0.1);
-  color: #fff;
-  text-align: left;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+.bicicleta-table thead th { white-space: nowrap; }
+.bicicleta-table th, .bicicleta-table td { word-break: normal; }
+
+
+.bicicleta-table th:nth-child(8), .bicicleta-table td:nth-child(8) {
+    white-space: nowrap;
+    min-width: 150px;
 }
 
-.bicicleta-table thead {
-  background-color: rgba(0, 0, 0, 0.1);
+.bicicleta-table th:nth-child(9), .bicicleta-table td:nth-child(9) {
+    width: 72px;
+    text-align: center;
+}
+
+.bicicleta-table tbody td {
+    padding: 14px 18px;
+    border-bottom: 1px solid #eef2f3;
+    vertical-align: middle;
+    background: #fff;
+}
+.bicicleta-table tbody tr:nth-child(even) td {
+    background: #fbfbfb;
+}
+
+.button-registrar-bicicleta {
+    background: linear-gradient(135deg,#7058e1,#6b45ce);
+    color: #fff;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    box-shadow: 0 6px 18px rgba(103,58,183,0.12);
+    font-weight: 600;
+    margin-left: auto;
+    margin-right: 8px;
+}
+.button-retirar-bicicleta{
+    background: linear-gradient(135deg,#05495e,#05495e);
+    color: #fff;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    box-shadow: 0 6px 18px rgba(103,58,183,0.12);
+    font-weight: 600;
+}
+
+.button-reIngresar-bicicleta{
+    border: none;
+    padding: 10px 20px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
+    border-radius: 4px;
+}
+
+.title-register-bicicleta{
+    color: #000000;
+    margin-bottom: 20px;
+    font-size: 24px;
+}
+
+.title-listar-bicicletas{
+    margin: 0;
+    font-size: 24px;
+    color: #e8f0f2;
+    letter-spacing: 0.2px;
+    font-weight: 700;
+}
+
+.bici-estado-guardada{
+    color: green
+}
+
+.estado-entregada{
+    color: orange
+}
+
+.estadpo-olvidada{
+    color: red
+}
+.capitalize {
+  text-transform: capitalize;
 }

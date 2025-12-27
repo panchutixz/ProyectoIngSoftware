@@ -1,8 +1,8 @@
 import { Router } from "express";
 import { login, register } from "../controllers/auth.controller.js";
-import { registerBicycle, getBicycle, retirarBicycle, getUserBicycles } from "../controllers/bicicletas.controller.js";
+import { registerBicycle, getBicycle, retirarBicycle, getUserBicycles, reIngresoBicycle, eliminarBicycle, editarBicycle ,marcarOlvidadas } from "../controllers/bicicletas.controller.js";
 import { getHistoryByUser } from "../controllers/historial.controller.js";
-import { createBikeRack, getAllBikeRacks, getBikeRackById, updateBikeRack, deleteBikeRack, asignarGuardia, desasignarGuardia, getCapacity} from "../controllers/bicicletero.controller.js";
+import { createBikeRack, getAllBikeRacks, getBikeRackById, updateBikeRack, deleteBikeRack, asignarGuardia, desasignarGuardia, getHistoryByBikeRack, getCapacity, getAllGuardias} from "../controllers/bicicletero.controller.js";
 import { authMiddleware } from "../middleware/auth.middleware.js";
 
 
@@ -11,25 +11,26 @@ const router = Router();
 router.post("/login", login);
 router.post("/register", register);
 
-router.post("/register/bicicletas", registerBicycle);
+router.patch("/reIngreso/bicicletas", authMiddleware, reIngresoBicycle);
+router.post("/register/bicicletas", authMiddleware, registerBicycle);
 router.get("/obtener/bicicletas", authMiddleware, getBicycle);
 router.delete("/retirar/bicicletas", authMiddleware, retirarBicycle);
+router.delete("/eliminar/bicicleta", authMiddleware, eliminarBicycle);
+router.patch("/editar/bicicleta", authMiddleware, editarBicycle)
+router.patch("/bicicletas/marcarOlvidadas", authMiddleware, marcarOlvidadas);
 router.post("/create/bicicletero", authMiddleware, createBikeRack);
 router.get("/getAll/bicicletero", getAllBikeRacks);
 router.get("/get/bicicletero", getBikeRackById);
 router.patch("/update/bicicletero", authMiddleware, updateBikeRack);
 router.delete("/delete/bicicletero", authMiddleware, deleteBikeRack);
+router.get("/bicicletero/:id_bicicletero/historial", authMiddleware, getHistoryByBikeRack);
 
-/*
-router.post("/create/bicicletero", authMiddleware, createBikeRack);
-router.patch("/update/bicicletero", authMiddleware, updateBikeRack);
-router.delete("/delete/bicicletero", authMiddleware, deleteBikeRack);
-*/
 router.post("/asignar/bicicletero", authMiddleware, asignarGuardia);
 router.post("/historial/rut", authMiddleware, getHistoryByUser);
-router.get("/usuario/:rut", authMiddleware, getUserBicycles);
-router.post("/desasignar/bicicletero", authMiddleware, desasignarGuardia);
-router.get("/capacidad/bicicletero", getCapacity);
+router.get("/usuario/:rut", getUserBicycles);
+router.patch("/desasignar/bicicletero", authMiddleware, desasignarGuardia);
+router.get("/getCapacity/bicicletero", getCapacity);
+router.get("/guardias", authMiddleware, getAllGuardias);
 
 
 export default router;

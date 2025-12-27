@@ -25,4 +25,3 @@ export async function eliminateProfile() {
         return error.response?.data || { message: 'Error al eliminar perfil' };
     }
 }
-

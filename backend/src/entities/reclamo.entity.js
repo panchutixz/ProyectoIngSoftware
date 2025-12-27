@@ -17,18 +17,34 @@ const Reclamo = new EntitySchema({
             type: "timestamp",
             default: () => "CURRENT_TIMESTAMP",
         },
+        rut_user: {  
+            type: "varchar",
+            length: 255,
+            nullable: false,
+        },
+        numero_serie_bicicleta: {
+            type: "varchar",
+            length: 100,
+            nullable: false,
+        }
     },
     relations: {
         usuario: {
             type: "many-to-one",
             target: "User",
-            joinColumn: { name: "rut_usuario" },
+            joinColumn: { 
+                name: "rut_user",
+                referencedColumnName: "rut"
+            },
             eager: true,
         },
         bicicletas: {
             type: "many-to-one",
             target: "Bicicleta",
-            joinColumn: { name: "id_bicicleta" },
+            joinColumn: { 
+                name: "numero_serie_bicicleta",
+                referencedColumnName: "numero_serie"
+            },
             eager: true,
         },
     },
