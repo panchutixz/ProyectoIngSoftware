@@ -5,6 +5,7 @@ import User from "../entities/user.entity.js"
 import { handleErrorClient, handleErrorServer, handleSuccess } from "../handlers/responseHandlers.js";
 import Bicicletero from "../entities/bicicletero.entity.js";
 import { Historial } from "../entities/historial_bicicleta.entity.js";
+import HistorialBicicletero from "../entities/historial_bicicletero.entity.js";
 import { In } from "typeorm";
 
 // registro bicicletas
@@ -46,32 +47,40 @@ export async function registerBicycle(req, res){
             return handleErrorClient(res, 403, "El bicicletero está lleno");
         }
 
-    const usuario = await userRepository.findOne({ where: {rut}});
-    if(!usuario){
+    const usuario = await userRepository.findOne({ where: { rut } });
+    if (!usuario) {
         return handleErrorClient(res, 404, "No se encontró un usuario con ese RUT");
     }
 
     const bicicletasUsuario = await bicycleRepository.count(
-        {where: 
-            { usuario: { rut },
-                estado: In(["guardada", "olvidada"])}}); 
+        {
+            where:
+            {
+                usuario: { rut },
+                estado: In(["guardada", "olvidada"])
+            }
+        });
     if (bicicletasUsuario >= 2) {
         return handleErrorClient(res, 400, "El usuario ya tiene el máximo de bicicletas permitidas (2)");
     }
 
-    if(!id_bicicletero){
+    if (!id_bicicletero) {
         return handleErrorClient(res, 404, "No se encontró un bicicletero asociado a este ID");
     }
-    const bicicletero = await bicicleteroRepository.findOne({where: {id_bicicletero}});
-    if(!bicicletero){
+    const bicicletero = await bicicleteroRepository.findOne({ where: { id_bicicletero } });
+    if (!bicicletero) {
         return handleErrorClient(res, 404, "No se encontró un bicicletero con ese ID");
     }
 
+    const bicicletasEnBicicletero = await bicycleRepository.count({ where: { bicicletero } });
+    if (bicicletasEnBicicletero >= bicicletero.capacidad) {
+        return handleErrorClient(res, 400, "El bicicletero está lleno");
+    }
 
     const existingBicycle = await bicycleRepository.findOne({
         where: { numero_serie }
     });
-    if (existingBicycle){
+    if (existingBicycle) {
         return handleErrorClient(res, 400, "Ya existe una bicicleta registrada con ese número de serie");
     }
 
@@ -79,11 +88,11 @@ export async function registerBicycle(req, res){
         let codigo;
         let existsCodigo = null;
 
-    do {
-    const token = Math.floor(1000 + Math.random() * 9000);
-    codigo = `${token}`;
-    existsCodigo = await bicycleRepository.findOne({ where: { codigo } });
-    }   while (existsCodigo);
+        do {
+            const token = Math.floor(1000 + Math.random() * 9000);
+            codigo = `${token}`;
+            existsCodigo = await bicycleRepository.findOne({ where: { codigo } });
+        } while (existsCodigo);
 
         const newBicycle = await bicycleRepository.save({
             codigo,
@@ -100,12 +109,21 @@ export async function registerBicycle(req, res){
             { rut: rut },
             { bicicletero_id: id_bicicletero }
         );
-          // Crear registro en el historial
+        // Crear registro en el historial
         await historialRepository.save({
             usuario,
             bicicletas: newBicycle,
             fecha_ingreso: new Date(),
             fecha_salida: null
+        });
+
+        const historialPropioRepo = AppDataSource.getRepository(HistorialBicicletero);
+        await historialPropioRepo.save({
+            accion: "Ingreso",
+            fecha: new Date(),
+            bicicletero: bicicletero,
+            usuario: usuario,
+            bicicleta: newBicycle
         });
 
         return handleSuccess(res, 200, "Bicicleta registrada correctamente y usuario actualizado");
@@ -120,17 +138,18 @@ export async function reIngresoBicycle(req, res) {
     const userRepository = AppDataSource.getRepository(User);
     const historialRepository = AppDataSource.getRepository(Historial);
     const bicicleteroRepository = AppDataSource.getRepository(Bicicletero);
+    const historialBicicleteroRepo = AppDataSource.getRepository(HistorialBicicletero);
 
     let { numero_serie, rut, id_bicicletero } = req.body;
     numero_serie = numero_serie ? numero_serie.toString().toUpperCase() : numero_serie;
     const { error } = reIngresoValidation.validate(req.body);
 
-    if(error) return handleErrorClient(res, 400, error.details[0].message);
+    if (error) return handleErrorClient(res, 400, error.details[0].message);
 
-    if (req.user.rol === "Guardia"){
+    if (req.user.rol === "Guardia") {
         const guardiaBicicleteroId = Number(req.user.bicicleteroId || req.user.bicicletero_id);
         const bodyBicicleteroId = Number(id_bicicletero);
-        if (!guardiaBicicleteroId || guardiaBicicleteroId !== bodyBicicleteroId){
+        if (!guardiaBicicleteroId || guardiaBicicleteroId !== bodyBicicleteroId) {
             return handleErrorClient(res, 403, "No puedes re-ingresar bicicletas en otro bicicletero");
         }
     }
@@ -172,28 +191,39 @@ export async function reIngresoBicycle(req, res) {
     bicicleta.usuario = usuario;
     bicicleta.bicicletero = { id_bicicletero };
 
-        try {
+    try {
         let codigo;
         let existsCodigo = null;
 
-    do {
-    const token = Math.floor(1000 + Math.random() * 9000);
-    codigo = `${token}`;
-    existsCodigo = await bicycleRepository.findOne({ where: { codigo } });
-    }   while (existsCodigo);
+        do {
+            const token = Math.floor(1000 + Math.random() * 9000);
+            codigo = `${token}`;
+            existsCodigo = await bicycleRepository.findOne({ where: { codigo } });
+        } while (existsCodigo);
 
-    //bicicleta trae todo lo de la bici y el .codigo se asigna el nuevo codigo
-    bicicleta.codigo = codigo;
-    await bicycleRepository.save(bicicleta);
-    await historialRepository.save({
-        usuario,
-        bicicletas: bicicleta,
-        fecha_ingreso: new Date(),
-        fecha_salida: null
-    });
+        const bicicleteroRepo = AppDataSource.getRepository(Bicicletero);
+        const bicicleteroObj = await bicicleteroRepo.findOne({ where: { id_bicicletero: Number(id_bicicletero) } });
+        //bicicleta trae todo lo de la bici y el .codigo se asigna el nuevo codigo
+        bicicleta.codigo = codigo;
+        await bicycleRepository.save(bicicleta);
+        await historialRepository.save({
+            usuario,
+            bicicletas: bicicleta,
+            fecha_ingreso: new Date(),
+            fecha_salida: null
+        });
 
-    return handleSuccess(res, 200, "Bicicleta reingresada correctamente");
-    }catch (error) {
+        const historialPropioRepo = AppDataSource.getRepository(HistorialBicicletero);
+        await historialPropioRepo.save({
+            accion: "Re-ingreso",
+            fecha: new Date(),
+            bicicletero: bicicleteroObj,
+            usuario: usuario,
+            bicicleta: bicicleta
+        });
+
+        return handleSuccess(res, 200, "Bicicleta reingresada correctamente");
+    } catch (error) {
         console.error("Error al reingresar la bicicleta:", error);
         return handleErrorServer(res, 500, "Error al reingresar la bicicleta");
     }
@@ -203,62 +233,63 @@ export async function reIngresoBicycle(req, res) {
 export async function getBicycle(req, res) {
 
     try {
-    const bicycleRepository = AppDataSource.getRepository(Bicicleta);
+        const bicycleRepository = AppDataSource.getRepository(Bicicleta);
 
-    if (!req.user) {
-        return handleErrorClient(res, 401, "Usuario no autenticado");
-    }
-
-    const { rol, bicicleteroId } = req.user;
-
-    if (rol === "Administrador") {
-        const bicicletas = await bicycleRepository.find({
-            select: {
-            usuario: {rut: true},
-            bicicletero: {id_bicicletero: true, nombre: true}
-        },
-        relations: {
-            usuario: true,
-            bicicletero: true
-
-        }
-        });
-        return handleSuccess(res, 200, {message: "Bicicletas encontradas", data: bicicletas});
-    }
-
-    if (rol === "Guardia") {
-        if (!bicicleteroId) {
-        return handleErrorClient(res, 400, "Guardia sin bicicletero asignado", []); //cambio aqui
+        if (!req.user) {
+            return handleErrorClient(res, 401, "Usuario no autenticado");
         }
 
-    const bicicletas = await bicycleRepository.find({
-        where: { 
-            bicicletero: { id_bicicletero: bicicleteroId },
-            usuario: { id: req.user.id },
-            estado: In(["guardada", "entregada", "olvidada"])
-        },
-            select: {
-                usuario: {
-                    rut: true
+        const { rol, bicicleteroId } = req.user;
+
+        if (rol === "Administrador") {
+            const bicicletas = await bicycleRepository.find({
+                select: {
+                    usuario: { rut: true },
+                    bicicletero: { id_bicicletero: true, nombre: true }
                 },
-                bicicletero: {id_bicicletero: true, nombre: true
+                relations: {
+                    usuario: true,
+                    bicicletero: true
+
                 }
-            },
-            relations: {
-                usuario: true,
-                bicicletero: true
-            }
+            });
+            return handleSuccess(res, 200, { message: "Bicicletas encontradas", data: bicicletas });
         }
-        
-    );
 
-        return handleSuccess(res, 200, {message: "Bicicletas encontradas",data: bicicletas});
-    }
+        if (rol === "Guardia") {
+            if (!bicicleteroId) {
+                return handleErrorClient(res, 400, "Guardia sin bicicletero asignado", []); //cambio aqui
+            }
 
-    return handleErrorClient(res, 403, "Rol no autorizado para ver bicicletas");
+            const bicicletas = await bicycleRepository.find({
+                where: {
+                    bicicletero: { id_bicicletero: bicicleteroId },
+                    usuario: { id: req.user.id },
+                    estado: In(["guardada", "entregada", "olvidada"])
+                },
+                select: {
+                    usuario: {
+                        rut: true
+                    },
+                    bicicletero: {
+                        id_bicicletero: true, nombre: true
+                    }
+                },
+                relations: {
+                    usuario: true,
+                    bicicletero: true
+                }
+            }
+
+            );
+
+            return handleSuccess(res, 200, { message: "Bicicletas encontradas", data: bicicletas });
+        }
+
+        return handleErrorClient(res, 403, "Rol no autorizado para ver bicicletas");
     } catch (error) {
-    console.error("Error al obtener bicicletas:", error);
-    return handleErrorServer(res, 500, "Error al obtener bicicletas");
+        console.error("Error al obtener bicicletas:", error);
+        return handleErrorServer(res, 500, "Error al obtener bicicletas");
     }
 }
 
@@ -310,14 +341,14 @@ export async function getUserBicycles(req, res) {
 
 
 //eliminar bicicletas
-export async function retirarBicycle(req, res){
+export async function retirarBicycle(req, res) {
     try {
         // El guardia debe estar autenticado y su info viene en req.user (proporcionada por authMiddleware)
         const guardia = req.user;
         if (!guardia) return handleErrorClient(res, 401, "Usuario no autenticado");
 
         const guardiaRol = (guardia.rol || guardia.role || "").toString().toLowerCase();
-        if (guardiaRol!== "guardia") {
+        if (guardiaRol !== "guardia") {
             return handleErrorClient(res, 403, "Solo los guardias pueden eliminar bicicletas");
         }
 
@@ -327,9 +358,10 @@ export async function retirarBicycle(req, res){
         const bicycleRepository = AppDataSource.getRepository(Bicicleta);
         const userRepository = AppDataSource.getRepository("User");
         const historialRepository = AppDataSource.getRepository(Historial);
+        const historialBicicleteroRepo = AppDataSource.getRepository(HistorialBicicletero);
 
         const { error } = retiroValidation.validate(req.body);
-        if(error) return handleErrorClient(res, 400, error.details[0].message);
+        if (error) return handleErrorClient(res, 400, error.details[0].message);
 
         // Obtener usuario objetivo
         const usuario = await userRepository.findOne({ where: { rut } });
@@ -340,7 +372,7 @@ export async function retirarBicycle(req, res){
                 codigo,
                 usuario: { rut },
                 bicicletero: { id_bicicletero }
-                
+
             },
             relations: ["bicicletero"]
         });
@@ -362,7 +394,7 @@ export async function retirarBicycle(req, res){
         if (guardiaBicicleteroId !== bicicletaBicicleteroId) {
             return handleErrorClient(res, 403, "No puedes retirar bicicletas de otro bicicletero");
         }
-        
+
         // Buscar el ingreso más reciente sin salida
         let historial = await historialRepository.findOne({
             where: {
@@ -385,7 +417,7 @@ export async function retirarBicycle(req, res){
                 fecha_salida: new Date()
             });
         }
-        
+
 
         await bicycleRepository.update(
             { id: bicicleta.id },
@@ -394,6 +426,14 @@ export async function retirarBicycle(req, res){
                 updateAt: new Date()
             }
         );
+
+        await historialBicicleteroRepo.save({
+            accion: "Retiro",
+            fecha: new Date(),
+            bicicletero: bicicleta.bicicletero,
+            usuario: usuario,
+            bicicleta: bicicleta
+        });
 
 
         return handleSuccess(res, 200, `Se retiró la bicicleta con código ${codigo} del usuario ${rut}`);
@@ -407,40 +447,55 @@ export async function retirarBicycle(req, res){
 async function marcarBicicletasOlvidadas() {
     const bicycleRepository = AppDataSource.getRepository(Bicicleta);
     const historialRepository = AppDataSource.getRepository(Historial);
+        const historialPropioRepo = AppDataSource.getRepository(HistorialBicicletero);
 
     const ahora = new Date();
 
-    const bicicletas = await bicycleRepository.find({ where: { estado: "guardada" } });
+    const bicicletas = await bicycleRepository.find({
+            where: { estado: "guardada" },
+            relations: ["bicicletero", "usuario"]
+        });
 
     for (const bici of bicicletas) {
         const minutosPasados = (ahora - bici.updateAt) / (1000 * 60);
+        for (const bici of bicicletas) {
+            const minutosPasados = (ahora - bici.updateAt) / (1000 * 60);
 
-        if (minutosPasados >= 2) { // puedes bajar el tiempo para pruebas
-        let historial = await historialRepository.findOne({
-            where: {
-            bicicletas: { id: bici.id },
-            fecha_salida: null
-            }
-        });
-
-        if (historial) {
-            historial.fecha_salida = ahora;
-            await historialRepository.save(historial);
-        } else {
-            await historialRepository.save({
-            usuario: bici.usuario,
-            bicicletas: bici,
-            fecha_ingreso: null,
-            fecha_salida: ahora
+            if (minutosPasados >= 2) { // puedes bajar el tiempo para pruebas
+            let historial = await historialRepository.findOne({
+                    where: {
+                    bicicletas: { id: bici.id },
+                    fecha_salida: null
+                    }
             });
-        }
 
+            if (historial) {
+                    historial.fecha_salida = ahora;
+                    await historialRepository.save(historial);
+            } else {
+                    await historialRepository.save({
+                    usuario: bici.usuario,
+                    bicicletas: bici,
+                    fecha_ingreso: null,
+                    fecha_salida: ahora
+                    });
+            }
+
+    
         bici.estado = "olvidada";
-        bici.updateAt = ahora;
-        await bicycleRepository.save(bici);
+            bici.updateAt = ahora;
+            await bicycleRepository.save(bici);
 
-        console.log(`Bicicleta ${bici.codigo} marcada como olvidada`);
-        }
+                await historialPropioRepo.save({
+                    accion: "Marcada Olvidada",
+                    fecha: ahora,
+                    bicicletero: bici.bicicletero,
+                    usuario: bici.usuario,
+                    bicicleta: bici
+                });
+
+            console.log(`Bicicleta ${bici.codigo} marcada como olvidada.`);
+            }
     }
 }
 

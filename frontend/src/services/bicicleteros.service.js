@@ -81,3 +81,21 @@ export const getAllGuards = async () => {
     const res = await axios.get("/auth/guardias");
     return res.data.data;
 };
+
+export async function getBikeRackHistory(id, filters = {}) {
+    try {
+        let url = `auth/bicicletero/${id}/historial?`;
+        
+        if (filters.rut) url += `rut=${filters.rut}&`;
+        if (filters.fecha) url += `fecha=${filters.fecha}`;
+
+        const response = await axios.get(url);
+        return response.data; 
+    } catch (error) {
+        if (error.response && error.response.data) {
+            throw new Error(error.response.data.message || JSON.stringify(error.response.data));
+        }
+        console.error("Error al obtener el historial del bicicletero:", error);
+        throw error;
+    }
+}
