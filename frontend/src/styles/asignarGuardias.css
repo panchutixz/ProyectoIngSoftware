@@ -95,7 +95,27 @@
   background: #f3e5f5;
   color: #6a1b9a;
 }
+.arrow {
+  font-size: 10px;
+  color: #0A98C3;
+  margin-left: 12px;
+}
 
+.option-item:hover,
+.option-item.selected {
+  color: #000000;
+  background-color: #eaeaea !important;
+}
+
+.custom-select-search {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  margin-bottom: 5px;
+  box-sizing: border-box;
+  outline: none;
+}
 /* Responsive */
 @media (max-width: 980px) {
   .asignarGuardias-page { padding: 12px; }
