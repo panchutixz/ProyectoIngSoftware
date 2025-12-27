@@ -64,7 +64,7 @@ const Bicicletas = () => {
         <div className="bicicletas-page">
             <div className="bicicletas-header">
                 <h1 className="title-listar-bicicletas">Listado de Bicicletas</h1>
-                {user && user.rol === 'Guardia' && (user.bicicleroId || user.bicicletero_id) &&(
+                {user && user.rol === 'Guardia' && (user.bicicletero_id) &&(
                     <>
                         <button className="button-registrar-bicicleta" onClick={handleRegisterBicicleta}>Registrar Bicicleta</button>
                         <button className="button-retirar-bicicleta" onClick={handleRetirarBicicleta}>Retirar Bicicleta</button>
