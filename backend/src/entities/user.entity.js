@@ -72,7 +72,12 @@ export const UserEntity = new EntitySchema({
         joinColumn: {name: "bicicletero_id"},
         eager: false,
         nullable: true
-      }
+      },
+      historiales: {
+        type: "one-to-many",
+        target: "Historial",
+        inverseSide: "usuario"
+    }
     }
 });
 

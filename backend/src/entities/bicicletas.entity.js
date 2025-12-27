@@ -66,11 +66,13 @@ export const Bicicleta = new EntitySchema({
             eager: false,
             nullable: false,
 
-        }
+        },
+        historiales: {
+        type: "one-to-many",
+        target: "Historial",
+    }
 
     },
-
-
 });
 
 export default Bicicleta;
