@@ -43,7 +43,7 @@ const BikeRacks = () => {
     setFilterRut("");
     setFilterDate("");
     setHistory([]); // Limpia historial previo
-    fetchHistory(bikeRack.id_bicicletero); 
+    fetchHistory(bikeRack.id_bicicletero);
     setShowHistoryModal(true);
   };
 
@@ -104,7 +104,7 @@ const BikeRacks = () => {
                   </button>
                   <button
                     className="history-btn"
-                    style={{ marginRight: '10px', fontWeight: "bold", color: '#FF9800', padding: '5px 10px', border: 'none', borderRadius: '4px', cursor: 'pointer', background: 'transparent' }}
+                    style={{ marginRight: '10px', fontWeight: "bold", color: '#378f92ff', padding: '5px 10px', border: 'none', borderRadius: '4px', cursor: 'pointer', background: 'transparent' }}
                     onClick={() => handleOpenHistory(bikeRack)}
                   >
                     Historial
