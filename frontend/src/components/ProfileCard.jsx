@@ -17,7 +17,7 @@ const roleImages = {
 };
 
 const ProfileCard = ({ user }) => {
-  // Si el usuario tiene rol, se usa la imagen correspondiente, si no, se usa la default
+  // Si el usuario tiene rol, se usa la imagen correspondiente, si no, se usa la iamgen default
   const profileImage = roleImages[user.rol?.toLowerCase()] || defaultPic;
 
   return (
