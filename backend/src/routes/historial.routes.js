@@ -1,9 +1,13 @@
 import express from "express";
-import { getHistoryByUser } from "../controllers/historial.controller.js";
+import { getHistoryByUser, getAllHistorial } from "../controllers/historial.controller.js";
+import { authMiddleware } from "../middleware/auth.middleware.js";
+
 
 const router = express.Router();
 
-// Obtener historial del usuario por RUT
-router.get("/:rut", getHistoryByUser);
+//obtener todo el historial (solo admin y guardia)
+router.get("/", authMiddleware, getAllHistorial);
 
+//obtener historial del usuario por rut
+router.get("/:rut", authMiddleware, getHistoryByUser);
 export default router;

@@ -103,7 +103,7 @@ export async function updateUserById(req, res) {
   try {
     const userRepository = AppDataSource.getRepository(UserEntity);
     const { id } = req.params;
-    const { nombre, apellido, rol, email } = req.body;
+    const { nombre, apellido, rol, email, telefono, rut } = req.body;
 
     const idNum = parseInt(id, 10);
     if (Number.isNaN(idNum)) {
@@ -111,21 +111,47 @@ export async function updateUserById(req, res) {
     }
 
     const user = await userRepository.findOne({ where: { id: idNum } });
-
     if (!user) {
       return res.status(404).json({ message: "Usuario no encontrado." });
     }
 
-    // Validar que el nuevo rol sea uno permitido, si se está intentando actualizar
-    const rolesValidos = ["Estudiante", "Funcionario", "Académico", "Guardia","Administrador","estudiante","funcionario","académico","guardia","administrador"];
-    if (rol && !rolesValidos.includes(rol.toLowerCase())) {
+    // Validar rol
+    const rolesValidos = ["Estudiante", "Funcionario", "Académico", "Guardia", "Administrador"];
+    if (rol && !rolesValidos.map(r => r.toLowerCase()).includes(rol.toLowerCase())) {
       return res.status(400).json({ message: `Rol inválido. Solo se permiten: ${rolesValidos.join(", ")}.` });
     }
 
+    // Validar que el nuevo RUT no esté ocupado por otro usuario
+    if (rut && rut !== user.rut) {
+      const existingRut = await userRepository.findOne({ where: { rut } });
+      if (existingRut) {
+        return res.status(400).json({ message: "Ya existe un usuario con este RUT." });
+      }
+      user.rut = rut;
+    }
+
+    // Validar que el nuevo email no esté ocupado por otro usuario
+    if (email && email !== user.email) {
+      const existingEmail = await userRepository.findOne({ where: { email } });
+      if (existingEmail) {
+        return res.status(400).json({ message: "Ya existe un usuario con este correo electrónico." });
+      }
+      user.email = email;
+    }
+
+    // Validar que el nuevo teléfono no esté ocupado por otro usuario
+    if (telefono && telefono !== user.telefono) {
+      const existingTelefono = await userRepository.findOne({ where: { telefono } });
+      if (existingTelefono) {
+        return res.status(400).json({ message: "Ya existe un usuario con este teléfono." });
+      }
+      user.telefono = telefono;
+    }
+
+    // Actualizar otros campos
     user.nombre = nombre ?? user.nombre;
     user.apellido = apellido ?? user.apellido;
     user.rol = rol ?? user.rol;
-    user.email = email ?? user.email;
 
     await userRepository.save(user);
 
@@ -135,6 +161,7 @@ export async function updateUserById(req, res) {
     res.status(500).json({ message: "Error interno del servidor." });
   }
 }
+
 
 // Eliminar un usuario por ID
 export async function deleteUserById(req, res) {
