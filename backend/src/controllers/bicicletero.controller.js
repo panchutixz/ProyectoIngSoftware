@@ -111,6 +111,7 @@ export async function updateBikeRack(req, res) {
     const bikeRackRepository = AppDataSource.getRepository(Bicicletero);
     const { id_bicicletero } = req.query;
     let { nombre, capacidad, ubicacion, estado } = req.body;
+
     // Validar autentificación de administrador
     const admin = req.user;
     if (!admin) return handleErrorClient(res, 401, "Usuario no autenticado");
@@ -128,7 +129,11 @@ export async function updateBikeRack(req, res) {
     }
 
     try {
-        const bicicletero = await bikeRackRepository.findOne({ where: { id_bicicletero: parseInt(id_bicicletero) } });
+        const bicicletero = await bikeRackRepository.findOne({
+            where: { id_bicicletero: parseInt(id_bicicletero) },
+            relations: ["usuarios"]
+        });
+
         if (!bicicletero) {
             return handleErrorClient(res, 404, `No existe un bicicletero con id: ${id_bicicletero}`);
         }
@@ -137,7 +142,7 @@ export async function updateBikeRack(req, res) {
         const existeNombre = await bikeRackRepository.findOne({
             where: {
                 nombre: ILike(nombre),
-                id_bicicletero: Not(id_bicicletero) 
+                id_bicicletero: Not(id_bicicletero)
             }
         });
 
@@ -148,10 +153,10 @@ export async function updateBikeRack(req, res) {
         }
 
         ubicacion = ubicacion.trim();
-        const existeUbicacion = await bikeRackRepository.findOne({ 
-            where: { 
+        const existeUbicacion = await bikeRackRepository.findOne({
+            where: {
                 ubicacion: ILike(ubicacion),
-                id_bicicletero: Not(id_bicicletero) 
+                id_bicicletero: Not(id_bicicletero)
             }
         });
 
@@ -166,8 +171,23 @@ export async function updateBikeRack(req, res) {
         bicicletero.ubicacion = ubicacion;
         bicicletero.estado = estado;
 
+        // Desasignar guardia si se cierra el bicicletero
+        const nuevoEstado = (estado || "").toString().toLowerCase().trim();
+
+        if (nuevoEstado === 'cerrado') {
+            if (bicicletero.usuarios && bicicletero.usuarios.length > 0) {
+                bicicletero.usuarios = bicicletero.usuarios.filter(usuario => {
+                    const rolUsuario = (usuario.rol || usuario.role || "").toString().toLowerCase();
+                    return rolUsuario !== "guardia";
+                });
+            }
+        }
+
         await bikeRackRepository.save(bicicletero);
-        return handleSuccess(res, 200, `Bicicletero con id ${id_bicicletero} actualizado correctamente`);
+
+        const mensajeExtra = nuevoEstado === 'cerrado' ? " (Guardia desasignado por cierre)" : "";
+
+        return handleSuccess(res, 200, `Bicicletero actualizado correctamente${mensajeExtra}`);
     } catch (error) {
         console.error("Error al actualizar bicicletero:", error);
         return handleErrorServer(res, 500, "Error al actualizar bicicletero");
@@ -248,6 +268,11 @@ export async function asignarGuardia(req, res) {
             return handleErrorClient(res, 404, "Bicicletero no encontrado");
         }
 
+        // Verificamos si el estado es "cerrado"
+        const estadoBicicletero = (bicicletero.estado || "").toString().toLowerCase().trim();
+        if (estadoBicicletero === 'cerrado') {
+             return handleErrorClient(res, 400, "Este bicicletero no está habilitado");
+        }
         // Obtener el guardia nuevo que queremos asignar
         const guardia = await userRepository.findOne({
             where: { id: parseInt(id), rol: "Guardia" },
@@ -264,7 +289,6 @@ export async function asignarGuardia(req, res) {
                 message: `Este guardia ya está asignado al bicicletero "${guardia.bicicletero.nombre}".`,
             });
         }
-
 
         // Desasignar guardia anterior si existía uno
         bicicletero.usuarios = bicicletero.usuarios.filter(usuario => {
