@@ -4,6 +4,7 @@ import Bicicletero from "../entities/bicicletero.entity.js";
 import Bicicleta from "../entities/bicicletas.entity.js";
 import User from "../entities/user.entity.js";
 import { handleErrorClient, handleErrorServer, handleSuccess } from "../handlers/responseHandlers.js";
+import  HistorialBicicletero  from "../entities/historial_bicicletero.entity.js";
 import { ILike, Not } from "typeorm";
 
 // Crear bicicletero
@@ -392,5 +393,49 @@ export async function getAllGuardias(req, res) {
     } catch (error) {
         console.error("Error al obtener guardias:", error);
         return handleErrorServer(res, 500, "Error al obtener guardias", error.message);
+    }
+}
+
+export async function getHistoryByBikeRack(req, res) {
+    try {
+        const historialRepo = AppDataSource.getRepository(HistorialBicicletero);
+        const { id_bicicletero } = req.params;
+        const { fecha, rut } = req.query;
+
+        // Query Builder para unir tablas usando los nombres definidos en el Schema
+        const query = historialRepo.createQueryBuilder("hb")
+            .leftJoinAndSelect("hb.bicicleta", "bici")
+            .leftJoinAndSelect("hb.usuario", "usuario")
+            .leftJoinAndSelect("hb.bicicletero", "bicicletero")
+            .where("bicicletero.id_bicicletero = :id", { id: id_bicicletero });
+
+        if (rut) {
+            query.andWhere("usuario.rut LIKE :rut", { rut: `%${rut}%` });
+        }
+
+        if (fecha) {
+            // Postgres: DATE(hb.fecha). MySQL: DATE(hb.fecha) funciona igual en TypeORM generalmente
+            query.andWhere("DATE(hb.fecha) = :fecha", { fecha });
+        }
+
+        query.orderBy("hb.fecha", "DESC");
+
+        const historial = await query.getMany();
+
+        const data = historial.map(h => ({
+            id: h.id,
+            bicicleta: h.bicicleta ? `${h.bicicleta.marca} ${h.bicicleta.color}` : "Eliminada",
+            numero_serie: h.bicicleta ? h.bicicleta.numero_serie : "N/A",
+            usuario: h.usuario ? `${h.usuario.nombre} ${h.usuario.apellido}` : "Desconocido",
+            rut: h.usuario ? h.usuario.rut : "S/R",
+            accion: h.accion, 
+            fecha: h.fecha
+        }));
+
+        return handleSuccess(res, 200, "Historial obtenido", data);
+
+    } catch (error) {
+        console.error("Error al obtener historial propio:", error);
+        return handleErrorServer(res, 500, "Error al obtener el historial");
     }
 }
