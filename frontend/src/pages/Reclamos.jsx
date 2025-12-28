@@ -49,7 +49,8 @@ const Reclamos = () => {
     loading: cargandoBicicletas, 
     error: errorBicicletas,
     fetchBicicletas,
-    hasBicicletas 
+    hasBicicletas,
+    hasFetched 
   } = useGetBicicletasUsuario();
   
   const { 
@@ -93,12 +94,31 @@ const Reclamos = () => {
     fetchReclamos();
   }, []);
 
-  // efecto para cargar bicicletas cuando se abre el formulario
+  //efecto para cargar bicicletas si el usuario puede crear reclamos
   useEffect(() => {
-    if (mostrarFormulario && puedeCrearReclamo) {
-      cargarBicicletasUsuario();
+  const cargarBicicletasSiEsNecesario = async () => {
+    // solo cargar si se puede crear reclamo, no esta cargando, no hay bicicletas aun, y no hay error
+    if (puedeCrearReclamo && !cargandoBicicletas && bicicletas.length === 0 && !errorBicicletas) {
+      try {
+        await fetchBicicletas();
+      } catch (err) {
+        //el error ya esta manejado en el hook, solo prevenimos el bucle
+        console.log("Error al cargar bicicletas:", err.message);
+      }
     }
-  }, [mostrarFormulario]);
+  };
+
+  cargarBicicletasSiEsNecesario();
+}, [puedeCrearReclamo, cargandoBicicletas, bicicletas.length, errorBicicletas, fetchBicicletas]);
+
+
+
+  //efecto para manejar cuando se abre el formulario
+  useEffect(() => {
+    if (mostrarFormulario && bicicletas.length > 0 && !numeroSerie) {
+      setNumeroSerie(bicicletas[0].numero_serie);
+    }
+  }, [mostrarFormulario, bicicletas, numeroSerie]);
 
   // efecto para manejar exito en creacion
   useEffect(() => {
@@ -131,8 +151,10 @@ const Reclamos = () => {
       if (bicis && bicis.length > 0 && !numeroSerie) {
         setNumeroSerie(bicis[0].numero_serie);
       }
+      return bicis;
     } catch (error) {
       console.error("Error cargando bicicletas:", error);
+      return [];
     }
   };
 
@@ -471,30 +493,35 @@ const Reclamos = () => {
         </div>
       )}
 
-      {/* BOTÓN CORREGIDO: Siempre visible para usuarios autorizados */}
+      {/* boton iempre visible para usuarios autorizados */}
       {puedeCrearReclamo && !mostrarFormulario && (
-        <div className="crear-reclamo-btn-container">
-          {hasBicicletas ? (
-            <button 
-              className="reclamos-addbtn"
-              onClick={handleAbrirFormulario}
-              disabled={cargandoBicicletas}
-            >
-              {cargandoBicicletas ? "Cargando..." : "Crear Nuevo Reclamo"}
-            </button>
-          ) : (
-            <div className="no-bicicletas-alert">
-              <p>No tienes bicicletas registradas para crear un reclamo.</p>
-              <button 
-                className="reclamos-addbtn-secondary"
-                onClick={() => navigate('/bicicletas')}
-              >
-                Ir a Registrar Bicicleta
-              </button>
-            </div>
-          )}
-        </div>
-      )}
+  <div className="crear-reclamo-btn-container">
+    {cargandoBicicletas && !hasFetched ? (
+      <button className="reclamos-addbtn" disabled>
+        <span className="spinner-small"></span>
+        Cargando bicicletas...
+      </button>
+    ) : hasBicicletas ? (
+      <button 
+        className="reclamos-addbtn"
+        onClick={handleAbrirFormulario}
+        disabled={cargandoBicicletas}
+      >
+        {cargandoBicicletas ? "Cargando..." : "Crear Nuevo Reclamo"}
+      </button>
+    ) : (
+      <div className="no-bicicletas-alert">
+        <p>No tienes bicicletas registradas para crear un reclamo.</p>
+        <button 
+          className="reclamos-addbtn-secondary"
+          onClick={() => navigate('/bicicletas')}
+        >
+          Ir a Registrar Bicicleta
+        </button>
+      </div>
+    )}
+  </div>
+)}
 
       {/* formulario de creacion */}
       {puedeCrearReclamo && mostrarFormulario && (

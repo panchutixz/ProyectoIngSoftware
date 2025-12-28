@@ -96,42 +96,66 @@ export async function crearReclamo(req, res) {
 // obtener bicicletas del usuario para el dropdown
 export async function obtenerBicicletasUsuario(req, res) {
     const bicycleRepository = AppDataSource.getRepository(Bicicleta);
-    const userRepository = AppDataSource.getRepository(User);
 
     try {
-        const { sub: userId } = req.user;
-
-        //obtener usuario actual
-        const usuario = await userRepository.findOne({ 
-            where: { id: userId },
-            select: ["id", "rut", "nombre", "apellido"] 
-        });
-
-        if (!usuario) {
-            return handleErrorClient(res, 404, "Usuario no encontrado.");
+        console.log("=== DEBUG obtenerBicicletasUsuario ===");
+        console.log("req.user:", req.user);
+        console.log("Headers:", req.headers);
+        
+        // Opción A: Intentar obtener userId de diferentes formas
+        const userId = req.user?.sub || req.user?.id || req.user?.userId;
+        
+        // Opción B: Si no hay userId, intentar con RUT desde el token
+        const userRut = req.user?.rut;
+        
+        if (!userId && !userRut) {
+            console.error("No se pudo identificar al usuario");
+            return handleErrorClient(res, 400, "Usuario no identificado");
         }
 
-        //obtener bicicletas del usuario
-        const bicicletas = await bicycleRepository.find({
-            where: { 
-                usuario: { rut: usuario.rut },
-                estado: In(["guardada", "olvidada"]),
-            },
-            select: ["id", "numero_serie", "marca", "modelo", "color", "estado", "fecha_registro"],
-            order: { fecha_registro: "DESC" }
-        });
-
-        console.log(`Usuario ${usuario.rut} tiene ${bicicletas.length} bicicleta(s) registrada(s)`);
-
-        // agrega este mensaje si no tiene bicicletas
-        if (bicicletas.length === 0) {
-            console.log(`Usuario ${usuario.rut} no tiene bicicletas registradas`);
-
+        let bicicletas = [];
+        
+        if (userRut) {
+            // Buscar directamente por RUT
+            console.log("Buscando bicicletas por RUT:", userRut);
+            bicicletas = await bicycleRepository.find({
+                where: { 
+                    usuario: { rut: userRut },
+                    estado: In(["guardada", "olvidada"]),
+                },
+                select: ["id", "numero_serie", "marca", "modelo", "color", "estado", "fecha_registro"],
+                order: { fecha_registro: "DESC" }
+            });
+        } else if (userId) {
+            // Buscar usuario primero, luego sus bicicletas
+            const userRepository = AppDataSource.getRepository(User);
+            const usuario = await userRepository.findOne({ 
+                where: { id: userId },
+                select: ["id", "rut"] 
+            });
+            
+            if (usuario) {
+                console.log("Buscando bicicletas para usuario ID:", userId, "RUT:", usuario.rut);
+                bicicletas = await bicycleRepository.find({
+                    where: { 
+                        usuario: { rut: usuario.rut },
+                        estado: In(["guardada", "olvidada"]),
+                    },
+                    select: ["id", "numero_serie", "marca", "modelo", "color", "estado", "fecha_registro"],
+                    order: { fecha_registro: "DESC" }
+                });
+            }
         }
+
+        console.log(`Encontradas ${bicicletas.length} bicicleta(s)`);
 
         return handleSuccess(res, 200, "Bicicletas obtenidas correctamente", bicicletas);
     } catch (error) {
-        console.error("Error al obtener bicicletas del usuario:", error);
+        console.error("Error detallado en obtenerBicicletasUsuario:", {
+            message: error.message,
+            stack: error.stack,
+            name: error.name
+        });
         return handleErrorServer(res, 500, "Error al obtener bicicletas del usuario");
     }
 }
