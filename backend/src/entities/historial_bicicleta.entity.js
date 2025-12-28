@@ -25,7 +25,6 @@ export const Historial = new EntitySchema({
             target: "User",
             joinColumn: { 
                 name: "rut_user",
-                referencedColumnName: "rut"
             },
             eager: true, 
         },
@@ -34,7 +33,6 @@ export const Historial = new EntitySchema({
             target: "Bicicleta",
             joinColumn: {
                 name: "numero_serie_bicicleta",
-                referencedColumnName: "numero_serie"
             },
             eager: true,
             nullable: true,
@@ -43,4 +41,3 @@ export const Historial = new EntitySchema({
 });
 
 export default Historial;
-//aasas
