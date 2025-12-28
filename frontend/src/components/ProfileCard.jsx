@@ -1,5 +1,5 @@
 import "@styles/profile.css";
-import axios from "axios";
+import axios from "@services/root.service.js";
 import Swal from "sweetalert2";
 import { useState } from "react";
 
@@ -33,12 +33,10 @@ const ProfileCard = ({ user, setUser, fetchProfile }) => {
     const file = event.target.files[0];
     if (!file) return;
 
-    // Crear vista previa con FileReader
     const reader = new FileReader();
     reader.onload = async () => {
       const imagePreview = reader.result;
 
-      // Mostrar popup con vista previa
       const confirmUpload = await Swal.fire({
         title: "¿Deseas actualizar tu foto de perfil?",
         html: `
@@ -61,9 +59,11 @@ const ProfileCard = ({ user, setUser, fetchProfile }) => {
       formData.append("profileImage", file);
 
       try {
-        const res = await axios.post(`${BASE_URL}/users/profile-image`, formData, {
+        // Nuevo endpoint consistente con backend
+          const res = await axios.post("/profile/profile-image", formData, {
           headers: { "Content-Type": "multipart/form-data" },
-        });
+          });
+
 
         await Swal.fire({
           title: "Foto actualizada correctamente",

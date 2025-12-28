@@ -24,8 +24,6 @@ app.use(cors({
 // Servir imágenes estáticas
   app.use("/uploads", express.static(path.join(__dirname, "public/uploads")));
 
-
-
 // Ruta principal de bienvenida
 app.get("/", (req, res) => {
   res.send("¡Bienvenido a mi API REST con TypeORM!");
