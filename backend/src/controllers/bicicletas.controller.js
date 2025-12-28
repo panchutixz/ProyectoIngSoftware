@@ -1,5 +1,5 @@
 import { AppDataSource } from "../config/configDb.js";
-import { registerValidation, reIngresoValidation, retiroValidation, eliminateValidation, editarBicycleValidation} from "../validations/bicicleta.validation.js";
+import { registerValidation, reIngresoValidation, retiroValidation, eliminateValidation, editarBicycleValidation } from "../validations/bicicleta.validation.js";
 import Bicicleta from "../entities/bicicletas.entity.js";
 import User from "../entities/user.entity.js"
 import { handleErrorClient, handleErrorServer, handleSuccess } from "../handlers/responseHandlers.js";
@@ -9,43 +9,43 @@ import HistorialBicicletero from "../entities/historial_bicicletero.entity.js";
 import { In } from "typeorm";
 
 // registro bicicletas
-export async function registerBicycle(req, res){
+export async function registerBicycle(req, res) {
     const bicycleRepository = AppDataSource.getRepository(Bicicleta);
     const userRepository = AppDataSource.getRepository(User);
     const bicicleteroRepository = AppDataSource.getRepository(Bicicletero);
     const historialRepository = AppDataSource.getRepository(Historial);
 
-    let { marca, color, numero_serie, descripcion, estado, rut, id_bicicletero} = req.body;
+    let { marca, color, numero_serie, descripcion, estado, rut, id_bicicletero } = req.body;
     numero_serie = numero_serie ? numero_serie.toString().toUpperCase() : numero_serie;
     const { error } = registerValidation.validate(req.body);
-    if(error) return handleErrorClient(res, 400, error.details[0].message);
+    if (error) return handleErrorClient(res, 400, error.details[0].message);
 
 
-    if (req.user.rol === "Guardia"){
+    if (req.user.rol === "Guardia") {
         const guardiaBicicleteroId = Number(req.user.bicicleteroId || req.user.bicicletero_id);
         const bodyBicicleteroId = Number(id_bicicletero);
-        if (!guardiaBicicleteroId || guardiaBicicleteroId !== bodyBicicleteroId){
+        if (!guardiaBicicleteroId || guardiaBicicleteroId !== bodyBicicleteroId) {
             return handleErrorClient(res, 403, "No puedes registrar bicicletas en otro bicicletero");
         }
     }
 
-        // Buscar bicicletero
-        const bicicleteroBusqueda = await bicicleteroRepository.findOne({ where: { id_bicicletero } });
-        if (!bicicleteroBusqueda) {
-            return handleErrorClient(res, 400, "No existe el bicicletero");
-        }
+    // Buscar bicicletero
+    const bicicleteroBusqueda = await bicicleteroRepository.findOne({ where: { id_bicicletero } });
+    if (!bicicleteroBusqueda) {
+        return handleErrorClient(res, 400, "No existe el bicicletero");
+    }
 
-        if (bicicleteroBusqueda.estado !== "Abierto") {
-            return handleErrorClient(res, 403, "El bicicletero no está habilitado para registrar bicicletas");
-        }
+    if (bicicleteroBusqueda.estado !== "Abierto") {
+        return handleErrorClient(res, 403, "El bicicletero no está habilitado para registrar bicicletas");
+    }
 
-        // Validar capacidad
-        const bicicletasEnBicicletero = await bicycleRepository.count({
-            where: { bicicletero: { id_bicicletero }, estado: "guardada" }
-        });
-        if (bicicletasEnBicicletero >= bicicleteroBusqueda.capacidad) {
-            return handleErrorClient(res, 403, "El bicicletero está lleno");
-        }
+    // Validar capacidad
+    const bicicletasEnBicicletero = await bicycleRepository.count({
+        where: { bicicletero: { id_bicicletero }, estado: "guardada" }
+    });
+    if (bicicletasEnBicicletero >= bicicleteroBusqueda.capacidad) {
+        return handleErrorClient(res, 403, "El bicicletero está lleno");
+    }
 
     const usuario = await userRepository.findOne({ where: { rut } });
     if (!usuario) {
@@ -118,7 +118,10 @@ export async function registerBicycle(req, res){
             fecha: new Date(),
             bicicletero: bicicletero,
             usuario: usuario,
-            bicicleta: newBicycle
+            bicicleta: newBicycle,
+            marca_bici: newBicycle.marca,
+            color_bici: newBicycle.color,
+            serie_bici: newBicycle.numero_serie
         });
 
         return handleSuccess(res, 200, "Bicicleta registrada correctamente y usuario actualizado");
@@ -169,18 +172,18 @@ export async function reIngresoBicycle(req, res) {
         return handleErrorClient(res, 404, "Usuario no encontrado");
     }
 
-    const bicicleteroBusqueda = await bicicleteroRepository.findOne({ where: {id_bicicletero}});
-    if(!bicicleteroBusqueda){
+    const bicicleteroBusqueda = await bicicleteroRepository.findOne({ where: { id_bicicletero } });
+    if (!bicicleteroBusqueda) {
         return handleErrorClient(res, 400, "No existe el bicicletero");
     }
 
     const bicicletasEnBicicletero = await bicycleRepository.count({
-        where : {bicicletero : {id_bicicletero}, estado: "guardada"}
+        where: { bicicletero: { id_bicicletero }, estado: "guardada" }
     });
-    if(bicicletasEnBicicletero >= bicicleteroBusqueda.capacidad){
+    if (bicicletasEnBicicletero >= bicicleteroBusqueda.capacidad) {
         return handleErrorClient(res, 403, "El bicicletero esta lleno, no se puede re-ingresar la bicicleta");
     }
-    
+
 
     bicicleta.estado = "guardada";
     bicicleta.usuario = usuario;
@@ -213,7 +216,10 @@ export async function reIngresoBicycle(req, res) {
             fecha: new Date(),
             bicicletero: bicicleteroObj,
             usuario: usuario,
-            bicicleta: bicicleta
+            bicicleta: bicicleta,
+            marca_bici: bicicleta.marca,
+            color_bici: bicicleta.color,
+            serie_bici: bicicleta.numero_serie
         });
 
         return handleSuccess(res, 200, "Bicicleta reingresada correctamente");
@@ -318,9 +324,11 @@ export async function getUserBicycles(req, res) {
             descripcion: bici.descripcion,
             telefono: bici.telefono,
             usuario: { rut: usuario.rut },
-            bicicletero: { id_bicicletero: bici.bicicletero?.id_bicicletero, 
-                            nombre: bici.bicicletero?.nombre, 
-                            ubicacion: bici.bicicletero?.ubicacion },
+            bicicletero: {
+                id_bicicletero: bici.bicicletero?.id_bicicletero,
+                nombre: bici.bicicletero?.nombre,
+                ubicacion: bici.bicicletero?.ubicacion
+            },
         }));
         console.log("Resultado bicicletas usuario:", resultado);
         return handleSuccess(res, 200, { message: "Bicicletas del usuario", data: resultado });
@@ -349,7 +357,7 @@ export async function retirarBicycle(req, res) {
         const bicycleRepository = AppDataSource.getRepository(Bicicleta);
         const userRepository = AppDataSource.getRepository("User");
         const historialRepository = AppDataSource.getRepository(Historial);
-        const bicicleteroRepository = AppDataSource.getRepository(Bicicletero)
+        const bicicleteroRepository = AppDataSource.getRepository(Bicicletero);
         const historialBicicleteroRepo = AppDataSource.getRepository(HistorialBicicletero);
 
         const { error } = retiroValidation.validate(req.body);
@@ -423,7 +431,10 @@ export async function retirarBicycle(req, res) {
             fecha: new Date(),
             bicicletero: bicicleta.bicicletero,
             usuario: usuario,
-            bicicleta: bicicleta
+            bicicleta: bicicleta,
+            marca_bici: bicicleta.marca,
+            color_bici: bicicleta.color,
+            serie_bici: bicicleta.numero_serie
         });
 
 
@@ -477,67 +488,67 @@ export async function eliminarBicycle(req, res) {
 //editar bicic//
 export async function editarBicycle(req, res) {
     try {
-            const guardia = req.user;
-            if (!guardia) {
-                return handleErrorClient(res, 401, "Usuario no autenticado");
-            }
+        const guardia = req.user;
+        if (!guardia) {
+            return handleErrorClient(res, 401, "Usuario no autenticado");
+        }
 
-            const guardiaRol = (guardia.rol || guardia.role || "").toString().toLowerCase();
-            if (guardiaRol !== "guardia") {
-                return handleErrorClient(res, 403, "Solo los guardias pueden editar información de bicicletas");
-            }
+        const guardiaRol = (guardia.rol || guardia.role || "").toString().toLowerCase();
+        if (guardiaRol !== "guardia") {
+            return handleErrorClient(res, 403, "Solo los guardias pueden editar información de bicicletas");
+        }
 
-            // Verificación obligatoria
-            const { rut, codigo, id_bicicletero, numero_serie, descripcion } = req.body;
-            if (!rut || !codigo || !id_bicicletero || !numero_serie) {
-                return handleErrorClient(res, 400,"Se requiere RUT, código, bicicletero y el nuevo número de serie.")
-            }
+        // Verificación obligatoria
+        const { rut, codigo, id_bicicletero, numero_serie, descripcion } = req.body;
+        if (!rut || !codigo || !id_bicicletero || !numero_serie) {
+            return handleErrorClient(res, 400, "Se requiere RUT, código, bicicletero y el nuevo número de serie.")
+        }
 
         const bicycleRepository = AppDataSource.getRepository(Bicicleta);
         const userRepository = AppDataSource.getRepository("User");
 
-            // Buscar usuario
-            const usuario = await userRepository.findOne({ where: { rut } });
-            if (!usuario) {
-                return handleErrorClient(res, 404,"Usuario no encontrado")
-            }
-            
-            // Buscar bicicleta con rut, código y bicicletero
-            const bicicleta = await bicycleRepository.findOne({
-                where: { codigo, usuario: { rut }, bicicletero: { id_bicicletero } },
-                relations: ["bicicletero"]
-            });
-            if (!bicicleta) {
-                return handleErrorClient(res,404, "Bicicleta no encontrada")
-            }
+        // Buscar usuario
+        const usuario = await userRepository.findOne({ where: { rut } });
+        if (!usuario) {
+            return handleErrorClient(res, 404, "Usuario no encontrado")
+        }
 
-            // Actualizar solo el número de serie
-            bicicleta.numero_serie = numero_serie;
-            bicicleta.descripcion = descripcion;
-            bicicleta.updateAt = new Date();
+        // Buscar bicicleta con rut, código y bicicletero
+        const bicicleta = await bicycleRepository.findOne({
+            where: { codigo, usuario: { rut }, bicicletero: { id_bicicletero } },
+            relations: ["bicicletero"]
+        });
+        if (!bicicleta) {
+            return handleErrorClient(res, 404, "Bicicleta no encontrada")
+        }
 
-            await bicycleRepository.save(bicicleta);
+        // Actualizar solo el número de serie
+        bicicleta.numero_serie = numero_serie;
+        bicicleta.descripcion = descripcion;
+        bicicleta.updateAt = new Date();
 
-            return handleSuccess(res,200, `Número de serie actualizado para la bicicleta con código ${codigo}.`, bicicleta)
-        } catch (error) {
+        await bicycleRepository.save(bicicleta);
+
+        return handleSuccess(res, 200, `Número de serie actualizado para la bicicleta con código ${codigo}.`, bicicleta)
+    } catch (error) {
         console.error("Error al editar bicicleta: ", error);
         return res.status(500).json({ message: "Error interno del servidor." });
-        }
+    }
 }
 
 
-    //LOGICA PARA MARCAR BICICLETAS OLVIDADAS
+//LOGICA PARA MARCAR BICICLETAS OLVIDADAS
 async function marcarBicicletasOlvidadas() {
     const bicycleRepository = AppDataSource.getRepository(Bicicleta);
     const historialRepository = AppDataSource.getRepository(Historial);
-        const historialPropioRepo = AppDataSource.getRepository(HistorialBicicletero);
+    const historialPropioRepo = AppDataSource.getRepository(HistorialBicicletero);
 
     const ahora = new Date();
 
     const bicicletas = await bicycleRepository.find({
-            where: { estado: "guardada" },
-            relations: ["bicicletero", "usuario"]
-        });
+        where: { estado: "guardada" },
+        relations: ["bicicletero", "usuario"]
+    });
 
     for (const bici of bicicletas) {
         const minutosPasados = (ahora - bici.updateAt) / (1000 * 60);
@@ -545,51 +556,54 @@ async function marcarBicicletasOlvidadas() {
             const minutosPasados = (ahora - bici.updateAt) / (1000 * 60);
 
             if (minutosPasados >= 2) { // puedes bajar el tiempo para pruebas
-            let historial = await historialRepository.findOne({
+                let historial = await historialRepository.findOne({
                     where: {
-                    bicicletas: { id: bici.id },
-                    fecha_salida: null
+                        bicicletas: { id: bici.id },
+                        fecha_salida: null
                     }
-            });
+                });
 
-            if (historial) {
+                if (historial) {
                     historial.fecha_salida = ahora;
                     await historialRepository.save(historial);
-            } else {
+                } else {
                     await historialRepository.save({
-                    usuario: bici.usuario,
-                    bicicletas: bici,
-                    fecha_ingreso: null,
-                    fecha_salida: ahora
+                        usuario: bici.usuario,
+                        bicicletas: bici,
+                        fecha_ingreso: null,
+                        fecha_salida: ahora
                     });
-            }
+                }
 
-    
-        bici.estado = "olvidada";
-            bici.updateAt = ahora;
-            await bicycleRepository.save(bici);
+
+                bici.estado = "olvidada";
+                bici.updateAt = ahora;
+                await bicycleRepository.save(bici);
 
                 await historialPropioRepo.save({
                     accion: "Marcada Olvidada",
                     fecha: ahora,
                     bicicletero: bici.bicicletero,
                     usuario: bici.usuario,
-                    bicicleta: bici
+                    bicicleta: bici,
+                    marca_bici: bici.marca,
+                    color_bici: bici.color,
+                    serie_bici: bici.numero_serie
                 });
 
-            console.log(`Bicicleta ${bici.codigo} marcada como olvidada.`);
+                console.log(`Bicicleta ${bici.codigo} marcada como olvidada.`);
             }
         }
-    }   
+    }
 }
-    //valdacion de rol para consultar por POSTMAN
+//valdacion de rol para consultar por POSTMAN
 export async function marcarOlvidadas(req, res) {
     try {
         const user = req.user;
         const rol = (user?.rol || "").toString().trim().toLowerCase();
 
         if (rol !== "guardia") {
-        return handleErrorClient(res, 403, "No tienes permisos para marcar bicicletas como olvidadas");
+            return handleErrorClient(res, 403, "No tienes permisos para marcar bicicletas como olvidadas");
         }
 
         await marcarBicicletasOlvidadas();
@@ -600,7 +614,7 @@ export async function marcarOlvidadas(req, res) {
     }
 }
 
-    // nodecrone sin validación de rol
+// nodecrone sin validación de rol
 export async function marcarOlvidadasCron() {
     try {
         await marcarBicicletasOlvidadas();
