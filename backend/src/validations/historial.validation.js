@@ -15,3 +15,4 @@ export const historialValidation = Joi.object({
             "string.pattern.base": "El RUT debe tener el formato xx.xxx.xxx-x.",
         })
 });
+//aa
