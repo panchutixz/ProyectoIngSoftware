@@ -28,6 +28,6 @@ export function useGetReclamos() {
     loading, 
     error, 
     fetchReclamos,
-    setReclamos // Para updates locales
+    setReclamos // para updates locales
   };
 }

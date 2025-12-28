@@ -248,5 +248,40 @@ export const editarBicycleValidation = Joi.object({
             "string.max": "La descripción debe tener una extensión máxima de 30 carácteres",
             "string.empty": "La descripción de la bicicleta es obligatoria",
         }),
+})
 
+export const moverBicycleValidation = Joi.object({
+        rut: Joi.string()
+        .min(9)
+        .max(12)
+        .pattern(/^\d{1,2}\.\d{3}\.\d{3}-[0-9kK]{1}$/) 
+        .required()
+        .messages({
+            "string.empty": "El RUT es obligatorio.",
+            "string.min": "El RUT debe tener al menos 9 caracteres.",
+            "string.max": "El RUT no puede exceder los 12 caracteres.",
+            "string.pattern.base": "El RUT debe tener formato xx.xxx.xxx-x.",
+        }),
+        codigo: Joi.string()
+        .min(4)
+        .max(4)
+        .pattern(/^[0-9]+$/)
+        .required()
+        .messages({
+            "string.empty": "El código de retiro es obligatorio.",
+            "string.min": "El código de retiro debe tener 4 números.",
+            "string.max": "El código de retiro debe tener 4 números.",
+            "string.pattern.base": "El código de retiro debe contener solo números.",
+        }),
+        id_bicicletero_destino: Joi.string()
+        .min(1)
+        .max(1)
+        .pattern(/^[0-9]+$/)
+        .required()
+        .messages({
+            "string.pattern.base": "Para retirar la bicicleta debe ingresar el nombre del bicicletero",
+            "string.empty": "Para completar el retiro de la bicicleta el nombre es obligatorio",
+            "string.min": "El id del bicicletero debe ser <= 1",
+            "string.max": "Los id de los bicicleteros no son de 2 digitos"
+        }),
 })

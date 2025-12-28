@@ -17,7 +17,7 @@ import Reclamos from '@pages/Reclamos';
 import AsignarGuardias from '@pages/AsignarGuardias';
 import Historial from '@pages/Historial';
 
-//  Importa tu contexto global
+// 👇 Importa tu contexto global
 import { UserProvider } from '@context/UserContext';
 
 const router = createBrowserRouter([
