@@ -1,9 +1,13 @@
 import { editarBicycle } from "../../services/bicicletas.service";
+import { getAllBikeRacks } from "../../services/bicicleteros.service.js";
 import Swal from "sweetalert2";
 
-async function editBicicletasPoPup(){
+async function editBicicletasPoPup(bicicleteros){
+    const bicicleteroOptions = bicicleteros.filter(b => b && b.id_bicicletero != null && b.nombre).map(
+        b => `<option value="${b.id_bicicletero}">${b.id_bicicletero} (${b.nombre})</option>`);
+
     const {value} = await Swal.fire({
-    tittle : "Editar información Bicicleta",
+    title : "Editar información Bicicleta",
     html: `
             <div style="display: grid; gap: 10px;">
         <div style="display: flex; align-items: center; gap: 10px;">
@@ -12,13 +16,13 @@ async function editBicicletasPoPup(){
         </div>
 
         <div style="display: flex; align-items: center; gap: 10px;">
-        <label for="swal2-numero_serie" style="width: 120px;">Número Serie</label>
-        <input id="swal2-numero_serie" class="swal2-input" placeholder="Número de serie">
+        <label for="swal2-Código bicicleta" style="width: 120px;">Código bicicleta</label>
+        <input id="swal2-Código bicicleta" class="swal2-input" placeholder="Código bicicleta">
         </div>
 
         <div style="display: flex; align-items: center; gap: 10px;">
-        <label for="swal2-Código bicicleta" style="width: 120px;">Código bicicleta</label>
-        <input id="swal2-Código bicicleta" class="swal2-input" placeholder="Código bicicleta">
+        <label for="swal2-numero_serie" style="width: 120px;">Número Serie</label>
+        <input id="swal2-numero_serie" class="swal2-input" placeholder="Número de serie">
         </div>
 
         <div style="display: flex; align-items: center; gap: 10px;">
@@ -37,7 +41,7 @@ async function editBicicletasPoPup(){
     `,
         focusConfirm: false,
         showCancelButton: true,
-        confirmButtonText: "Añadir",
+        confirmButtonText: "Editar",
         preConfirm: () => {
             const rut = document.getElementById("swal2-rut").value.trim()
             const numero_serie = document.getElementById("swal2-numero_serie").value.trim();
@@ -45,7 +49,7 @@ async function editBicicletasPoPup(){
             const descripcion = document.getElementById("swal2-descripcion").value.trim();
             const id_bicicletero = document.getElementById("swal2-id_bicicletero").value.trim();
     
-            if(!rut ||  !numero_serie ||!codigo|| !descripcion || !id_bicicletero){
+            if(!rut || !numero_serie ||!codigo|| !descripcion || !id_bicicletero){
                 Swal.showValidationMessage("Por favor, complete todos los campos");
                 return false;
             }
@@ -68,7 +72,8 @@ async function editBicicletasPoPup(){
 export const editarBicicleta = (fetchEditBicicleta) => {
     const handleEditarBicicleta = async () => {
         try{
-        const value = await editBicicletasPoPup();
+        const bicicleteros = await getAllBikeRacks();
+        const value = await editBicicletasPoPup(bicicleteros);
         if(!value) return;
 
         const response = await editarBicycle(value);
@@ -83,10 +88,10 @@ export const editarBicicleta = (fetchEditBicicleta) => {
             await fetchEditBicicleta();
         }
 
-        }catch{
-            console.error("Error al registrar la bicicleta:", error);
+        }catch (error){
+            console.error("Error al editar la bicicleta:", error);
             await Swal.fire({
-            title: "No se pudo registrar la bicicleta",
+            title: "No se pudo editar la bicicleta",
             icon: "error",
             text: error.message || "Ha ocurrido un error inesperado, intentalo nuevamente",
             confirmButtonText: "Aceptar",

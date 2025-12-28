@@ -1,6 +1,6 @@
 import "@styles/bicicletas.css";
 import { useState, useEffect } from 'react';
-import { eliminarBicycle, getBicicletas, getUserBicycles} from '../services/bicicletas.service.js';
+import { getBicicletas, getUserBicycles} from '../services/bicicletas.service.js';
 import { reIngresoBicicleta} from '@hooks/bicicletas/useReIngresoBicicletas.jsx';
 import { registerBicicleta } from '@hooks/bicicletas/useRegisterBicicletas.jsx';
 import { retirarBicicletas } from '@hooks/bicicletas/useRetirarBicicletas.jsx';
@@ -61,7 +61,7 @@ const Bicicletas = () => {
     const { handleRegisterBicicleta } = registerBicicleta(fetchBicicletas);
     const { handleRetirarBicicleta } = retirarBicicletas(fetchBicicletas);
     const { handleEditarBicicleta } = editarBicicleta(fetchBicicletas);
-    const { handleDeleteBicicleta} = eliminarBicycle(fetchBicicletas);
+    const { handleDeleteBicicleta} = deleteBicicleta(fetchBicicletas);
 
 
     return (
@@ -121,7 +121,7 @@ const Bicicletas = () => {
                 ))
             ) : (
                 <tr>
-                <td colSpan="9">
+                <td colSpan="10">
                     {user.rol === "Guardia" && !user.bicicletero_id && "No tiene biciclero asignado, contacte con el Administrador."}
                     {user.rol === "Guardia" && user.bicicletero_id && "No tiene bicicletas registradas."}
                     {user.rol === "Administrador" && "No hay bicicletas registradas"}

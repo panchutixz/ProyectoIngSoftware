@@ -1,9 +1,13 @@
 import { eliminarBicycle } from "../../services/bicicletas.service";
+import { getAllBikeRacks } from "../../services/bicicleteros.service.js";
 import Swal from "sweetalert2";
 
-async function DeleteBicicletasPoPup(){
+async function DeleteBicicletasPoPup(bicicleteros){
+    const bicicleteroOptions = bicicleteros.filter(b => b && b.id_bicicletero != null && b.nombre).map(
+        b => `<option value="${b.id_bicicletero}">${b.id_bicicletero} (${b.nombre})</option>`);
+
     const {value} = await Swal.fire({
-    tittle : "Eliminar Bicicleta",
+    title : "Eliminar Bicicleta",
     html: `
             <div style="display: grid; gap: 10px;">
         <div style="display: flex; align-items: center; gap: 10px;">
@@ -27,7 +31,7 @@ async function DeleteBicicletasPoPup(){
     `,
         focusConfirm: false,
         showCancelButton: true,
-        confirmButtonText: "Añadir",
+        confirmButtonText: "Eliminar",
         preConfirm: () => {
             const rut = document.getElementById("swal2-rut").value.trim()
             const codigo = document.getElementById("swal2-Código bicicleta").value.trim();
@@ -54,7 +58,8 @@ async function DeleteBicicletasPoPup(){
 export const deleteBicicleta = (fetchDeleteBicicleta) => {
     const handleDeleteBicicleta = async () => {
         try{
-        const value = await DeleteBicicletasPoPup();
+        const bicicleteros = await getAllBikeRacks()
+        const value = await DeleteBicicletasPoPup(bicicleteros);
         if(!value) return;
 
         const response = await eliminarBicycle(value);
@@ -69,7 +74,7 @@ export const deleteBicicleta = (fetchDeleteBicicleta) => {
             await fetchDeleteBicicleta();
         }
 
-        }catch{
+        }catch (error){
             console.error("Error al eliminar la bicicleta:", error);
             await Swal.fire({
             title: "No se pudo eliminar la bicicleta",

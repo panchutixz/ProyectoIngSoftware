@@ -43,4 +43,4 @@ export const Historial = new EntitySchema({
 });
 
 export default Historial;
-//a
+//aasas
