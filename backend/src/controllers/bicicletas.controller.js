@@ -7,7 +7,7 @@ import Bicicletero from "../entities/bicicletero.entity.js";
 import { Historial } from "../entities/historial_bicicleta.entity.js";
 import HistorialBicicletero from "../entities/historial_bicicletero.entity.js";
 import { In } from "typeorm";
-
+//pusheo con mari
 //para pushear//
 // registro bicicletas
 export async function registerBicycle(req, res){
