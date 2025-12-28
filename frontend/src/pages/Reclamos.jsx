@@ -1,21 +1,25 @@
 import "@styles/reclamos.css";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { obtenerReclamos, crearReclamo, actualizarReclamo, eliminarReclamo } from "../services/reclamos.service.js";
+import { useCreateReclamo } from "@hooks/reclamos/useCreateReclamo";
+import { useGetReclamos } from "@hooks/reclamos/useGetReclamos";
+import { useGetBicicletasUsuario } from "@hooks/reclamos/useGetBicicletasUsuario";
+import { useEditReclamo } from "@hooks/reclamos/useEditReclamo";
+import { useDeleteReclamo } from "@hooks/reclamos/useDeleteReclamo";
 import { showErrorAlert, showSuccessAlert } from "../helpers/sweetAlert.js";
 
 const Reclamos = () => {
-  const [reclamos, setReclamos] = useState([]);
+  // estados del formulario
   const [descripcion, setDescripcion] = useState("");
   const [numeroSerie, setNumeroSerie] = useState("");
-  const [error, setError] = useState(null);
-  const [creando, setCreando] = useState(false);
-  const [mostrarFormulario, setMostrarFormulario] = useState(false); 
+  const [mostrarFormulario, setMostrarFormulario] = useState(false);
 
+  // estados para modales
   const [modalEditar, setModalEditar] = useState({
     abierto: false,
     id: null,
-    descripcion: ""
+    descripcion: "",
+    rutUsuario: ""
   });
   
   const [modalEliminar, setModalEliminar] = useState({
@@ -24,10 +28,51 @@ const Reclamos = () => {
     descripcion: ""
   });
 
-  // obtener usuario actual y rol
+  // hooks personalizados
+  const { 
+    reclamos, 
+    loading: loadingReclamos, 
+    error: errorReclamos, 
+    fetchReclamos 
+  } = useGetReclamos();
+  
+  const { 
+    registrarReclamo, 
+    loading: creando, 
+    error: errorCrear,
+    success: exitoCrear,
+    resetState: resetCrear 
+  } = useCreateReclamo();
+  
+  const { 
+    bicicletas, 
+    loading: cargandoBicicletas, 
+    error: errorBicicletas,
+    fetchBicicletas,
+    hasBicicletas 
+  } = useGetBicicletasUsuario();
+  
+  const { 
+    actualizar, 
+    loading: actualizando, 
+    error: errorActualizar,
+    success: exitoActualizar,
+    resetState: resetActualizar 
+  } = useEditReclamo();
+  
+  const { 
+    eliminar, 
+    loading: eliminando, 
+    error: errorEliminar,
+    success: exitoEliminar,
+    resetState: resetEliminar 
+  } = useDeleteReclamo();
+
+  // obtener usuario actual desde sessionStorage
   const user = JSON.parse(sessionStorage.getItem("usuario")) || null;
   const userRole = user?.rol || user?.role || "";
   const userRut = user?.rut || "";
+  const userName = user?.nombre || user?.name || "";
 
   // definir tipos de usuario
   const esAdmin = userRole?.toLowerCase() === "administrador" || userRole?.toLowerCase() === "admin";
@@ -36,192 +81,187 @@ const Reclamos = () => {
   const esAcademico = userRole?.toLowerCase() === "académico" || userRole?.toLowerCase() === "academico";
   const esFuncionario = userRole?.toLowerCase() === "funcionario";
 
-  // usuarios que pueden crear reclamos
+  // permisos
   const puedeCrearReclamo = esEstudiante || esAcademico || esFuncionario;
-  // usuarios que pueden ver todos los reclamos
   const puedeVerTodos = esAdmin || esGuardia;
 
-  // para navegacion
+  // navegacion
   const navigate = useNavigate();
 
-   const fetchReclamos = async () => {
+  // efecto para cargar reclamos al inicio
+  useEffect(() => {
+    fetchReclamos();
+  }, []);
+
+  // efecto para cargar bicicletas cuando se abre el formulario
+  useEffect(() => {
+    if (mostrarFormulario && puedeCrearReclamo) {
+      cargarBicicletasUsuario();
+    }
+  }, [mostrarFormulario]);
+
+  // efecto para manejar exito en creacion
+  useEffect(() => {
+    if (exitoCrear) {
+      fetchReclamos();
+      resetCrear();
+    }
+  }, [exitoCrear]);
+
+  // efecto para manejar éxito en la actualizacion
+  useEffect(() => {
+    if (exitoActualizar) {
+      fetchReclamos();
+      resetActualizar();
+    }
+  }, [exitoActualizar]);
+
+  // efecto para manejar exito en la eliminación
+  useEffect(() => {
+    if (exitoEliminar) {
+      fetchReclamos();
+      resetEliminar();
+    }
+  }, [exitoEliminar]);
+
+  // funcion para cargar bicicletas del usuario
+  const cargarBicicletasUsuario = async () => {
     try {
-      const data = await obtenerReclamos();
-      console.log("Respuesta backend reclamos:", data);
-      setReclamos(data);
-    } catch (err) {
-      console.error("Error al cargar reclamos:", err);
-      setError("No se pudieron cargar los reclamos");
+      const bicis = await fetchBicicletas();
+      if (bicis && bicis.length > 0 && !numeroSerie) {
+        setNumeroSerie(bicis[0].numero_serie);
+      }
+    } catch (error) {
+      console.error("Error cargando bicicletas:", error);
     }
   };
 
+  // funcion para abrir formulario de creacion
+  const handleAbrirFormulario = () => {
+    // verificar rol antes de abrir
+    const rolesPermitidos = ["estudiante", "académico", "funcionario"];
+    if (!rolesPermitidos.includes(userRole.toLowerCase())) {
+      showErrorAlert(
+        "No autorizado", 
+        "Solo estudiantes, académicos o funcionarios pueden crear reclamos."
+      );
+      return;
+    }
+    setMostrarFormulario(true);
+  };
+
+  // funcion para crear reclamo
   const handleCrear = async (e) => {
     e?.preventDefault();
 
-    // Verificar que el usuario tenga un rol valido para crear reclamos
-  const rolesPermitidos = ["estudiante", "académico", "funcionario", "Estudiante", "Académico", "Funcionario"];
-  const userRol = user?.rol || "";
-  
-  if (!rolesPermitidos.includes(userRol)) {
-    showErrorAlert("No autorizado", "Solo estudiantes, académicos o funcionarios pueden crear reclamos. Tu rol actual no está autorizado.");
-    setMostrarFormulario(false); //cerrar formulario si no tiene permiso
-    return;
-  }
-
-    // Validar campos
+    // validaciones
     if (!descripcion.trim()) {
       showErrorAlert("Campo requerido", "Por favor, ingresa una descripción del reclamo");
       return;
     }
-    
+
     if (!numeroSerie.trim()) {
-      showErrorAlert("Campo requerido", "Por favor, ingresa el número de serie de la bicicleta");
+      showErrorAlert("Campo requerido", "Por favor, selecciona una bicicleta");
       return;
     }
 
-    // validar longitud minima de descripcion (segun backend son minimo 10 caracteres)
     if (descripcion.trim().length < 10) {
-      alert("La descripción debe tener al menos 10 caracteres");
+      showErrorAlert("Descripción muy corta", "La descripción debe tener al menos 10 caracteres");
       return;
     }
 
-    // validar que la descripcion contenga letras segun backend
     const tieneLetras = /[A-Za-zÁÉÍÓÚáéíóúÑñ]/.test(descripcion);
     if (!tieneLetras) {
-      alert("La descripción debe contener al menos una letra");
+      showErrorAlert("Descripción inválida", "La descripción debe contener al menos una letra");
       return;
     }
-    
-    setCreando(true);
-    try {
-      console.log("Creando reclamo con:", { descripcion, numeroSerie });
-      
-      const nuevoReclamo = {
-      descripcion: descripcion.trim(),
-      numero_serie_bicicleta: numeroSerie.trim()
-    };
 
-    console.log("Datos enviados al backend:", nuevoReclamo);
+    try {
+      const nuevoReclamo = {
+        descripcion: descripcion.trim(),
+        numero_serie_bicicleta: numeroSerie.trim()
+      };
+
+      await registrarReclamo(nuevoReclamo);
       
-    await crearReclamo(nuevoReclamo);
+      // limpiar formulario
+      setDescripcion("");
+      setNumeroSerie("");
+      setMostrarFormulario(false);
       
-    // Limpiar formulario y cerrarlo
-    setDescripcion("");
-    setNumeroSerie("");
-    setError(null);
-    setMostrarFormulario(false); // 
-      
-     //recargar la lista
-      await fetchReclamos();
-      
-      showSuccessAlert("Reclamo creado", "Reclamo creado exitosamente!");
+      showSuccessAlert("¡Éxito!", "Reclamo creado correctamente");
       
     } catch (err) {
-      console.error("Error al crear reclamo:", err);
-      
-      let errorMessage = "Error al crear el reclamo";
-
-      if (err.response) {
-        // error del servidor
-        console.error("Response data:", err.response.data);
-        console.error("Response status:", err.response.status);
-        
-        if (err.response.data && err.response.data.message) {
-          errorMessage = err.response.data.message;
-          
-          //si hay multiples mensajes
-          if (Array.isArray(errorMessage)) {
-            errorMessage = errorMessage.join(", ");
-          }
-        } else if (err.response.data && err.response.data.error) {
-          errorMessage = err.response.data.error;
-        }
-      } else if (err.request) {
-        //error de red
-        errorMessage = "Error de conexión. Verifica tu internet.";
-      } else {
-        //otros errores
-        errorMessage = err.message;
-      }
-      
-      setError(errorMessage);
-      showErrorAlert("Error al crear reclamo", errorMessage);
-      
-    } finally {
-      setCreando(false);
+      // el error ya es manejado por el hook
+      console.error("Error en creación:", err);
     }
   };
 
-  //funcion para abrir modal de editar con la validacion
+  // funcion para abrir modal de edicion
   const abrirModalEditar = (id, descripcionActual, rutUsuarioReclamo) => {
-      //verificar si el usuario puede editar este reclamo
-      if (puedeCrearReclamo) {
-      //si es estudiante/academico/funcionario solo puede editar sus propios reclamos
-      if (rutUsuarioReclamo !== userRut) {
-        showErrorAlert("Sin permiso", "No puedes editar reclamos de otros usuarios");
-        return;
-      }
+    // validar permisos
+    if (puedeCrearReclamo && rutUsuarioReclamo !== userRut) {
+      showErrorAlert("Sin permiso", "No puedes editar reclamos de otros usuarios");
+      return;
     }
     
     setModalEditar({
       abierto: true,
       id,
-      descripcion: descripcionActual
+      descripcion: descripcionActual,
+      rutUsuario: rutUsuarioReclamo
     });
   };
 
-  // funcion para cerrar modal de editar
+  // funcion para cerrar modal de edicion
   const cerrarModalEditar = () => {
     setModalEditar({
       abierto: false,
       id: null,
-      descripcion: ""
+      descripcion: "",
+      rutUsuario: ""
     });
   };
 
-  //funcion para guardar edición
+  // funcion para guardar edicion
   const handleGuardarEdicion = async () => {
     if (!modalEditar.descripcion.trim()) {
-      alert("La descripción no puede estar vacía");
+      showErrorAlert("Campo requerido", "La descripción no puede estar vacía");
       return;
     }
 
-    //validaciones similares a la creacion
     if (modalEditar.descripcion.trim().length < 10) {
-      alert("La descripción debe tener al menos 10 caracteres");
+      showErrorAlert("Descripción muy corta", "La descripción debe tener al menos 10 caracteres");
       return;
     }
 
     const tieneLetras = /[A-Za-zÁÉÍÓÚáéíóúÑñ]/.test(modalEditar.descripcion);
     if (!tieneLetras) {
-      alert("La descripción debe contener al menos una letra");
+      showErrorAlert("Descripción inválida", "La descripción debe contener al menos una letra");
       return;
     }
 
     try {
-      await actualizarReclamo(modalEditar.id, { 
+      await actualizar(modalEditar.id, { 
         descripcion: modalEditar.descripcion.trim() 
       });
       
       cerrarModalEditar();
-      await fetchReclamos();
-      showSuccessAlert("Reclamo actualizado", "Reclamo actualizado exitosamente!");
+      showSuccessAlert("¡Éxito!", "Reclamo actualizado correctamente");
       
     } catch (err) {
-      console.error("Error al actualizar reclamo:", err);
-      let errorMsg = "Error al actualizar el reclamo";
-      if (err.response?.data?.message) {
-        errorMsg = err.response.data.message;
-        if (Array.isArray(errorMsg)) {
-          errorMsg = errorMsg.join(", ");
-        }
-      }
-      showErrorAlert("Error al actualizar", errorMsg);
+      console.error("Error en actualización:", err);
     }
   };
 
-  // funcion para abrir modal de eliminar
-  const abrirModalEliminar = (id, descripcionActual) => {
+  // funcion para abrir modal de eliminacion
+  const abrirModalEliminar = (id, descripcionActual, rutUsuarioReclamo) => {
+    // validar permisos para usuarios no admin/guardia
+    if (puedeCrearReclamo && rutUsuarioReclamo !== userRut) {
+      showErrorAlert("Sin permiso", "No puedes eliminar reclamos de otros usuarios");
+      return;
+    }
+    
     setModalEliminar({
       abierto: true,
       id,
@@ -229,7 +269,7 @@ const Reclamos = () => {
     });
   };
 
-  // funcion para cerrar modal de eliminar
+  // funcion para cerrar modal de eliminacion
   const cerrarModalEliminar = () => {
     setModalEliminar({
       abierto: false,
@@ -238,27 +278,14 @@ const Reclamos = () => {
     });
   };
 
-  // funcion para confirmar eliminación
+  // funcion para confirmar eliminacion
   const handleConfirmarEliminar = async () => {
     try {
-      await eliminarReclamo(modalEliminar.id);
+      await eliminar(modalEliminar.id);
       cerrarModalEliminar();
-      await fetchReclamos();
-      showSuccessAlert("Reclamo eliminado", "Reclamo eliminado exitosamente");
+      showSuccessAlert("¡Éxito!", "Reclamo eliminado correctamente");
     } catch (err) {
-      console.error("Error al eliminar reclamo:", err);
-      let errorMsg = "Error al eliminar el reclamo";
-      if (err.response?.data?.message) {
-        errorMsg = err.response.data.message;
-      }
-      showErrorAlert("Error al eliminar", errorMsg);
-    }
-  };
-
-  //funcion para manejar la tecla Enter en el formulario
-  const handleKeyPress = (e) => {
-    if (e.key === 'Enter' && puedeCrearReclamo) {
-      handleCrear(e);
+      console.error("Error en eliminación:", err);
     }
   };
 
@@ -267,23 +294,35 @@ const Reclamos = () => {
     setDescripcion("");
     setNumeroSerie("");
     setMostrarFormulario(false);
-    setError(null);
   };
 
+  // funcion para manejar tecla enter
+  const handleKeyPress = (e) => {
+    if (e.key === 'Enter' && puedeCrearReclamo) {
+      handleCrear(e);
+    }
+  };
 
   // funcion para redirigir al perfil del usuario
   const verPerfilUsuario = (rut) => {
-    if (rut && rut !== "No disponible") {
+    if (rut && rut !== "No disponible" && (esAdmin || esGuardia)) {
       navigate(`/usuarios?rut=${rut}`);
     }
   };
 
-  useEffect(() => {
-    fetchReclamos();
-  }, []);
-
-  //funcion para generar las filas de la tabla
+  // renderizar filas de la tabla
   const renderReclamos = () => {
+    if (loadingReclamos) {
+      return (
+        <tr>
+          <td colSpan="6" className="loading-data">
+            <div className="spinner"></div>
+            Cargando reclamos...
+          </td>
+        </tr>
+      );
+    }
+
     if (!reclamos || reclamos.length === 0) {
       return (
         <tr>
@@ -296,7 +335,22 @@ const Reclamos = () => {
       );
     }
 
-    return reclamos.map((reclamo) => {
+    // filtrar reclamos si no es admin o guardia
+    const reclamosFiltrados = puedeVerTodos 
+      ? reclamos 
+      : reclamos.filter(reclamo => reclamo.rut_user === userRut);
+
+    if (reclamosFiltrados.length === 0) {
+      return (
+        <tr>
+          <td colSpan="6" className="no-data">
+            No tienes reclamos registrados
+          </td>
+        </tr>
+      );
+    }
+
+    return reclamosFiltrados.map((reclamo) => {
       const usuarioRut = reclamo.usuario?.rut || reclamo.rut_user || "No disponible";
       const bicicletaNumSerie = reclamo.bicicletas?.numero_serie || reclamo.numero_serie_bicicleta || "N/A";
       
@@ -314,8 +368,8 @@ const Reclamos = () => {
           <td data-label="ID">{reclamo.id}</td>
           <td data-label="Descripción" className="descripcion-celda">
             <span title={reclamo.descripcion}>
-              {reclamo.descripcion.length > 100 
-                ? `${reclamo.descripcion.substring(0, 100)}...`
+              {reclamo.descripcion.length > 150 
+                ? `${reclamo.descripcion.substring(0, 150)}...`
                 : reclamo.descripcion}
             </span>
           </td>
@@ -326,7 +380,7 @@ const Reclamos = () => {
             </span>
           </td>
           <td data-label="Usuario">
-            {usuarioRut !== "No disponible" ? (
+            {usuarioRut !== "No disponible" && (esAdmin || esGuardia) ? (
               <span
                 onClick={() => verPerfilUsuario(usuarioRut)}
                 className="rut-clickable"
@@ -340,22 +394,26 @@ const Reclamos = () => {
           </td>
           <td data-label="Acciones">
             <div className="acciones-container">
+              {/* boton de editar - solo para dueño o admin/guardia */}
               {(puedeCrearReclamo && usuarioRut === userRut) && (
                 <button 
                   onClick={() => abrirModalEditar(reclamo.id, reclamo.descripcion, usuarioRut)}
                   className="btn-editar"
                   title="Editar reclamo"
+                  disabled={actualizando}
                 >
-                  Editar
+                  {actualizando && modalEditar.id === reclamo.id ? "Editando..." : "Editar"}
                 </button>
               )}
               
+              {/* boton de eliminar - siempre visible pero con validación interna */}
               <button 
-                onClick={() => abrirModalEliminar(reclamo.id, reclamo.descripcion)}
+                onClick={() => abrirModalEliminar(reclamo.id, reclamo.descripcion, usuarioRut)}
                 className="btn-eliminar"
                 title="Eliminar reclamo"
+                disabled={eliminando}
               >
-                Eliminar
+                {eliminando && modalEliminar.id === reclamo.id ? "Eliminando..." : "Eliminar"}
               </button>
             </div>
           </td>
@@ -364,30 +422,81 @@ const Reclamos = () => {
     });
   };
 
- 
+  // renderizar mensajes de error
+  const renderErrores = () => {
+    const errores = [];
+    
+    if (errorReclamos) errores.push("Error al cargar reclamos");
+    if (errorCrear) errores.push("Error al crear reclamo");
+    if (errorActualizar) errores.push("Error al actualizar reclamo");
+    if (errorEliminar) errores.push("Error al eliminar reclamo");
+    if (errorBicicletas) errores.push("Error al cargar bicicletas");
+
+    if (errores.length > 0) {
+      return (
+        <div className="error-message">
+          <strong>Se produjeron errores:</strong>
+          <ul>
+            {errores.map((error, index) => (
+              <li key={index}>{error}</li>
+            ))}
+          </ul>
+        </div>
+      );
+    }
+    
+    return null;
+  };
+
   return (
     <div className="reclamos-page">
-      {/* titulo correspondiente segun rol */}
-      <h1>{puedeVerTodos 
-          ? "Reclamos" 
+      {/* titulo segun rol */}
+      <h1>
+        {puedeVerTodos 
+          ? "Reclamos del Sistema" 
           : puedeCrearReclamo 
             ? "Mis Reclamos" 
             : "Reclamos"}
       </h1>
 
-      {/* mostrar boton para abrir formulario SOLO para usuarios */}
-      {puedeCrearReclamo && !mostrarFormulario && (
-        <div className="crear-reclamo-btn-container">
-          <button 
-            className="reclamos-addbtn"
-            onClick={() => setMostrarFormulario(true)}
-          >
-            Crear Reclamo
-          </button>
+      {/* mensaje de bienvenida para usuarios */}
+      {puedeCrearReclamo && (
+        <div className="welcome-message">
+          <p>Hola <strong>{userName}</strong>, aquí puedes gestionar tus reclamos sobre tus bicicletas.</p>
+          {!hasBicicletas && (
+            <p className="warning-message">
+              <strong>Nota:</strong> Para crear un reclamo, primero debes registrar una bicicleta en la sección "Bicicletas".
+            </p>
+          )}
         </div>
       )}
 
-      {/* mostrar formulario de creacion cuando mostrarFormulario es true */}
+      {/* BOTÓN CORREGIDO: Siempre visible para usuarios autorizados */}
+      {puedeCrearReclamo && !mostrarFormulario && (
+        <div className="crear-reclamo-btn-container">
+          {hasBicicletas ? (
+            <button 
+              className="reclamos-addbtn"
+              onClick={handleAbrirFormulario}
+              disabled={cargandoBicicletas}
+            >
+              {cargandoBicicletas ? "Cargando..." : "Crear Nuevo Reclamo"}
+            </button>
+          ) : (
+            <div className="no-bicicletas-alert">
+              <p>No tienes bicicletas registradas para crear un reclamo.</p>
+              <button 
+                className="reclamos-addbtn-secondary"
+                onClick={() => navigate('/bicicletas')}
+              >
+                Ir a Registrar Bicicleta
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* formulario de creacion */}
       {puedeCrearReclamo && mostrarFormulario && (
         <div className="reclamo-form expandido">
           <div className="form-header">
@@ -403,26 +512,75 @@ const Reclamos = () => {
           </div>
           
           <div className="form-inputs">
-            <input
-              type="text"
-              placeholder="Descripción del reclamo (mínimo 10 caracteres)"
-              value={descripcion}
-              onChange={(e) => setDescripcion(e.target.value)}
-              onKeyPress={handleKeyPress}
-              disabled={creando}
-              autoFocus
-              required
-              minLength="10"
-            />
-            <input
-              type="text"
-              placeholder="número Serie de Bicicleta"
-              value={numeroSerie}
-              onChange={(e) => setNumeroSerie(e.target.value)}
-              onKeyPress={handleKeyPress}
-              disabled={creando}
-              required
-            />
+            {/* campo descripcion */}
+            <div className="input-group">
+              <label htmlFor="descripcion">Descripción *</label>
+              <textarea
+                id="descripcion"
+                placeholder="Describe el problema o situación (mínimo 10 caracteres, debe contener letras)"
+                value={descripcion}
+                onChange={(e) => setDescripcion(e.target.value)}
+                onKeyPress={handleKeyPress}
+                disabled={creando || cargandoBicicletas}
+                rows="3"
+                required
+                minLength="10"
+                className={descripcion.trim().length > 0 && descripcion.trim().length < 10 ? "error-input" : ""}
+              />
+              {descripcion.trim().length > 0 && descripcion.trim().length < 10 && (
+                <p className="error-validacion">
+                  Mínimo 10 caracteres ({descripcion.trim().length}/10)
+                </p>
+              )}
+              {descripcion.trim().length > 0 && !/[A-Za-zÁÉÍÓÚáéíóúÑñ]/.test(descripcion) && (
+                <p className="error-validacion">
+                  La descripción debe contener al menos una letra
+                </p>
+              )}
+            </div>
+
+            {/* selector de bicicleta */}
+            <div className="input-group">
+              <label htmlFor="bicicleta-select">Seleccionar Bicicleta *</label>
+              {cargandoBicicletas ? (
+                <div className="loading-select">
+                  <div className="spinner-small"></div>
+                  Cargando tus bicicletas...
+                </div>
+              ) : !hasBicicletas ? (
+                <div className="no-bicicletas-message">
+                  <p>No tienes bicicletas registradas en el sistema.</p>
+                  <p className="info-text">
+                    Para crear un reclamo, primero debes registrar una bicicleta en la sección "Bicicletas".
+                  </p>
+                </div>
+              ) : (
+                <>
+                  <select
+                    id="bicicleta-select"
+                    value={numeroSerie}
+                    onChange={(e) => setNumeroSerie(e.target.value)}
+                    disabled={creando || cargandoBicicletas || !hasBicicletas}
+                    required
+                    className="bicicleta-select"
+                  >
+                    <option value="">Selecciona una bicicleta</option>
+                    {bicicletas.map((bicicleta) => (
+                      <option 
+                        key={bicicleta.id} 
+                        value={bicicleta.numero_serie}
+                        title={`${bicicleta.marca || 'Sin marca'} ${bicicleta.modelo || 'Sin modelo'} - ${bicicleta.color || 'Sin color'} (${bicicleta.estado || 'Sin estado'})`}
+                      >
+                        {bicicleta.numero_serie} - {bicicleta.marca || 'Sin marca'} {bicicleta.modelo || ''} ({bicicleta.color || 'Sin color'})
+                      </option>
+                    ))}
+                  </select>
+                  <p className="info-text">
+                    Tienes {bicicletas.length} bicicleta{bicicletas.length !== 1 ? 's' : ''} registrada{bicicletas.length !== 1 ? 's' : ''}
+                  </p>
+                </>
+              )}
+            </div>
           </div>
           
           <div className="form-actions">
@@ -436,43 +594,78 @@ const Reclamos = () => {
             <button 
               className="reclamos-addbtn" 
               onClick={handleCrear}
-              disabled={creando || !numeroSerie.trim() || !descripcion.trim() || descripcion.trim().length < 10}
-              title={descripcion.trim().length < 10 ? "La descripción debe tener al menos 10 caracteres" : ""}
+              disabled={
+                creando || 
+                !numeroSerie.trim() || 
+                !descripcion.trim() || 
+                descripcion.trim().length < 10 ||
+                !hasBicicletas ||
+                !/[A-Za-zÁÉÍÓÚáéíóúÑñ]/.test(descripcion)
+              }
+              title={
+                !hasBicicletas 
+                  ? "No tienes bicicletas registradas" 
+                  : descripcion.trim().length < 10 
+                    ? "La descripción debe tener al menos 10 caracteres" 
+                    : !/[A-Za-zÁÉÍÓÚáéíóúÑñ]/.test(descripcion)
+                      ? "La descripción debe contener al menos una letra"
+                      : ""
+              }
             >
-              {creando ? "Creando..." : "Crear Reclamo"}
+              {creando ? (
+                <>
+                  <span className="spinner-small"></span>
+                  Creando...
+                </>
+              ) : "Crear Reclamo"}
             </button>
           </div>
-
-          {descripcion.trim().length > 0 && descripcion.trim().length < 10 && (
-            <p className="error-validacion" style={{color: 'red', fontSize: '12px', marginTop: '5px'}}>
-              La descripción debe tener al menos 10 caracteres ({descripcion.trim().length}/10)
-            </p>
-          )}
         </div>
       )}
 
-      {/* Tabla */}
-<div className="reclamos-table-wrapper">
-  <table className="reclamos-table">
-    <thead>
-      <tr>
-        <th>ID</th>
-        <th>Descripción</th>
-        <th>Fecha</th>
-        <th>Bicicleta</th>
-        <th>Usuario</th>
-        <th>Acciones</th>
-      </tr>
-    </thead>
-    <tbody>
-      {renderReclamos()}
-          </tbody>
-        </table>
+      {/* Tabla de reclamos */}
+      <div className="reclamos-table-wrapper">
+        <div className="table-header">
+          <h3>
+            {puedeVerTodos 
+              ? `Todos los Reclamos (${reclamos.length})`
+              : `Mis Reclamos (${reclamos.filter(r => r.rut_user === userRut).length})`}
+          </h3>
+          {!loadingReclamos && reclamos.length > 0 && (
+            <button 
+              className="refresh-btn"
+              onClick={fetchReclamos}
+              disabled={loadingReclamos}
+              title="Actualizar lista"
+            >
+              {loadingReclamos ? "Actualizando..." : "🔄 Actualizar"}
+            </button>
+          )}
+        </div>
+        
+        <div className="table-container">
+          <table className="reclamos-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Descripción</th>
+                <th>Fecha</th>
+                <th>Bicicleta</th>
+                <th>Usuario</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              {renderReclamos()}
+            </tbody>
+          </table>
+        </div>
       </div>
 
-      {error && <p className="error-message">{error}</p>}
+      {/* mostrar errores */}
+      {renderErrores()}
 
-      {/* modal para editar */}
+      {/* modal para Editar */}
       {modalEditar.abierto && (
         <div className="modal-overlay">
           <div className="modal-content">
@@ -484,17 +677,23 @@ const Reclamos = () => {
             </div>
             <div className="modal-body">
               <div className="form-group">
-                <label>Descripción del reclamo (mínimo 10 caracteres, debe contener letras)</label>
+                <label>Descripción del reclamo *</label>
                 <textarea
                   value={modalEditar.descripcion}
                   onChange={(e) => setModalEditar(prev => ({...prev, descripcion: e.target.value}))}
                   placeholder="Describe el problema..."
                   rows="4"
                   autoFocus
+                  className={modalEditar.descripcion.length > 0 && modalEditar.descripcion.length < 10 ? "error-input" : ""}
                 />
                 {modalEditar.descripcion.length > 0 && modalEditar.descripcion.length < 10 && (
-                  <p className="error-validacion" style={{color: 'red', fontSize: '12px', marginTop: '5px'}}>
+                  <p className="error-validacion">
                     Mínimo 10 caracteres ({modalEditar.descripcion.length}/10)
+                  </p>
+                )}
+                {modalEditar.descripcion.length > 0 && !/[A-Za-zÁÉÍÓÚáéíóúÑñ]/.test(modalEditar.descripcion) && (
+                  <p className="error-validacion">
+                    La descripción debe contener al menos una letra
                   </p>
                 )}
               </div>
@@ -506,9 +705,18 @@ const Reclamos = () => {
               <button 
                 className="confirmar-btn" 
                 onClick={handleGuardarEdicion}
-                disabled={modalEditar.descripcion.trim().length < 10}
+                disabled={
+                  modalEditar.descripcion.trim().length < 10 ||
+                  !/[A-Za-zÁÉÍÓÚáéíóúÑñ]/.test(modalEditar.descripcion) ||
+                  actualizando
+                }
               >
-                Guardar Cambios
+                {actualizando ? (
+                  <>
+                    <span className="spinner-small"></span>
+                    Guardando...
+                  </>
+                ) : "Guardar Cambios"}
               </button>
             </div>
           </div>
@@ -536,8 +744,17 @@ const Reclamos = () => {
               <button className="cancelar-btn" onClick={cerrarModalEliminar}>
                 Cancelar
               </button>
-              <button className="eliminar-btn" onClick={handleConfirmarEliminar}>
-                Sí, Eliminar
+              <button 
+                className="eliminar-btn" 
+                onClick={handleConfirmarEliminar}
+                disabled={eliminando}
+              >
+                {eliminando ? (
+                  <>
+                    <span className="spinner-small"></span>
+                    Eliminando...
+                  </>
+                ) : "Sí, Eliminar"}
               </button>
             </div>
           </div>

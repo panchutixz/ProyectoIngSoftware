@@ -1,16 +1,16 @@
 /* Layout del contenedor */
 .reclamos-page {
-  max-width: 1100px;
-  margin: 28px 24px;
+  max-width: 1200px;
+  margin: 28px auto;
   padding: 20px;
 }
 
-/* titulo principal */
+/* Título principal */
 .reclamos-page h1 {
   color: #ffffff !important;
-  font-size: 28px !important;
+  font-size: 32px !important;
   font-weight: 700 !important;
-  margin: 0 0 30px 0 !important;
+  margin: 0 0 20px 0 !important;
   padding: 0 !important;
   text-align: left !important;
   letter-spacing: 0.5px !important;
@@ -19,283 +19,136 @@
   border: none !important;
 }
 
-/* Encabezado */
-.reclamos-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 16px;
-}
-.reclamos-header h2 {
-  margin: 0;
-  font-size: 24px;
-  color: #e8f0f2; /* color oscuro/teal */
-  letter-spacing: 0.2px;
-  font-weight: 700;
+/* Mensaje de bienvenida */
+.welcome-message {
+  background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
+  border: 1px solid #bae6fd;
+  border-radius: 10px;
+  padding: 15px 20px;
+  margin-bottom: 25px;
+  color: #0369a1;
 }
 
-/* formulario para crear reclamo (solo usuarios) */
-.reclamo-form {
-  display: flex;
-  gap: 12px;
-  margin-bottom: 24px;
-  padding: 16px;
-  background: #fff;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(2, 40, 53, 0.08);
-  align-items: center;
-}
-
-.reclamo-form input {
-  flex: 1;
-  padding: 10px 14px;
-  border: 1px solid #eef2f3;
-  border-radius: 6px;
+.welcome-message p {
+  margin: 5px 0;
   font-size: 14px;
-  color: #24323a;
-  background: #fbfbfb;
 }
 
-.reclamo-form input:focus {
-  outline: none;
-  border-color: #0b9fb6;
-  background: #fff;
+.welcome-message .warning-message {
+  color: #ea580c;
+  background: #fffbeb;
+  padding: 10px;
+  border-radius: 6px;
+  margin-top: 10px;
+  border-left: 3px solid #f59e0b;
+}
+
+/* Botón para crear reclamo */
+.crear-reclamo-btn-container {
+  margin-bottom: 25px;
+  text-align: center;
 }
 
 .reclamos-addbtn {
   background: linear-gradient(135deg,#7058e1,#6b45ce);
   color: #fff;
   border: none;
-  padding: 10px 16px;
-  border-radius: 8px;
+  padding: 12px 24px;
+  border-radius: 10px;
   cursor: pointer;
   box-shadow: 0 6px 18px rgba(103,58,183,0.12);
   font-weight: 600;
+  font-size: 15px;
+  transition: all 0.3s ease;
+  min-width: 200px;
 }
 
-.reclamos-addbtn:hover {
+.reclamos-addbtn:hover:not(:disabled) {
   background: linear-gradient(135deg, #6249d1, #5a3cba);
   box-shadow: 0 8px 20px rgba(103, 58, 183, 0.2);
+  transform: translateY(-2px);
 }
 
-/* Tabla - tarjeta */
-.reclamos-table-wrapper {
-  background: #fff;
-  border-radius: 8px;
-  overflow: hidden;
-  box-shadow: 0 8px 20px rgba(2,40,53,0.08);
+.reclamos-addbtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
 }
-.reclamos-table {
-  width: 100%;
-  border-collapse: collapse;
+
+/* Alerta cuando no hay bicicletas */
+.no-bicicletas-alert {
+  background: linear-gradient(135deg, #fff3cd, #ffeaa7);
+  border: 2px solid #ffc107;
+  border-radius: 10px;
+  padding: 20px;
+  text-align: center;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 12px rgba(255, 193, 7, 0.1);
+}
+
+.no-bicicletas-alert p {
+  margin: 0 0 15px 0;
+  color: #856404;
+  font-weight: 500;
   font-size: 15px;
-  color: #24323a;
 }
 
-/* para asegurar que las celdas mantengan su estructura */
-.reclamos-table td {
-  white-space: normal;
-  overflow: visible;
-  text-overflow: clip;
-  max-width: 200px;
-  word-wrap: break-word;
-}
-
-.reclamos-table td:nth-child(2) {  /* Columna de descripción */
-  white-space: normal;
-  word-wrap: break-word;
-  min-width: 200px;
-  max-width: 300px;
-}
-
-/* Encabezados */
-.reclamos-table thead th {
-  background: linear-gradient(90deg,#0a6b71,#0b9fb6);
+.reclamos-addbtn-secondary {
+  background: linear-gradient(135deg, #6c757d, #5a6268);
   color: #fff;
-  font-weight: 700;
-  padding: 12px 18px;
-  text-align: left;
-  position: sticky;
-  top: 0;
-  z-index: 1;
-  font-size: 14px;
-}
-/* filas y celdas */
-.reclamos-table tbody td {
-  padding: 14px 18px;
-  border-bottom: 1px solid #eef2f3;
-  vertical-align: middle;
-  background: #fff;
-}
-.reclamos-table tbody tr:nth-child(even) td {
-  background: #fbfbfb;
-}
-
-.reclamos-table tbody tr:hover td {
-  background: #f0f8ff;
-}
-
-/* RUT clickeable para redirigir al perfil */
-.rut-clickable {
-  color: #2563eb;
-  cursor: pointer;
-  font-weight: 500;
-  text-decoration: none;
-  transition: all 0.2s ease;
-  padding: 2px 4px;
-  border-radius: 3px;
-}
-
-.rut-clickable:hover {
-  color: #1d4ed8;
-  background-color: #eff6ff;
-  text-decoration: underline;
-}
-
-/* Botones de accion */
-.reclamos-table button {
-  margin-right: 8px;
-  padding: 6px 12px;
   border: none;
-  border-radius: 6px;
+  padding: 12px 24px;
+  border-radius: 10px;
   cursor: pointer;
+  box-shadow: 0 6px 18px rgba(108, 117, 125, 0.12);
   font-weight: 600;
-  font-size: 13px;
-  transition: all 0.2s ease;
+  font-size: 15px;
+  transition: all 0.3s ease;
+  min-width: 200px;
 }
 
-/* Contenedor de acciones */
-.reclamos-table td:last-child {
-  white-space: nowrap;
-  min-width: 150px;
-}
-
-/* Boton Editar (solo para usuarios) */
-.reclamos-table button:first-child {
-  background: linear-gradient(135deg, #f59e0b, #d97706);
-  color: white;
-  box-shadow: 0 3px 8px rgba(245, 158, 11, 0.2);
-}
-
-.reclamos-table button:first-child:hover {
-  background: linear-gradient(135deg, #e59a0a, #c47005);
-  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
-}
-
-/* Boton Eliminar */
-.reclamos-table button:last-child {
-  background: linear-gradient(135deg, #ef4444, #dc2626);
-  color: white;
-  box-shadow: 0 3px 8px rgba(239, 68, 68, 0.2);
-}
-
-.reclamos-table button:last-child:hover {
-  background: linear-gradient(135deg, #e03e3e, #c92323);
-  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
-}
-
-/* cuando solo hay un boton (para admin/guardia) */
-.reclamos-table button:only-child {
-  background: linear-gradient(135deg, #ef4444, #dc2626);
-  color: white;
-  box-shadow: 0 3px 8px rgba(239, 68, 68, 0.2);
-}
-
-.reclamos-table button:only-child:hover {
-  background: linear-gradient(135deg, #e03e3e, #c92323);
-  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
-}
-
-/* estilo especifico para botones de admin/guardia (solo eliminar) */
-.reclamos-table .admin-action-btn {
-  background: linear-gradient(135deg, #ef4444, #dc2626);
-  color: white;
-  box-shadow: 0 3px 8px rgba(239, 68, 68, 0.2);
-  margin-right: 0;
-}
-
-.reclamos-table .admin-action-btn:hover {
-  background: linear-gradient(135deg, #e03e3e, #c92323);
-  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
-}
-
-/* Badges para rol */
-.role-badge {
-  display: inline-block;
-  padding: 6px 10px;
-  border-radius: 999px;
-  font-size: 13px;
-  font-weight: 600;
-  text-transform: capitalize;
-}
-.role-estudiante {
-  background: #e8f5e9;
-  color: #2e7d32;
-}
-.role-funcionario {
-  background: #e3f2fd;
-  color: #0277bd;
-}
-.role-academico, .role-administrador {
-  background: #f3e5f5;
-  color: #6a1b9a;
-}
-
-/* Mensaje de error */
-.error-message {
-  color: #dc2626;
-  background-color: #fef2f2;
-  padding: 12px 16px;
-  border-radius: 6px;
-  margin-top: 16px;
-  border-left: 4px solid #dc2626;
-  font-weight: 500;
-}
-
-
-/* Botón para abrir formulario */
-.crear-reclamo-btn-container {
-  margin-bottom: 24px;
+.reclamos-addbtn-secondary:hover {
+  background: linear-gradient(135deg, #5a6268, #495057);
+  box-shadow: 0 8px 20px rgba(108, 117, 125, 0.2);
+  transform: translateY(-2px);
 }
 
 /* Formulario expandido */
 .reclamo-form.expandido {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  margin-bottom: 30px;
-  padding: 20px;
   background: #fff;
   border-radius: 12px;
-  box-shadow: 0 6px 20px rgba(2, 40, 53, 0.15);
+  padding: 25px;
+  margin-bottom: 30px;
+  box-shadow: 0 8px 25px rgba(2, 40, 53, 0.1);
   border: 1px solid #e0e7ff;
   animation: slideDown 0.3s ease-out;
 }
 
-/* Encabezado del formulario */
 .form-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 10px;
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 2px solid #f1f5f9;
 }
 
 .form-header h3 {
   margin: 0;
-  font-size: 18px;
+  font-size: 20px;
   color: #0a6b71;
-  font-weight: 600;
+  font-weight: 700;
 }
 
 .cerrar-form-btn {
   background: none;
   border: none;
-  font-size: 24px;
+  font-size: 28px;
   color: #6c757d;
   cursor: pointer;
   padding: 0;
-  width: 30px;
-  height: 30px;
+  width: 36px;
+  height: 36px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -306,144 +159,456 @@
 .cerrar-form-btn:hover {
   background-color: #f8f9fa;
   color: #dc2626;
+  transform: rotate(90deg);
 }
 
-/* Contenedor de inputs */
+.cerrar-form-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Contenedor de inputs del formulario */
 .form-inputs {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.input-group {
   display: flex;
-  gap: 12px;
-  width: 100%;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.input-group label {
+  font-weight: 600;
+  color: #24323a;
+  font-size: 14px;
+}
+
+.input-group textarea,
+.input-group input,
+.input-group select {
+  padding: 12px 16px;
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #24323a;
+  background: #f8fafc;
+  transition: all 0.3s ease;
+  font-family: inherit;
+}
+
+.input-group textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+.input-group textarea:focus,
+.input-group input:focus,
+.input-group select:focus {
+  outline: none;
+  border-color: #0b9fb6;
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(11, 159, 182, 0.1);
+}
+
+.input-group textarea:disabled,
+.input-group input:disabled,
+.input-group select:disabled {
+  background-color: #f1f5f9;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.error-input {
+  border-color: #ef4444 !important;
+  background-color: #fef2f2 !important;
+}
+
+.error-validacion {
+  color: #dc2626;
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+/* Selector de bicicletas */
+.bicicleta-select {
+  cursor: pointer;
+}
+
+.loading-select {
+  padding: 12px;
+  background: #f8fafc;
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  color: #64748b;
+  font-style: italic;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.no-bicicletas-message {
+  padding: 15px;
+  background: #fff3cd;
+  border: 1px solid #ffeaa7;
+  border-radius: 8px;
+  color: #856404;
+}
+
+.no-bicicletas-message p {
+  margin: 5px 0;
+}
+
+.no-bicicletas-message .info-text {
+  font-size: 13px;
+  font-style: italic;
+  color: #856404;
+}
+
+.info-text {
+  font-size: 13px;
+  color: #64748b;
+  margin-top: 5px;
+  font-style: italic;
 }
 
 /* Acciones del formulario */
 .form-actions {
   display: flex;
-  gap: 12px;
   justify-content: flex-end;
-  margin-top: 10px;
+  gap: 15px;
+  padding-top: 20px;
+  border-top: 2px solid #f1f5f9;
 }
 
 .cancelar-btn {
   background: #6c757d;
   color: white;
   border: none;
-  padding: 10px 16px;
+  padding: 12px 24px;
   border-radius: 8px;
   cursor: pointer;
   font-weight: 600;
+  font-size: 14px;
   transition: all 0.3s ease;
+  min-width: 100px;
 }
 
-.cancelar-btn:hover {
+.cancelar-btn:hover:not(:disabled) {
   background: #5a6268;
+  transform: translateY(-2px);
 }
 
 .cancelar-btn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+  transform: none;
 }
 
-/* Estado de campos obligatorios */
-.reclamo-form.expandido input:required {
-  border-left: 3px solid #0b9fb6;
-}
-
-/* Animación para mostrar/ocultar formulario */
-@keyframes slideDown {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* Cuando el formulario está expandido, los inputs deben ocupar el 100% */
-.reclamo-form.expandido .form-inputs input {
-  flex: 1;
-  padding: 10px 14px;
-  border: 1px solid #eef2f3;
-  border-radius: 6px;
-  font-size: 14px;
-  color: #24323a;
-  background: #fbfbfb;
-}
-
-.reclamo-form.expandido .form-inputs input:focus {
-  outline: none;
-  border-color: #0b9fb6;
+/* Tabla y contenedor */
+.reclamos-table-wrapper {
   background: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 8px 25px rgba(2,40,53,0.08);
+  margin-top: 20px;
 }
 
-/* Botón crear reclamo dentro del formulario expandido */
-.reclamo-form.expandido .reclamos-addbtn {
-  min-width: 140px;
+.table-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  background: linear-gradient(90deg, #f8fafc, #f1f5f9);
+  border-bottom: 1px solid #e2e8f0;
 }
 
-.reclamo-form.expandido .reclamos-addbtn:disabled {
+.table-header h3 {
+  margin: 0;
+  color: #0a6b71;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.refresh-btn {
+  background: #0b9fb6;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+.refresh-btn:hover:not(:disabled) {
+  background: #098ba1;
+  transform: translateY(-1px);
+}
+
+.refresh-btn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
 }
 
+.table-container {
+  overflow-x: auto;
+}
 
-/* Responsive */
-@media (max-width: 980px) {
-  /* ... tus estilos responsive existentes ... */
-  
-  /* Responsive para formulario expandido */
-  .form-inputs {
-    flex-direction: column;
+.reclamos-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  color: #24323a;
+  min-width: 800px;
+}
+
+/* Encabezados de tabla */
+.reclamos-table thead th {
+  background: linear-gradient(90deg,#0a6b71,#0b9fb6);
+  color: #fff;
+  font-weight: 700;
+  padding: 16px 20px;
+  text-align: left;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+/* Filas y celdas */
+.reclamos-table tbody td {
+  padding: 16px 20px;
+  border-bottom: 1px solid #f1f5f9;
+  vertical-align: middle;
+  background: #fff;
+}
+
+.reclamos-table tbody tr:nth-child(even) td {
+  background: #f8fafc;
+}
+
+.reclamos-table tbody tr:hover td {
+  background: #f0f9ff;
+}
+
+/* Celda de descripción - MEJORADA */
+.descripcion-celda {
+  max-width: 400px;
+  min-width: 250px;
+  position: relative;
+}
+
+.descripcion-celda span {
+  display: block;
+  max-height: 3.5em; /* Muestra aproximadamente 3 líneas */
+  overflow: hidden;
+  position: relative;
+  line-height: 1.4;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  word-wrap: break-word;
+}
+
+/* Mostrar más texto en la descripción por defecto */
+.descripcion-celda span::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 100%;
+  height: 1.5em;
+  background: linear-gradient(to right, transparent, #fff 50%);
+}
+
+/* Mostrar texto completo al pasar el mouse */
+.descripcion-celda span:hover {
+  position: absolute;
+  background: white;
+  padding: 12px;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  z-index: 100;
+  max-width: 500px;
+  max-height: none;
+  overflow: visible;
+  white-space: normal;
+  word-wrap: break-word;
+  left: 0;
+  top: 0;
+  transform: translateY(-10px);
+}
+
+.descripcion-celda span:hover::after {
+  display: none;
+}
+
+/* Para navegadores que soportan line-clamp */
+@supports (-webkit-line-clamp: 3) or (line-clamp: 3) {
+  .descripcion-celda span {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    line-clamp: 3;
+    max-height: none;
   }
   
-  .form-actions {
-    flex-direction: column;
-  }
-  
-  .form-actions button {
-    width: 100%;
+  .descripcion-celda span::after {
+    display: none;
   }
 }
 
-/* Responsive */
-@media (max-width: 980px) {
-  .reclamos-page { 
-    padding: 12px; 
-    margin: 20px 12px;
-  }
-  
-  .reclamos-header h2 { 
-    font-size: 20px; 
-  }
-  
-  .reclamo-form {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 10px;
-  }
-  
-  .reclamos-addbtn {
-    width: 100%;
-  }
-  
-  .reclamos-table thead th, 
-  .reclamos-table tbody td { 
-    padding: 10px 12px; 
-    font-size: 14px; 
-  }
-  
-  .reclamos-table button {
-    padding: 5px 10px;
-    font-size: 12px;
-    margin-right: 5px;
-  }
-  
+/* RUT clickeable */
+.rut-clickable {
+  color: #2563eb;
+  cursor: pointer;
+  font-weight: 500;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  padding: 4px 8px;
+  border-radius: 4px;
+  background: #eff6ff;
+  display: inline-block;
 }
 
-/* MODALES/POPUPS */
+.rut-clickable:hover {
+  color: #1d4ed8;
+  background-color: #dbeafe;
+  text-decoration: underline;
+}
 
-/* Overlay del modal */
+.rut-no-disponible {
+  color: #6c757d;
+  font-style: italic;
+}
+
+/* Contenedor de acciones */
+.acciones-container {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.reclamos-table button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 13px;
+  transition: all 0.2s ease;
+  min-width: 80px;
+  text-align: center;
+}
+
+.btn-editar {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  color: white;
+  box-shadow: 0 3px 8px rgba(245, 158, 11, 0.2);
+}
+
+.btn-editar:hover:not(:disabled) {
+  background: linear-gradient(135deg, #e59a0a, #c47005);
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+  transform: translateY(-1px);
+}
+
+.btn-editar:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.btn-eliminar {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  color: white;
+  box-shadow: 0 3px 8px rgba(239, 68, 68, 0.2);
+}
+
+.btn-eliminar:hover:not(:disabled) {
+  background: linear-gradient(135deg, #e03e3e, #c92323);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+  transform: translateY(-1px);
+}
+
+.btn-eliminar:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Mensajes de estado */
+.loading-data {
+  text-align: center;
+  padding: 40px !important;
+  color: #64748b;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+}
+
+.no-data {
+  text-align: center;
+  padding: 40px !important;
+  color: #64748b;
+  font-style: italic;
+  font-size: 15px;
+}
+
+.error-message {
+  color: #dc2626;
+  background-color: #fef2f2;
+  padding: 15px 20px;
+  border-radius: 8px;
+  margin-top: 20px;
+  border-left: 4px solid #dc2626;
+  font-weight: 500;
+}
+
+.error-message ul {
+  margin: 10px 0 0 0;
+  padding-left: 20px;
+}
+
+.error-message li {
+  margin: 5px 0;
+}
+
+/* Spinners */
+.spinner, .spinner-small {
+  border: 3px solid #f3f3f3;
+  border-top: 3px solid #0b9fb6;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.spinner {
+  width: 30px;
+  height: 30px;
+  margin-right: 10px;
+}
+
+.spinner-small {
+  width: 16px;
+  height: 16px;
+  margin-right: 8px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* MODALES */
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -456,17 +621,20 @@
   justify-content: center;
   z-index: 1000;
   animation: fadeIn 0.3s ease-out;
+  backdrop-filter: blur(2px);
 }
 
-/* Contenido del modal */
 .modal-content {
   background: white;
   border-radius: 12px;
   width: 90%;
   max-width: 500px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
   animation: modalAppear 0.3s ease-out;
   overflow: hidden;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
 }
 
 @keyframes fadeIn {
@@ -485,14 +653,25 @@
   }
 }
 
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 /* Header del modal */
 .modal-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 20px;
-  border-bottom: 1px solid #eef2f3;
   background: linear-gradient(90deg, #0a6b71, #0b9fb6);
+  flex-shrink: 0;
 }
 
 .modal-header h3 {
@@ -526,6 +705,8 @@
 /* Body del modal */
 .modal-body {
   padding: 20px;
+  flex-grow: 1;
+  overflow-y: auto;
 }
 
 /* Footer del modal */
@@ -534,40 +715,63 @@
   border-top: 1px solid #eef2f3;
   display: flex;
   justify-content: flex-end;
-  gap: 12px;
+  gap: 15px;
+  flex-shrink: 0;
 }
 
-/* Estilos específicos para formularios en modal */
-.form-group {
-  margin-bottom: 0;
-}
-
-.form-group label {
-  display: block;
-  margin-bottom: 8px;
+/* Botones específicos para modales */
+.confirmar-btn {
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  cursor: pointer;
   font-weight: 600;
-  color: #24323a;
-  font-size: 14px;
+  transition: all 0.3s ease;
+  min-width: 140px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.form-group textarea {
-  width: 100%;
-  padding: 12px;
-  border: 1px solid #eef2f3;
-  border-radius: 6px;
-  font-size: 14px;
-  color: #24323a;
-  background: #fbfbfb;
-  resize: vertical;
-  min-height: 100px;
-  font-family: inherit;
+.confirmar-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, #0da271, #047857);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+  transform: translateY(-2px);
 }
 
-.form-group textarea:focus {
-  outline: none;
-  border-color: #0b9fb6;
-  background: #fff;
-  box-shadow: 0 0 0 3px rgba(11, 159, 182, 0.1);
+.confirmar-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.eliminar-btn {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  min-width: 140px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.eliminar-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, #e03e3e, #c92323);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+  transform: translateY(-2px);
+}
+
+.eliminar-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
 }
 
 /* Texto de confirmación para eliminar */
@@ -577,89 +781,74 @@
 }
 
 .confirmacion-texto p {
-  margin: 0 0 10px 0;
+  margin: 0 0 15px 0;
   color: #24323a;
+  font-size: 15px;
 }
 
 .descripcion-reclamo {
   font-style: italic;
   color: #0a6b71;
   background: #f0f8ff;
-  padding: 10px;
-  border-radius: 6px;
-  margin: 15px 0 !important;
-  border-left: 3px solid #0b9fb6;
+  padding: 15px;
+  border-radius: 8px;
+  margin: 20px 0 !important;
+  border-left: 4px solid #0b9fb6;
+  font-size: 14px;
+  line-height: 1.5;
 }
 
 .advertencia {
   color: #dc2626;
-  font-weight: 500;
+  font-weight: 600;
   font-size: 14px;
+  background: #fef2f2;
+  padding: 10px;
+  border-radius: 6px;
+  border: 1px solid #fecaca;
 }
 
-/* Botones específicos para modales */
-.confirmar-btn {
-  background: linear-gradient(135deg, #10b981, #059669);
-  color: white;
-  border: none;
-  padding: 10px 20px;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: 600;
-  transition: all 0.3s ease;
-  min-width: 120px;
-}
-
-.confirmar-btn:hover {
-  background: linear-gradient(135deg, #0da271, #047857);
-  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
-}
-
-.eliminar-btn {
-  background: linear-gradient(135deg, #ef4444, #dc2626);
-  color: white;
-  border: none;
-  padding: 10px 20px;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: 600;
-  transition: all 0.3s ease;
-  min-width: 120px;
-}
-
-.eliminar-btn:hover {
-  background: linear-gradient(135deg, #e03e3e, #c92323);
-  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
-}
-
-/* Contenedor de acciones en tabla */
-.acciones-container {
-  display: flex;
-  gap: 8px;
-}
-
-/* Mensaje cuando no hay datos */
-.no-data {
-  text-align: center;
-  padding: 40px !important;
-  color: #6c757d;
-  font-style: italic;
-}
-
-/* Asegurar que los botones en la tabla sean consistentes */
-.reclamos-table .btn-editar,
-.reclamos-table .btn-eliminar,
-.reclamos-table .admin-action-btn {
-  padding: 6px 12px;
-  font-size: 13px;
-  min-width: 70px;
-}
-
-/* Responsive para modales (ESTE SÍ debe estar en media query) */
+/* Responsive */
 @media (max-width: 768px) {
-  .modal-content {
-    width: 95%;
-    margin: 10px;
+  .reclamos-page {
+    padding: 15px;
+    margin: 15px;
+  }
+  
+  .reclamos-page h1 {
+    font-size: 26px !important;
+  }
+  
+  .form-inputs {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+  
+  .form-actions {
+    flex-direction: column;
+  }
+  
+  .form-actions button {
+    width: 100%;
+  }
+  
+  .table-header {
+    flex-direction: column;
+    gap: 10px;
+    align-items: stretch;
+  }
+  
+  .refresh-btn {
+    align-self: flex-start;
+  }
+  
+  .acciones-container {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .reclamos-table button {
+    width: 100%;
   }
   
   .modal-footer {
@@ -670,31 +859,35 @@
     width: 100%;
   }
   
-  .acciones-container {
-    flex-direction: column;
-    gap: 5px;
+  /* Mejoras responsive para descripción */
+  .descripcion-celda {
+    max-width: 250px;
+    min-width: 150px;
   }
   
-  .reclamos-table .btn-editar,
-  .reclamos-table .btn-eliminar,
-  .reclamos-table .admin-action-btn {
+  .descripcion-celda span:hover {
+    max-width: 300px;
+    left: -50%;
+    transform: translateX(50%) translateY(-10px);
+  }
+}
+
+@media (max-width: 480px) {
+  .reclamo-form.expandido {
+    padding: 15px;
+  }
+  
+  .reclamos-addbtn,
+  .reclamos-addbtn-secondary {
     width: 100%;
-    margin-right: 0;
+    min-width: auto;
   }
-}
-
-/* Mejoras para el formulario de creación */
-.reclamo-form.expandido {
-  animation: slideDown 0.3s ease-out;
-}
-
-@keyframes slideDown {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
+  
+  .table-header h3 {
+    font-size: 16px;
   }
-  to {
-    opacity: 1;
-    transform: translateY(0);
+  
+  .no-bicicletas-alert {
+    padding: 15px;
   }
 }

@@ -20,15 +20,16 @@ export async function getHistoryByUser(req, res) {
             return handleErrorClient(res, 400, error.details[0].message);
         }
 
+        //esto sirve para verificar que el usuario exista
         const usuario = await userRepository.findOne({ 
             where: { rut },
-            relations: ["historiales"] 
         });
 
         if (!usuario) {
             return handleErrorClient(res, 404, "Usuario no encontrado");
         }
 
+        //aqui se obtiene el historial del usuario
         const historial = await historialRepository.find({
             where: { usuario: { rut } },
             relations: ["bicicletas", "usuario"],
