@@ -59,11 +59,9 @@ const ProfileCard = ({ user, setUser, fetchProfile }) => {
       formData.append("profileImage", file);
 
       try {
-        // Nuevo endpoint consistente con backend
-          const res = await axios.post("/profile/profile-image", formData, {
+        const res = await axios.post("/profile/profile-image", formData, {
           headers: { "Content-Type": "multipart/form-data" },
-          });
-
+        });
 
         await Swal.fire({
           title: "Foto actualizada correctamente",
@@ -73,11 +71,13 @@ const ProfileCard = ({ user, setUser, fetchProfile }) => {
           timerProgressBar: true,
         });
 
-        const nuevaRuta = res.data.path;
-        setProfileImage(getImageUrl(nuevaRuta));
+        const nuevaRuta = res.data.data.path;
+        const timestamp = Date.now();
+        setProfileImage(`${getImageUrl(nuevaRuta)}?t=${timestamp}`);
 
-        const updatedProfile = await fetchProfile();
-        setUser(updatedProfile?.data?.userData || user);
+        // Actualiza el estado del usuario con la nueva ruta
+        const updatedUser = { ...user, foto_perfil: nuevaRuta };
+        setUser(updatedUser);
       } catch (err) {
         console.error("Error al subir imagen:", err);
         await Swal.fire({
