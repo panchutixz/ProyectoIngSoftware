@@ -423,7 +423,11 @@ export async function retirarBicycle(req, res) {
             fecha: new Date(),
             bicicletero: bicicleta.bicicletero,
             usuario: usuario,
-            bicicleta: bicicleta
+            bicicleta: bicicleta,
+            marca_bici: bicicleta.marca,
+            color_bici: bicicleta.color,
+            serie_bici: bicicleta.numero_serie
+
         });
 
 
@@ -514,7 +518,7 @@ export async function editarBicycle(req, res) {
             numero_serie,
             descripcion} = req.body;
 
-        if (!rut || !codigo || !id_bicicletero || !numero_serie) {
+        if (!rut || !codigo || !id_bicicletero || !numero_serie ||!descripcion) {
             return handleErrorClient(res,400,"Se requiere RUT, código, bicicletero y el nuevo número de serie.");
         }
 

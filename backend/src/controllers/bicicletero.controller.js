@@ -446,17 +446,29 @@ export async function getHistoryByBikeRack(req, res) {
 
         const historial = await query.getMany();
 
-        const data = historial.map(h => ({
-            id: h.id,
-            bicicleta: h.bicicleta ? `${h.bicicleta.marca} ${h.bicicleta.color}` : "Eliminada",
-            numero_serie: h.bicicleta ? h.bicicleta.numero_serie : "N/A",
-            usuario: h.usuario ? `${h.usuario.nombre} ${h.usuario.apellido}` : "Desconocido",
-            rut: h.usuario ? h.usuario.rut : "S/R",
-            accion: h.accion, 
-            fecha: h.fecha
-        }));
+const data = historial.map(h => {
+    // Intenta leer de la relación viva (h.bicicleta)
+    // Si es null (se borró), lee las columnas de respaldo (h.marca_bici)
 
-        return handleSuccess(res, 200, "Historial obtenido", data);
+    const marca = h.bicicleta ? h.bicicleta.marca : (h.marca_bici || "Desc.");
+    const color = h.bicicleta ? h.bicicleta.color : (h.color_bici || "");
+    const serie = h.bicicleta ? h.bicicleta.numero_serie : (h.serie_bici || "N/A");
+
+    const esEventoGuardia = h.accion.toLowerCase().includes("guardia");
+    const textoBicicleta = esEventoGuardia ? "-" : `${marca} ${color}`;
+
+    return {
+        id: h.id,
+        bicicleta: textoBicicleta,
+        numero_serie: esEventoGuardia ? "-" : serie,
+        usuario: h.usuario ? `${h.usuario.nombre} ${h.usuario.apellido}` : "Usuario Eliminado",
+        rut: h.usuario ? h.usuario.rut : "S/R",
+        accion: h.accion,
+        fecha: h.fecha
+    };
+});
+
+return handleSuccess(res, 200, "Historial obtenido", data);
 
     } catch (error) {
         console.error("Error al obtener historial propio:", error);
