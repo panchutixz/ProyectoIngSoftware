@@ -11,7 +11,7 @@ import { useAuth } from "../context/AuthContext.jsx";
 const estadoColors = {
     guardada: '#007bff',    
     entregada: '#28a745',   
-    olvidada: '#ff0000ff'   
+    olvidada: '#ff8000ff'   
 };
 
 function estadoStyle(estado) {
@@ -75,14 +75,15 @@ const Bicicletas = () => {
                     </>
                 )}
             </div>
-
+            
+            <div className="bicicleta-table-wrapper">
             <table className="bicicleta-table">
                 <thead>
                     <tr>
                         <th>Bicicletero</th>
                         <th>Marca</th>
                         <th>Color</th>
-                        <th>Número Serie</th>
+                        <th>Nro Serie</th>
                         <th>Código</th>
                         <th>Descripción</th>
                         <th>Estado</th>
@@ -136,6 +137,8 @@ const Bicicletas = () => {
                 </tbody>
 
             </table>
+            </div>
+          
 
             {error && <p className="error-message">{error}</p>}
         </div>
