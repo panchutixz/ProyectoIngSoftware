@@ -373,9 +373,10 @@ export async function retirarBicycle(req, res) {
         if (!bicicleta) {
             return handleErrorClient(res, 404, "No se encontró una bicicleta con ese código en el bicicletero indicado");
         }
-        if (bicicleta.estado === "entregada") {
-            return handleErrorClient(res, 400, "La bicicleta ya está retirada");
+        if (bicicleta.estado?.toLowerCase() === "entregada") {
+        return handleErrorClient(res, 400, "La bicicleta ya está retirada");
         }
+
 
         // Comprobar que el guardia y la bici pertenezcan al mismo bicicletero
         const guardiaBicicleteroId = Number(guardia.bicicleteroId || guardia.bicicletero_id);
@@ -488,6 +489,10 @@ export async function eliminarBicycle(req, res) {
         if (!bicicleta) {
             return handleErrorClient(res,404,"No se encontró una bicicleta con ese código en el bicicletero indicado");
         }
+        if (bicicleta.estado !== "entregada") {
+        return handleErrorClient(res, 403, "No puedes eliminar una bicicleta que no está en entregada");
+        }
+
 
         await bicycleRepository.remove(bicicleta);
 
@@ -574,12 +579,7 @@ export async function editarBicycle(req, res) {
 
     } catch (error) {
         console.error("Error al editar bicicleta:", error);
-        return handleErrorServer(
-            res,
-            500,
-            "Error interno del servidor",
-            error.message
-        );
+        return handleErrorServer(res,500,"Error interno del servidor",error.message);
     }
 }
 
@@ -639,6 +639,97 @@ async function marcarBicicletasOlvidadas() {
         }
     }   
 }
+
+export async function moverBicycle(req, res) {
+    try {
+        const guardia = req.user;
+        if (!guardia) {
+            return handleErrorClient(res, 401, "Usuario no autenticado");
+        }
+
+        const guardiaRol = (guardia.rol || guardia.role || "").toLowerCase();
+        if (guardiaRol !== "guardia") {
+            return handleErrorClient(res, 403, "Solo los guardias pueden mover bicicletas");
+        }
+
+        const { rut, codigo, id_bicicletero_destino } = req.body;
+        if (!rut || !codigo || !id_bicicletero_destino) {
+            return handleErrorClient(res, 400, "Se requiere RUT, código y bicicletero destino");
+        }
+
+        const bicycleRepository = AppDataSource.getRepository(Bicicleta);
+        const userRepository = AppDataSource.getRepository("User");
+        const bicicleteroRepository = AppDataSource.getRepository(Bicicletero);
+        const historialRepository = AppDataSource.getRepository(Historial);
+        const historialBicicleteroRepo = AppDataSource.getRepository(HistorialBicicletero);
+
+        const usuario = await userRepository.findOne({ where: { rut } });
+        if (!usuario) {
+            return handleErrorClient(res, 404, "Usuario no encontrado");
+        }
+
+        const bicicleta = await bicycleRepository.findOne({
+            where: { codigo, usuario: { rut } },
+            relations: ["bicicletero"]
+        });
+
+        if (!bicicleta) {
+            return handleErrorClient(res, 404, "No se encontró la bicicleta con ese código para el usuario indicado");
+        }
+
+        if (bicicleta.estado?.toLowerCase() !== "entregada") {
+            return handleErrorClient(res, 403, "Solo se pueden mover bicicletas en estado 'entregada'");
+        }
+
+        const bicicleteroDestino = await bicicleteroRepository.findOne({ where: { id_bicicletero: id_bicicletero_destino } });
+        if (!bicicleteroDestino) {
+            return handleErrorClient(res, 404, "Bicicletero destino no encontrado");
+        }
+        if (bicicleta.bicicletero.id_bicicletero === bicicleteroDestino.id_bicicletero) {
+            return handleErrorClient(res, 400, "Esta bicicleta ya está guardada en dicho bicicletero"); }
+
+        
+        let nuevoCodigo;
+        let existsCodigo = null;
+        do {
+            const token = Math.floor(1000 + Math.random() * 9000);
+            nuevoCodigo = `${token}`;
+            existsCodigo = await bicycleRepository.findOne({ where: { codigo: nuevoCodigo } });
+        } while (existsCodigo);
+
+        bicicleta.bicicletero = bicicleteroDestino;
+        bicicleta.estado = "guardada";
+        bicicleta.codigo = nuevoCodigo;
+        await bicycleRepository.save(bicicleta);
+
+        await historialRepository.save({
+            usuario,
+            bicicleta,
+            fecha_ingreso: new Date(),
+            fecha_salida: null
+        });
+
+        await historialBicicleteroRepo.save({
+            accion: "Movimiento",
+            fecha: new Date(),
+            bicicletero: bicicleteroDestino,
+            usuario,
+            bicicleta,
+            marca_bici: bicicleta.marca,
+            color_bici: bicicleta.color,
+            serie_bici: bicicleta.numero_serie,
+            nuevo_codigo: nuevoCodigo
+        });
+
+        return handleSuccess(res, 200, `La bicicleta fue movida al bicicletero ${id_bicicletero_destino}, su estado cambió a 'guardada' y se le asignó el nuevo código ${nuevoCodigo}`);
+
+    } catch (error) {
+        console.error("Error al mover bicicleta", error);
+        return handleErrorServer(res, 500, "Error al mover bicicleta", error.message);
+    }
+}
+
+
     //valdacion de rol para consultar por POSTMAN
 export async function marcarOlvidadas(req, res) {
     try {
