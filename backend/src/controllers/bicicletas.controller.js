@@ -128,13 +128,12 @@ export async function registerBicycle(req, res){
     }
 }
 
-// reingreso bicicletas
 export async function reIngresoBicycle(req, res) {
     const bicycleRepository = AppDataSource.getRepository(Bicicleta);
     const userRepository = AppDataSource.getRepository(User);
     const historialRepository = AppDataSource.getRepository(Historial);
     const bicicleteroRepository = AppDataSource.getRepository(Bicicletero);
-    const historialBicicleteroRepo = AppDataSource.getRepository(HistorialBicicletero);
+    const bicicleteroRepo = AppDataSource.getRepository(Bicicletero);
 
     let { numero_serie, rut, id_bicicletero } = req.body;
     numero_serie = numero_serie ? numero_serie.toString().toUpperCase() : numero_serie;
@@ -197,7 +196,6 @@ export async function reIngresoBicycle(req, res) {
             existsCodigo = await bicycleRepository.findOne({ where: { codigo } });
         } while (existsCodigo);
 
-        const bicicleteroRepo = AppDataSource.getRepository(Bicicletero);
         const bicicleteroObj = await bicicleteroRepo.findOne({ where: { id_bicicletero: Number(id_bicicletero) } });
         //bicicleta trae todo lo de la bici y el .codigo se asigna el nuevo codigo
         bicicleta.codigo = codigo;
