@@ -8,6 +8,7 @@ import { Historial } from "../entities/historial_bicicleta.entity.js";
 import HistorialBicicletero from "../entities/historial_bicicletero.entity.js";
 import { In } from "typeorm";
 
+//para pushear//
 // registro bicicletas
 export async function registerBicycle(req, res){
     const bicycleRepository = AppDataSource.getRepository(Bicicleta);
