@@ -1,5 +1,6 @@
 import "@styles/profile.css";
 import axios from "axios";
+import Swal from "sweetalert2";
 import { useState } from "react";
 
 import academicoPic from "@assets/roles/academico.png";
@@ -32,26 +33,65 @@ const ProfileCard = ({ user, setUser, fetchProfile }) => {
     const file = event.target.files[0];
     if (!file) return;
 
-    const formData = new FormData();
-    formData.append("profileImage", file);
+    // Crear vista previa con FileReader
+    const reader = new FileReader();
+    reader.onload = async () => {
+      const imagePreview = reader.result;
 
-    try {
-      const res = await axios.post(`${BASE_URL}/users/profile-image`, formData, {
-        headers: { "Content-Type": "multipart/form-data" },
+      // Mostrar popup con vista previa
+      const confirmUpload = await Swal.fire({
+        title: "¿Deseas actualizar tu foto de perfil?",
+        html: `
+          <img src="${imagePreview}" alt="Vista previa" 
+               style="max-width:100%; border-radius:8px; margin-top:12px;" />
+          <p style="margin-top:10px; font-size:14px; color:#555;">
+            Archivo: ${file.name} <br/>
+            Tamaño: ${(file.size / 1024).toFixed(2)} KB
+          </p>
+        `,
+        showCancelButton: true,
+        confirmButtonText: "Sí, actualizar",
+        cancelButtonText: "Cancelar",
+        focusConfirm: false,
       });
 
-      alert("Foto actualizada correctamente");
+      if (!confirmUpload.isConfirmed) return;
 
-      const nuevaRuta = res.data.path;
-      setProfileImage(getImageUrl(nuevaRuta));
+      const formData = new FormData();
+      formData.append("profileImage", file);
 
-      // Refresca perfil desde backend
-      const updatedProfile = await fetchProfile();
-      setUser(updatedProfile?.data?.userData || user);
-    } catch (err) {
-      console.error("Error al subir imagen:", err);
-      alert("Error al actualizar la foto");
-    }
+      try {
+        const res = await axios.post(`${BASE_URL}/users/profile-image`, formData, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
+
+        await Swal.fire({
+          title: "Foto actualizada correctamente",
+          icon: "success",
+          confirmButtonText: "Aceptar",
+          timer: 2000,
+          timerProgressBar: true,
+        });
+
+        const nuevaRuta = res.data.path;
+        setProfileImage(getImageUrl(nuevaRuta));
+
+        const updatedProfile = await fetchProfile();
+        setUser(updatedProfile?.data?.userData || user);
+      } catch (err) {
+        console.error("Error al subir imagen:", err);
+        await Swal.fire({
+          title: "Error al actualizar la foto",
+          icon: "error",
+          text: err.message || "No se pudo subir la imagen. Intenta nuevamente.",
+          confirmButtonText: "Aceptar",
+          timer: 2500,
+          timerProgressBar: true,
+        });
+      }
+    };
+
+    reader.readAsDataURL(file);
   };
 
   return (
