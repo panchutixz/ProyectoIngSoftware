@@ -7,7 +7,6 @@ import { useEffect } from "react";
 import { useAuth } from "../context/AuthContext.jsx";
 
 
-// 🎨 Colores por rol
 const rolColors = {
     administrador: '#0d47a1',   // azul oscuro
     guardia: '#0288d1',         // celeste/azul
@@ -16,7 +15,6 @@ const rolColors = {
     académico: '#6a1b9a'        // púrpura
 };
 
-// 🔧 Función para estilo dinámico
 function rolStyle(rol) {
     const color = rolColors[rol?.toLowerCase().trim()] || '#6c757d';
 

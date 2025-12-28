@@ -125,45 +125,59 @@ apellido: Joi.string()
 
   
 export async function validateRegister(data, checkEmailExists) {
-
   const validated = await registerValidation.validateAsync(data, { abortEarly: false });
 
   const email = validated.email.toLowerCase();
   const role = validated.rol.toLowerCase();
   const telefono = validated.telefono;
 
-
-  if(telefono !== null && telefono !== undefined && telefono !== '') {
+  // Validación de teléfono
+  if (telefono !== null && telefono !== undefined && telefono !== '') {
     const telefonoPattern = /^\+?[0-9\s\-]{7,20}$/;
     if (!telefonoPattern.test(telefono)) {
-      throw new Error("El teléfono debe contener solo números, espacios, guiones y puede comenzar con un '+'. Debe tener entre 7 y 20 caracteres.");
+      throw Object.assign(
+        new Error("El teléfono debe contener solo números, espacios, guiones y puede comenzar con un '+'. Debe tener entre 7 y 20 caracteres."),
+        { code: "VALIDATION_ERROR" }
+      );
     }
   }
 
-  
+  // Validación de rol y dominio de correo
   if (role === "estudiante") {
     if (!email.endsWith("@alumnos.ubiobio.cl")) {
-      throw new Error("Para el rol estudiante el correo debe terminar en @alumnos.ubiobio.cl.");
+      throw Object.assign(
+        new Error("Para el rol estudiante el correo debe terminar en @alumnos.ubiobio.cl."),
+        { code: "VALIDATION_ERROR" }
+      );
     }
-  } else if (role === "funcionario" || role === "académico" || role === "guardia") {
+  } else if (["funcionario", "académico", "guardia"].includes(role)) {
     if (!email.endsWith("@ubiobio.cl")) {
-      throw new Error(
-        "Para el rol funcionario, académico o guardia, el correo debe terminar en @ubiobio.cl."
+      throw Object.assign(
+        new Error("Para el rol funcionario, académico o guardia el correo debe terminar en @ubiobio.cl."),
+        { code: "VALIDATION_ERROR" }
       );
     }
   } else {
-    throw new Error("Rol no permitido.");
+    throw Object.assign(
+      new Error("Rol no permitido."),
+      { code: "VALIDATION_ERROR" }
+    );
   }
 
+  // Validación de existencia de correo
   if (typeof checkEmailExists === "function") {
     const exists = await checkEmailExists(email);
     if (exists) {
-      throw new Error("El correo electrónico ya está registrado.");
+      throw Object.assign(
+        new Error("El correo electrónico ya está registrado."),
+        { code: "VALIDATION_ERROR" }
+      );
     }
   }
 
   return validated;
 }
+
 
 
 export const loginValidation = Joi.object({

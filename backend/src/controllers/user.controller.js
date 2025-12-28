@@ -4,7 +4,56 @@ import { AppDataSource } from "../config/configDb.js";
 import { UserEntity } from "../entities/user.entity.js";
 import { registerValidation} from "../validations/usuario.validation.js";
 import { encryptPassword } from "../helpers/bcrypt.helper.js";
+import path from "path";
+import fs from "fs";
+import sharp from "sharp";
+import { v4 as uuidv4 } from "uuid";
+import { fileURLToPath } from "url";
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+export const uploadProfileImage = async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ message: "No se recibió ninguna imagen." });
+    }
+
+    const userId = req.user?.id || 1; // ajusta según tu auth
+    const imageBuffer = req.file.buffer;
+
+    // Carpeta de destino en src/public/uploads
+    const uploadDir = path.join(__dirname, "../public/uploads");
+    if (!fs.existsSync(uploadDir)) {
+      fs.mkdirSync(uploadDir, { recursive: true });
+    }
+
+    // 👇 Nombre único para cada subida
+    const fileName = `user_${userId}_${uuidv4()}.jpg`;
+    const outputPath = path.join(uploadDir, fileName);
+
+    // Procesa y guarda la imagen
+    await sharp(imageBuffer)
+      .resize(300, 300)
+      .jpeg({ quality: 80 })
+      .toFile(outputPath);
+
+    
+     // 👉 Actualiza la BD con la nueva ruta
+    const userRepository = AppDataSource.getRepository(UserEntity);
+    const user = await userRepository.findOneBy({ id: userId });
+    if (!user) {
+      return res.status(404).json({ message: "Usuario no encontrado" });
+    }
+    user.foto_perfil = `/uploads/${fileName}`;
+    await userRepository.save(user);
+
+    res.status(200).json({ message: "Imagen actualizada", path: user.foto_perfil });
+  } catch (err) {
+    console.error("Error al procesar imagen:", err);
+    res.status(500).json({ message: "Error al subir imagen", error: err.message });
+  }
+};
 
 
 // Obtener todos los usuarios

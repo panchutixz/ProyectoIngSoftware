@@ -8,6 +8,7 @@ import { Historial } from "../entities/historial_bicicleta.entity.js";
 import HistorialBicicletero from "../entities/historial_bicicletero.entity.js";
 import { In } from "typeorm";
 
+//para pushear//
 // registro bicicletas
 export async function registerBicycle(req, res){
     const bicycleRepository = AppDataSource.getRepository(Bicicleta);
@@ -128,13 +129,12 @@ export async function registerBicycle(req, res){
     }
 }
 
-// reingreso bicicletas
 export async function reIngresoBicycle(req, res) {
     const bicycleRepository = AppDataSource.getRepository(Bicicleta);
     const userRepository = AppDataSource.getRepository(User);
     const historialRepository = AppDataSource.getRepository(Historial);
     const bicicleteroRepository = AppDataSource.getRepository(Bicicletero);
-    const historialBicicleteroRepo = AppDataSource.getRepository(HistorialBicicletero);
+    const bicicleteroRepo = AppDataSource.getRepository(Bicicletero);
 
     let { numero_serie, rut, id_bicicletero } = req.body;
     numero_serie = numero_serie ? numero_serie.toString().toUpperCase() : numero_serie;
@@ -197,7 +197,6 @@ export async function reIngresoBicycle(req, res) {
             existsCodigo = await bicycleRepository.findOne({ where: { codigo } });
         } while (existsCodigo);
 
-        const bicicleteroRepo = AppDataSource.getRepository(Bicicletero);
         const bicicleteroObj = await bicicleteroRepo.findOne({ where: { id_bicicletero: Number(id_bicicletero) } });
         //bicicleta trae todo lo de la bici y el .codigo se asigna el nuevo codigo
         bicicleta.codigo = codigo;
@@ -425,7 +424,11 @@ export async function retirarBicycle(req, res) {
             fecha: new Date(),
             bicicletero: bicicleta.bicicletero,
             usuario: usuario,
-            bicicleta: bicicleta
+            bicicleta: bicicleta,
+            marca_bici: bicicleta.marca,
+            color_bici: bicicleta.color,
+            serie_bici: bicicleta.numero_serie
+
         });
 
 
@@ -435,14 +438,15 @@ export async function retirarBicycle(req, res) {
         return handleErrorServer(res, 500, "Error al eliminar bicicletas", error.message);
     }
 }
-
-//eliminar bici
+//eliminar bicicleta
 export async function eliminarBicycle(req, res) {
     try {
         const guardia = req.user;
-        if (!guardia) return handleErrorClient(res, 401, "Usuario no autenticado");
+        if (!guardia) {
+            return handleErrorClient(res, 401, "Usuario no autenticado");
+        }
 
-        const guardiaRol = (guardia.rol || guardia.role || "").toString().toLowerCase();
+        const guardiaRol = (guardia.rol || guardia.role || "").toLowerCase();
         if (guardiaRol !== "guardia") {
             return handleErrorClient(res, 403, "Solo los guardias pueden eliminar bicicletas");
         }
@@ -452,81 +456,129 @@ export async function eliminarBicycle(req, res) {
             return handleErrorClient(res, 400, "Se requiere el RUT, el código de la bicicleta y el bicicletero");
         }
 
+        const guardiaBicicleteroId = Number(guardia.bicicleteroId || guardia.bicicletero_id);
+        const bodyBicicleteroId = Number(id_bicicletero);
+
+        if (!guardiaBicicleteroId || guardiaBicicleteroId !== bodyBicicleteroId) {
+            return handleErrorClient(res,403,"No puedes eliminar bicicletas de otro bicicletero");
+        }
+
         const bicycleRepository = AppDataSource.getRepository(Bicicleta);
         const userRepository = AppDataSource.getRepository("User");
 
         const { error } = eliminateValidation.validate(req.body);
-        if (error) return handleErrorClient(res, 400, error.details[0].message);
+        if (error) {
+            return handleErrorClient(res, 400, error.details[0].message);
+        }
 
         const usuario = await userRepository.findOne({ where: { rut } });
-        if (!usuario) return handleErrorClient(res, 404, "Usuario no encontrado");
+        if (!usuario) {
+            return handleErrorClient(res, 404, "Usuario no encontrado");
+        }
 
         const bicicleta = await bicycleRepository.findOne({
-            where: { codigo, usuario: { rut }, bicicletero: { id_bicicletero } },
+            where: {
+                codigo,
+                usuario: { rut },
+                bicicletero: { id_bicicletero }
+            },
             relations: ["bicicletero"]
         });
-        if (!bicicleta) return handleErrorClient(res, 404, "Bicicleta no encontrada");
+
+        if (!bicicleta) {
+            return handleErrorClient(res,404,"No se encontró una bicicleta con ese código en el bicicletero indicado");
+        }
 
         await bicycleRepository.remove(bicicleta);
 
-        return handleSuccess(res, 200, `Se eliminó la bicicleta con código ${codigo} del usuario ${rut}, historial conservado`);
+        return handleSuccess(res,200,`Se eliminó la bicicleta con código ${codigo} del usuario ${rut}, historial conservado`);
+
     } catch (error) {
         console.error("Error al eliminar bicicleta", error);
         return handleErrorServer(res, 500, "Error al eliminar bicicleta", error.message);
     }
 }
 
-//editar bicic//
+// editar bicicleta
 export async function editarBicycle(req, res) {
     try {
-            const guardia = req.user;
-            if (!guardia) {
-                return handleErrorClient(res, 401, "Usuario no autenticado");
-            }
+        const guardia = req.user;
+        if (!guardia) {
+            return handleErrorClient(res, 401, "Usuario no autenticado");
+        }
 
-            const guardiaRol = (guardia.rol || guardia.role || "").toString().toLowerCase();
-            if (guardiaRol !== "guardia") {
-                return handleErrorClient(res, 403, "Solo los guardias pueden editar información de bicicletas");
-            }
+        const guardiaRol = (guardia.rol || guardia.role || "").toString().toLowerCase();
+        if (guardiaRol !== "guardia") {
+            return handleErrorClient(res,403,"Solo los guardias pueden editar información de bicicletas");
+        }
 
-            // Verificación obligatoria
-            const { rut, codigo, id_bicicletero, numero_serie, descripcion } = req.body;
-            if (!rut || !codigo || !id_bicicletero || !numero_serie) {
-                return handleErrorClient(res, 400,"Se requiere RUT, código, bicicletero y el nuevo número de serie.")
-            }
+        const {
+            rut,
+            codigo,
+            id_bicicletero,
+            numero_serie,
+            descripcion} = req.body;
+
+        if (!rut || !codigo || !id_bicicletero || !numero_serie ||!descripcion) {
+            return handleErrorClient(res,400,"Se requiere RUT, código, bicicletero y el nuevo número de serie.");
+        }
+
+        const guardiaBicicleteroId = Number(guardia.bicicleteroId || guardia.bicicletero_id);
+        const bodyBicicleteroId = Number(id_bicicletero);
+
+        if (!guardiaBicicleteroId || guardiaBicicleteroId !== bodyBicicleteroId) {
+            return handleErrorClient(res,403,"No puedes editar bicicletas de otro bicicletero");
+        }
 
         const bicycleRepository = AppDataSource.getRepository(Bicicleta);
         const userRepository = AppDataSource.getRepository("User");
 
-            // Buscar usuario
-            const usuario = await userRepository.findOne({ where: { rut } });
-            if (!usuario) {
-                return handleErrorClient(res, 404,"Usuario no encontrado")
-            }
-            
-            // Buscar bicicleta con rut, código y bicicletero
-            const bicicleta = await bicycleRepository.findOne({
-                where: { codigo, usuario: { rut }, bicicletero: { id_bicicletero } },
-                relations: ["bicicletero"]
-            });
-            if (!bicicleta) {
-                return handleErrorClient(res,404, "Bicicleta no encontrada")
-            }
-
-            // Actualizar solo el número de serie
-            bicicleta.numero_serie = numero_serie;
-            bicicleta.descripcion = descripcion;
-            bicicleta.updateAt = new Date();
-
-            await bicycleRepository.save(bicicleta);
-
-            return handleSuccess(res,200, `Número de serie actualizado para la bicicleta con código ${codigo}.`, bicicleta)
-        } catch (error) {
-        console.error("Error al editar bicicleta: ", error);
-        return res.status(500).json({ message: "Error interno del servidor." });
+        const usuario = await userRepository.findOne({
+            where: { rut }
+        });
+        if (!usuario) {
+            return handleErrorClient(res, 404, "Usuario no encontrado");
         }
-}
 
+        const bicicleta = await bicycleRepository.findOne({
+            where: {
+                codigo,
+                usuario: { rut },
+                bicicletero: { id_bicicletero: bodyBicicleteroId }
+            },
+            relations: ["bicicletero"]
+        });
+
+        if (!bicicleta) {
+            return handleErrorClient(res, 404, "Bicicleta no encontrada");
+        }
+
+        const existingBicycle = await bicycleRepository.findOne({
+            where: { numero_serie }
+        });
+
+        if (existingBicycle && existingBicycle.id !== bicicleta.id) {
+            return handleErrorClient(res,400,"Ya existe otra bicicleta registrada con ese número de serie");
+        }
+
+        bicicleta.numero_serie = numero_serie.toUpperCase();
+        bicicleta.descripcion = descripcion;
+        bicicleta.updateAt = new Date();
+
+        await bicycleRepository.save(bicicleta);
+
+        return handleSuccess(res,200,`Número de serie actualizado para la bicicleta con código ${codigo}.`,bicicleta);
+
+    } catch (error) {
+        console.error("Error al editar bicicleta:", error);
+        return handleErrorServer(
+            res,
+            500,
+            "Error interno del servidor",
+            error.message
+        );
+    }
+}
 
     //LOGICA PARA MARCAR BICICLETAS OLVIDADAS
 async function marcarBicicletasOlvidadas() {
