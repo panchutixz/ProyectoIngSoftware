@@ -44,7 +44,7 @@ export async function updatePrivateProfile(req, res) {
     }
 
     const userRepository = AppDataSource.getRepository(UserEntity);
-    const user = await userRepository.findOneBy({ id: userFromToken.sub });
+    const user = await userRepository.findOneBy({ id: userFromToken.id });
     if (!user) {
       return handleErrorClient(res, 404, "Usuario no encontrado.");
     }

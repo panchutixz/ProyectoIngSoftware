@@ -3,7 +3,7 @@ import axios from "axios";
 import Swal from "sweetalert2";
 import { useState } from "react";
 
-import academicoPic from "@assets/roles/academico.png";
+import académicoPic from "@assets/roles/académico.png";
 import administradorPic from "@assets/roles/administrador.png";
 import estudiantePic from "@assets/roles/estudiante.png";
 import funcionarioPic from "@assets/roles/funcionario.png";
@@ -11,7 +11,7 @@ import guardiaPic from "@assets/roles/guardia.png";
 import defaultPic from "@assets/gatodosekai.png";
 
 const roleImages = {
-  academico: academicoPic,
+  académico: académicoPic,
   administrador: administradorPic,
   estudiante: estudiantePic,
   funcionario: funcionarioPic,
