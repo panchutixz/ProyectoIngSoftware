@@ -106,10 +106,11 @@ const Bicicletas = () => {
                     <td>{bici.usuario.rut}</td>
                     {user.rol === 'Guardia' && (
                     <td>
-                        <button className="btn-icon" onClick={handleReIngresoBicicleta}>
-                        <i className="fa-solid fa-arrow-right-to-bracket"></i>
-                        </button>
+                    <button className="btn-icon" onClick={handleReIngresoBicicleta}>
+                        <i className="fa-solid fa-arrow-right-to-bracket text-2xl"></i>
+                    </button>
                     </td>
+
                     )}
                     {user.rol === 'Guardia' && (
                     <td className="boton-acciones">

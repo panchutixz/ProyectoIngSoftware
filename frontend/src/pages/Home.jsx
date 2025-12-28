@@ -8,11 +8,11 @@ const Home = () => {
   return (
     <div
       className="h-screen overflow-hidden bg-cover bg-center bg-no-repeat relative"
-        style={{ backgroundImage: `url(${bicicleteroLogo})` }}
+      style={{ backgroundImage: `url(${bicicleteroLogo})` }}
     >
-  <div className="absolute inset-0 bg-black/40"></div>
+      <div className="absolute inset-0 bg-black/40"></div>
 
-      <div className="relative flex items-center justify-center min-h-screen px-4">
+      <div className="relative flex items-center justify-center h-full px-4">
         <div className="w-full max-w-4xl bg-white/75 backdrop-blur-md rounded-2xl shadow-xl px-10 py-12 text-center">
           
           <h1
