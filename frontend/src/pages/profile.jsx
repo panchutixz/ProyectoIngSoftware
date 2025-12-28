@@ -7,7 +7,6 @@ const Profile = () => {
   const { fetchProfile } = useGetProfile();
   const [profileData, setProfileData] = useState(null);
 
-  /* eslint-disable react-hooks/exhaustive-deps */
   useEffect(() => {
     const getProfileData = async () => {
       try {
@@ -25,7 +24,11 @@ const Profile = () => {
     <div>
       {profileData ? (
         <div className="profile-container">
-          <ProfileCard user={profileData} />
+          <ProfileCard
+            user={profileData}
+            setUser={setProfileData}
+            fetchProfile={fetchProfile}
+          />
         </div>
       ) : (
         <p>Cargando perfil...</p>

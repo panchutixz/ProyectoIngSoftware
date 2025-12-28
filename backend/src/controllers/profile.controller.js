@@ -25,7 +25,8 @@ export async function getPrivateProfile(req, res) {
         nombre: user.nombre,
         apellido: user.apellido,
         rol: user.rol,
-        rut: user.rut
+        rut: user.rut,
+        foto_perfil: user.foto_perfil
       }
     });
   } catch (error) {

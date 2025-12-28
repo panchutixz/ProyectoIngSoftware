@@ -44,6 +44,11 @@ export const UserEntity = new EntitySchema({
       length: 20,
       nullable: true,
     },
+    foto_perfil: {
+      type: "varchar",
+      nullable: true,
+    },
+
     created_at: {
       type: "timestamp",
       createDate: true,
