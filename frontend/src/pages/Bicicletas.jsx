@@ -88,7 +88,7 @@ const Bicicletas = () => {
                         <th>Estado</th>
                         <th>Rut Usuario</th>
                         {user && user.rol === 'Guardia' && <th>Re-Ingresar</th>}
-                        <th>Acciones</th>
+                        {user && user.rol === 'Guardia' && <th>Acciones</th>}
                     </tr>
                 </thead>
                     <tbody>
@@ -111,10 +111,11 @@ const Bicicletas = () => {
                     </td>
                     )}
                     {user.rol === 'Guardia' && (
-                    <td>
-                        <button className="btn-editar-bici" onClick={handleEditarBicicleta}>Editar</button>
-                        <button className="btn-delete-bici" onClick={handleDeleteBicicleta}>Eliminar</button>
+                    <td className="boton-acciones">
+                    <button className="btn-editar-bici" onClick={handleEditarBicicleta}>Editar</button>
+                    <button className="btn-delete-bici" onClick={handleDeleteBicicleta}>Eliminar</button>
                     </td>
+
                     )}
 
                 </tr>
@@ -126,7 +127,7 @@ const Bicicletas = () => {
                     {user.rol === "Guardia" && user.bicicletero_id && "No tiene bicicletas registradas."}
                     {user.rol === "Administrador" && "No hay bicicletas registradas"}
                     {user.rol === "estudiante" && "No tienes bicicletas registradas en tu cuenta."}
-                    {(user.rol === "Academico" || user.rol === "Funcionario") && "No se encontraron bicicletas."}
+                    {(user.rol === "academico" || user.rol === "funcionario") && "No se encontraron bicicletas."}
                 </td>
 
 

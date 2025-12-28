@@ -131,3 +131,19 @@
 .capitalize {
   text-transform: capitalize;
 }
+
+.boton-acciones {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+
+.btn-editar-bici{
+    color:green
+}
+.btn-delete-bici{
+    color:darkred
+}
