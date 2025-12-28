@@ -512,16 +512,12 @@ export async function editarBicycle(req, res) {
             return handleErrorClient(res,403,"Solo los guardias pueden editar información de bicicletas");
         }
 
-        const {
-            rut,
-            codigo,
-            id_bicicletero,
-            numero_serie,
-            descripcion} = req.body;
-
-        if (!rut || !codigo || !id_bicicletero || !numero_serie ||!descripcion) {
-            return handleErrorClient(res,400,"Se requiere RUT, código, bicicletero y el nuevo número de serie.");
+        const { error: validationError, value } = editarBicycleValidation.validate(req.body);
+        if (validationError) {
+            return handleErrorClient(res, 400, validationError.details[0].message);
         }
+        
+        const { rut, codigo, id_bicicletero, numero_serie, descripcion } = value;
 
         const guardiaBicicleteroId = Number(guardia.bicicleteroId || guardia.bicicletero_id);
         const bodyBicicleteroId = Number(id_bicicletero);
@@ -532,6 +528,13 @@ export async function editarBicycle(req, res) {
 
         const bicycleRepository = AppDataSource.getRepository(Bicicleta);
         const userRepository = AppDataSource.getRepository("User");
+
+        
+        const { error } = editarBicycleValidation.validate(req.body);
+        if (error) {
+            return handleErrorClient(res, 400, error.details[0].message);
+        }
+
 
         const usuario = await userRepository.findOne({
             where: { rut }
