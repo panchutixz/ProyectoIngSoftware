@@ -19,6 +19,22 @@ const HistorialBicicletero = new EntitySchema({
             default: () => "CURRENT_TIMESTAMP",
             nullable: false,
         },
+        marca_bici: {
+            type: "varchar",
+            length: 50,
+            nullable: true,
+        },
+        color_bici: {
+            type: "varchar",
+            length: 50,
+            nullable: true,
+        },
+        serie_bici: {
+            type: "varchar",
+            length: 50,
+            nullable: true,
+        }
+
     },
     relations: {
         bicicletero: {
@@ -39,7 +55,7 @@ const HistorialBicicletero = new EntitySchema({
             target: "Bicicleta",
             joinColumn: { name: "id_bicicleta" },
             nullable: true,
-            onDelete: "SET NULL" // Si se borra la bici, queda el registro histórico
+            onDelete: "SET NULL" // Si se borra la bicicleta, queda el registro histórico
         },
     },
 });

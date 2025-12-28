@@ -124,7 +124,7 @@ const Bicicletas = () => {
                 ))
             ) : (
                 <tr>
-                <td colSpan="10">
+                <td colSpan="8">
                     {user.rol === "Guardia" && !user.bicicletero_id && "No tiene biciclero asignado, contacte con el Administrador."}
                     {user.rol === "Guardia" && user.bicicletero_id && "No tiene bicicletas registradas."}
                     {user.rol === "Administrador" && "No hay bicicletas registradas"}
@@ -139,7 +139,6 @@ const Bicicletas = () => {
 
             </table>
             </div>
-          
 
             {error && <p className="error-message">{error}</p>}
         </div>

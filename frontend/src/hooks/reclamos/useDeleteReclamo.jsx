@@ -1,22 +1,25 @@
 import { useState } from "react";
-import { crearReclamo } from "@services/reclamos.service.js";
+import { eliminarReclamo } from "@services/reclamos.service.js";
 
-export function useCreateReclamo() {
+export function useDeleteReclamo() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
+  const [deletedId, setDeletedId] = useState(null);
 
-  const registrarReclamo = async (payload) => {
+  const eliminar = async (id) => {
     setLoading(true);
     setError(null);
     setSuccess(false);
+    setDeletedId(null);
     
     try {
-      const response = await crearReclamo(payload);
+      const response = await eliminarReclamo(id);
       setSuccess(true);
+      setDeletedId(id);
       return response;
     } catch (err) {
-      console.error("Error en useCreateReclamo:", err);
+      console.error("Error en useDeleteReclamo:", err);
       setError(err);
       throw err;
     } finally {
@@ -28,13 +31,15 @@ export function useCreateReclamo() {
     setLoading(false);
     setError(null);
     setSuccess(false);
+    setDeletedId(null);
   };
 
   return { 
-    registrarReclamo, 
+    eliminar, 
     loading, 
     error, 
     success, 
+    deletedId,
     resetState 
   };
 }

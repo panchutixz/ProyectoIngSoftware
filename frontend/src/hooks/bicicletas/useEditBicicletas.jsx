@@ -44,7 +44,7 @@ async function editBicicletasPoPup(bicicleteros){
         confirmButtonText: "Editar",
         preConfirm: () => {
             const rut = document.getElementById("swal2-rut").value.trim()
-            const numero_serie = document.getElementById("swal2-numero_serie").value.trim();
+            const numero_serie = document.getElementById("swal2-numero_serie").value.trim().toUpperCase();;
             const codigo = document.getElementById("swal2-Código bicicleta").value.trim();
             const descripcion = document.getElementById("swal2-descripcion").value.trim();
             const id_bicicletero = document.getElementById("swal2-id_bicicletero").value.trim();
