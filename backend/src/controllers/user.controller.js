@@ -28,7 +28,7 @@ export const uploadProfileImage = async (req, res) => {
       fs.mkdirSync(uploadDir, { recursive: true });
     }
 
-    // 👇 Nombre único para cada subida
+    //  Nombre único para cada subida
     const fileName = `user_${userId}_${uuidv4()}.jpg`;
     const outputPath = path.join(uploadDir, fileName);
 
@@ -39,7 +39,7 @@ export const uploadProfileImage = async (req, res) => {
       .toFile(outputPath);
 
     
-     // 👉 Actualiza la BD con la nueva ruta
+     // Actualiza la BD con la nueva ruta
     const userRepository = AppDataSource.getRepository(UserEntity);
     const user = await userRepository.findOneBy({ id: userId });
     if (!user) {
