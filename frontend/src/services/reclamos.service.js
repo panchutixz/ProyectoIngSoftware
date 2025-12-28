@@ -1,5 +1,17 @@
 import axios from '@services/root.service.js';
 
+//obtener bicicletas del usuario (para el dropdown)
+export async function obtenerBicicletasUsuario() {
+    try {
+        const response = await axios.get('/reclamos/mis-bicicletas');
+        console.log("Bicicletas del usuario obtenidas:", response.data.data);
+        return response.data.data || [];
+    } catch (error) {
+        console.error("Error al obtener bicicletas del usuario:", error);
+        throw error;
+    }
+}
+
 
 //crear un reclamo
 export async function crearReclamo(payload) {
