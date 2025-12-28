@@ -1,9 +1,9 @@
 import axios from '@services/root.service.js';
 
-//obtener bicicletas del usuario (para el dropdown)
+// obtener bicicletas del usuario (para el dropdown)
 export async function obtenerBicicletasUsuario() {
     try {
-        //obtener el RUT del usuario
+        // Obtener el RUT del usuario
         const user = JSON.parse(sessionStorage.getItem("usuario")) || null;
         const userRut = user?.rut || "";
         
@@ -12,35 +12,37 @@ export async function obtenerBicicletasUsuario() {
             throw new Error("Usuario no autenticado");
         }
         
-        console.log("Usando endpoint alternativo para RUT:", userRut);
+        console.log("Consultando bicicletas para RUT:", userRut);
         
-        //usar el endpoint que SÍ funciona según bicicletas.service.js
         const response = await axios.get(`/auth/usuario/${userRut}`);
         
-        // larespuesta viene en response.data.message.data según bicicletas.service.js
-        const bicicletas = response.data?.message?.data || [];
+        console.log("Respuesta del endpoint - Status:", response.status);
+        console.log("Respuesta completa:", response.data);
         
-        console.log("Bicicletas obtenidas:", bicicletas);
-        return bicicletas;
+        const bicicletasData = response.data?.message?.data || [];
+    
+        
+        console.log("Bicicletas obtenidas:", bicicletasData);
+        
+        // Filtrar bicicletas del usuario actual
+        const bicicletasFiltradas = bicicletasData.filter(bici => {
+            const biciRut = bici.usuario?.rut || bici.usuarioRut || bici.rut_user;
+            return biciRut === userRut;
+        });
+        
+        console.log(`Bicicletas filtradas para ${userRut}:`, bicicletasFiltradas.length);
+        
+        return bicicletasFiltradas;
         
     } catch (error) {
         console.error("Error al obtener bicicletas:", {
             message: error.message,
-            response: error.response?.data
+            url: error.config?.url, // Esto mostrará la URL completa
+            status: error.response?.status,
+            data: error.response?.data
         });
         
-        //datos mock para desarrollo
-        console.log("Usando datos mock para continuar desarrollo");
-        return [
-            {
-                id: 1,
-                marca: 'Bianchi',
-                color: 'Rosado',
-                estado: 'guardada',
-                numero_serie: '5455TGH8',
-                codigo: '8824'
-            }
-        ];
+        return [];
     }
 }
 

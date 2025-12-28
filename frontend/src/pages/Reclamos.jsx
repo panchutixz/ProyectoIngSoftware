@@ -49,8 +49,7 @@ const Reclamos = () => {
     loading: cargandoBicicletas, 
     error: errorBicicletas,
     fetchBicicletas,
-    hasBicicletas,
-    hasFetched 
+    hasBicicletas
   } = useGetBicicletasUsuario();
   
   const { 
@@ -92,28 +91,27 @@ const Reclamos = () => {
   // efecto para cargar reclamos al inicio
   useEffect(() => {
     fetchReclamos();
-  }, []);
+  }, [fetchReclamos]);
 
-  //efecto para cargar bicicletas si el usuario puede crear reclamos
+  // efecto para cargar bicicletas si el usuario puede crear reclamos
   useEffect(() => {
-  const cargarBicicletasSiEsNecesario = async () => {
-    // solo cargar si se puede crear reclamo, no esta cargando, no hay bicicletas aun, y no hay error
-    if (puedeCrearReclamo && !cargandoBicicletas && bicicletas.length === 0 && !errorBicicletas) {
-      try {
-        await fetchBicicletas();
-      } catch (err) {
-        //el error ya esta manejado en el hook, solo prevenimos el bucle
-        console.log("Error al cargar bicicletas:", err.message);
+    const cargarBicicletas = async () => {
+      // Solo cargar si el usuario puede crear reclamos
+      if (puedeCrearReclamo) {
+        try {
+          console.log("Cargando bicicletas para usuario:", userRut);
+          await fetchBicicletas();
+        } catch (err) {
+          console.error("Error al cargar bicicletas:", err.message);
+          // Asegurar que el estado esté vacío en caso de error
+        }
       }
-    }
-  };
+    };
 
-  cargarBicicletasSiEsNecesario();
-}, [puedeCrearReclamo, cargandoBicicletas, bicicletas.length, errorBicicletas, fetchBicicletas]);
+    cargarBicicletas();
+  }, [puedeCrearReclamo, userRut]);
 
-
-
-  //efecto para manejar cuando se abre el formulario
+  // efecto para manejar cuando se abre el formulario
   useEffect(() => {
     if (mostrarFormulario && bicicletas.length > 0 && !numeroSerie) {
       setNumeroSerie(bicicletas[0].numero_serie);
@@ -126,7 +124,7 @@ const Reclamos = () => {
       fetchReclamos();
       resetCrear();
     }
-  }, [exitoCrear]);
+  }, [exitoCrear, fetchReclamos, resetCrear]);
 
   // efecto para manejar éxito en la actualizacion
   useEffect(() => {
@@ -134,7 +132,7 @@ const Reclamos = () => {
       fetchReclamos();
       resetActualizar();
     }
-  }, [exitoActualizar]);
+  }, [exitoActualizar, fetchReclamos, resetActualizar]);
 
   // efecto para manejar exito en la eliminación
   useEffect(() => {
@@ -142,21 +140,7 @@ const Reclamos = () => {
       fetchReclamos();
       resetEliminar();
     }
-  }, [exitoEliminar]);
-
-  // funcion para cargar bicicletas del usuario
-  const cargarBicicletasUsuario = async () => {
-    try {
-      const bicis = await fetchBicicletas();
-      if (bicis && bicis.length > 0 && !numeroSerie) {
-        setNumeroSerie(bicis[0].numero_serie);
-      }
-      return bicis;
-    } catch (error) {
-      console.error("Error cargando bicicletas:", error);
-      return [];
-    }
-  };
+  }, [exitoEliminar, fetchReclamos, resetEliminar]);
 
   // funcion para abrir formulario de creacion
   const handleAbrirFormulario = () => {
@@ -169,6 +153,16 @@ const Reclamos = () => {
       );
       return;
     }
+    
+    // Verificar que tenga bicicletas
+    if (bicicletas.length === 0) {
+      showErrorAlert(
+        "Sin bicicletas registradas",
+        "Debes registrar al menos una bicicleta antes de crear un reclamo."
+      );
+      return;
+    }
+    
     setMostrarFormulario(true);
   };
 
@@ -485,7 +479,7 @@ const Reclamos = () => {
       {puedeCrearReclamo && (
         <div className="welcome-message">
           <p>Hola <strong>{userName}</strong>, aquí puedes gestionar tus reclamos sobre tus bicicletas.</p>
-          {!hasBicicletas && (
+          {bicicletas.length === 0 && !cargandoBicicletas && (
             <p className="warning-message">
               <strong>Nota:</strong> Para crear un reclamo, primero debes registrar una bicicleta en la sección "Bicicletas".
             </p>
@@ -493,35 +487,41 @@ const Reclamos = () => {
         </div>
       )}
 
-      {/* boton iempre visible para usuarios autorizados */}
+      {/* boton siempre visible para usuarios autorizados */}
       {puedeCrearReclamo && !mostrarFormulario && (
-  <div className="crear-reclamo-btn-container">
-    {cargandoBicicletas && !hasFetched ? (
-      <button className="reclamos-addbtn" disabled>
-        <span className="spinner-small"></span>
-        Cargando bicicletas...
-      </button>
-    ) : hasBicicletas ? (
-      <button 
-        className="reclamos-addbtn"
-        onClick={handleAbrirFormulario}
-        disabled={cargandoBicicletas}
-      >
-        {cargandoBicicletas ? "Cargando..." : "Crear Nuevo Reclamo"}
-      </button>
-    ) : (
-      <div className="no-bicicletas-alert">
-        <p>No tienes bicicletas registradas para crear un reclamo.</p>
-        <button 
-          className="reclamos-addbtn-secondary"
-          onClick={() => navigate('/bicicletas')}
-        >
-          Ir a Registrar Bicicleta
-        </button>
-      </div>
-    )}
-  </div>
-)}
+        <div className="crear-reclamo-btn-container">
+          {cargandoBicicletas ? (
+            <button className="reclamos-addbtn" disabled>
+              <span className="spinner-small"></span>
+              Cargando bicicletas...
+            </button>
+          ) : bicicletas.length > 0 ? (
+            <button 
+              className="reclamos-addbtn"
+              onClick={handleAbrirFormulario}
+            >
+              Crear Nuevo Reclamo
+            </button>
+          ) : (
+            <div className="no-bicicletas-alert">
+              <p>
+                <strong>No tienes bicicletas registradas</strong><br/>
+                Para crear un reclamo, primero debes registrar una bicicleta.
+              </p>
+              <button 
+                className="reclamos-addbtn-secondary"
+                onClick={() => {
+                  // Forzar recarga limpia
+                  sessionStorage.removeItem('bicicletas_usuario');
+                  navigate('/bicicletas');
+                }}
+              >
+                Ir a Registrar Bicicleta
+              </button>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* formulario de creacion */}
       {puedeCrearReclamo && mostrarFormulario && (
@@ -574,7 +574,7 @@ const Reclamos = () => {
                   <div className="spinner-small"></div>
                   Cargando tus bicicletas...
                 </div>
-              ) : !hasBicicletas ? (
+              ) : bicicletas.length === 0 ? (
                 <div className="no-bicicletas-message">
                   <p>No tienes bicicletas registradas en el sistema.</p>
                   <p className="info-text">
@@ -587,7 +587,7 @@ const Reclamos = () => {
                     id="bicicleta-select"
                     value={numeroSerie}
                     onChange={(e) => setNumeroSerie(e.target.value)}
-                    disabled={creando || cargandoBicicletas || !hasBicicletas}
+                    disabled={creando || cargandoBicicletas}
                     required
                     className="bicicleta-select"
                   >
@@ -626,11 +626,11 @@ const Reclamos = () => {
                 !numeroSerie.trim() || 
                 !descripcion.trim() || 
                 descripcion.trim().length < 10 ||
-                !hasBicicletas ||
+                bicicletas.length === 0 ||
                 !/[A-Za-zÁÉÍÓÚáéíóúÑñ]/.test(descripcion)
               }
               title={
-                !hasBicicletas 
+                bicicletas.length === 0 
                   ? "No tienes bicicletas registradas" 
                   : descripcion.trim().length < 10 
                     ? "La descripción debe tener al menos 10 caracteres" 

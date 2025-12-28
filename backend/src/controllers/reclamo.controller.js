@@ -13,9 +13,14 @@ export async function crearReclamo(req, res) {
     const userRepository = AppDataSource.getRepository(User);
 
     try {
+        console.log("=== CREAR RECLAMO ===");
+        console.log("Body:", req.body);
+        console.log("User:", req.user);
+
         const { error } = createReclamoValidation.validate(req.body, { abortEarly: false });
         if (error) {
             const mensajes = error.details.map((err) => err.message);
+            console.error("Error validación:", mensajes);
             return handleErrorClient(res, 400, mensajes);
         }
 
@@ -23,8 +28,11 @@ export async function crearReclamo(req, res) {
         const { sub: userId, rol } = req.user; 
 
         //valida el rol autorizado
-        const rolesPermitidos = ["Estudiante", "Académico", "Funcionario"];
-        if (!rolesPermitidos.map(r => r.toLowerCase()).includes(rol.toLowerCase())) {
+        const rolesPermitidos = ["estudiante", "académico", "funcionario"];
+        const rolUsuario = rol?.toLowerCase() || "";
+
+        if (!rolesPermitidos.includes(rolUsuario)) {
+            console.error("Rol no autorizado:", rol);
             return handleErrorClient(res, 403, "Solo estudiantes, académicos o funcionarios pueden crear reclamos.");
         }
 
@@ -35,8 +43,11 @@ export async function crearReclamo(req, res) {
         });
         
         if (!usuario) {
+            console.error("Usuario no encontrado ID:", userId);
             return handleErrorClient(res, 404, "Usuario no encontrado.");
         }
+
+         console.log("Usuario:", usuario.rut);
 
         //verificar que la bicicleta exista y que pertenezca al usuario
         const bicicleta = await bicycleRepository.findOne({ 
@@ -44,10 +55,11 @@ export async function crearReclamo(req, res) {
                 numero_serie: numero_serie_bicicleta,
                 usuario: { rut: usuario.rut } //esto verifica que la bicicleta sea del usuario
             },
-            relations: ["usuario"]
         });
         
         if (!bicicleta) {
+            console.error("Bicicleta no encontrada o no pertenece al usuario");
+
             // distingue entre "bicicleta no existe" y "no es tuya"
             const bicicletaExiste = await bicycleRepository.findOne({ 
                 where: { numero_serie: numero_serie_bicicleta } 
@@ -60,16 +72,20 @@ export async function crearReclamo(req, res) {
             }
         }
 
+        console.log("Bicicleta:", bicicleta.numero_serie);
+
         // verificar que el usuario no tenga demasiados reclamos abiertos
         const reclamosAbiertos = await reclamoRepository.count({
             where: { 
                 rut_user: usuario.rut,
-                estado: 'abierto',
+                estado: 'pendiente',
             }
         });
 
+        console.log(`Reclamos abiertos: ${reclamosAbiertos}`);
+ 
         // limite opcional de reclamos por usuario
-        if (reclamosAbiertos >= 10) {
+        if (reclamosAbiertos >= 20) {
             return handleErrorClient(res, 400, "Has alcanzado el límite máximo de reclamos abiertos.");
         }
 
@@ -77,19 +93,34 @@ export async function crearReclamo(req, res) {
         const nuevoReclamo = reclamoRepository.create({
             descripcion,
             rut_user: usuario.rut,
-            numero_serie_bicicleta,
-            usuario,
-            bicicletas: bicicleta
+            numero_serie_bicicleta: bicicleta.numero_serie,
+            estado: 'pendiente',
         });
 
-        await reclamoRepository.save(nuevoReclamo);
+        console.log("Creando reclamo con:", nuevoReclamo);
 
-        console.log(`Nuevo reclamo creado por ${usuario.rut} para bicicleta ${numero_serie_bicicleta}`);
+        const reclamoCreado = reclamoRepository.create(nuevoReclamo);
+        const reclamoGuardado = await reclamoRepository.save(reclamoCreado);
 
-        return handleSuccess(res, 200, "Reclamo creado correctamente", nuevoReclamo);
+        console.log("=== RECLAMO CREADO EXITOSAMENTE ===");
+        console.log("ID:", reclamoGuardado.id);
+
+        return handleSuccess(res, 201, "Reclamo creado correctamente", reclamoGuardado);
+        
     } catch (error) {
-        console.error("Error al crear reclamo:", error);
-        return handleErrorServer(res, 500, "Error al crear reclamo");
+        console.error("=== ERROR DETALLADO ===");
+        console.error("Message:", error.message);
+        console.error("Stack:", error.stack);
+        
+        // errores específicos de TypeORM
+        if (error.code) {
+            console.error("Code:", error.code);
+            console.error("Detail:", error.detail);
+            console.error("Table:", error.table);
+            console.error("Constraint:", error.constraint);
+        }
+        
+        return handleErrorServer(res, 500, "Error al crear reclamo: " + error.message);
     }
 }
 

@@ -7,7 +7,12 @@ export function useGetBicicletasUsuario(shouldFetch = true) {
   const [error, setError] = useState(null);
   const hasFetchedRef = useRef(false);
 
-  const fetchBicicletas = useCallback(async () => {
+  const fetchBicicletas = useCallback(async (force = false) => {
+    // si ya se cargo y no es forzado, no hacer nada
+    if (error && hasFetchedRef.current && !force) {
+      console.log("Ya hubo error, no reintentar");
+      return;
+    }
     //para prevenir multiples llamadas al mismo tiempo
     if (loading) return;
     
@@ -25,7 +30,7 @@ export function useGetBicicletasUsuario(shouldFetch = true) {
     } catch (err) {
       console.error("Error en useGetBicicletasUsuario:", err);
       setError(err.message || "Error al cargar bicicletas");
-      hasFetchedRef.current = true;
+      setBicicletas([]); // Asegurar array vacío
       throw err;
     } finally {
       setLoading(false);

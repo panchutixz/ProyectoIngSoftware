@@ -17,6 +17,11 @@ const Reclamo = new EntitySchema({
             type: "timestamp",
             default: () => "CURRENT_TIMESTAMP",
         },
+        estado: {
+            type: "varchar",
+            length: 50,
+            default: "pendiente",
+        },
         rut_user: {  
             type: "varchar",
             length: 255,
@@ -46,6 +51,8 @@ const Reclamo = new EntitySchema({
                 referencedColumnName: "numero_serie"
             },
             eager: true,
+            nullable: true, //cambio de false a true//
+            onDelete: "SET NULL", //añadido//
         },
     },
 });
