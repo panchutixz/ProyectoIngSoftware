@@ -112,7 +112,7 @@ const Register = () => {
         >
           <option value="estudiante">Estudiante</option>
           <option value="funcionario">Funcionario</option>
-          <option value="academico">Académico</option>
+          <option value="académico">Académico</option>
         </select>
         <button
           type="submit"
