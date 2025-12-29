@@ -76,4 +76,3 @@ const Reclamo = new EntitySchema({
 });
 
 export default Reclamo;
-//a
