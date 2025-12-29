@@ -8,6 +8,13 @@ import { encryptPassword } from "../helpers/bcrypt.helper.js";
 
 // Obtener todos los usuarios
 export async function getUsers(req, res) {
+  const usuarioAutenticado = req.user;
+  const rol = usuarioAutenticado?.rol?.toLowerCase();
+
+  if (rol !== "administrador" && rol !== "guardia") {
+    return res.status(403).json({ message: "Acceso denegado. Solo administradores y guardias pueden ver usuarios." });
+  }
+
   try {
     const userRepository = AppDataSource.getRepository(UserEntity);
     const users = await userRepository.find();
@@ -20,6 +27,13 @@ export async function getUsers(req, res) {
 
 // Obtener un usuario por ID
 export async function getUserById(req, res) {
+  const usuarioAutenticado = req.user;
+  const rol = usuarioAutenticado?.rol?.toLowerCase();
+
+  if (rol !== "administrador" && rol !== "guardia") {
+    return res.status(403).json({ message: "Acceso denegado. Solo administradores y guardias pueden ver usuarios por ID." });
+  }
+
   try {
     const userRepository = AppDataSource.getRepository(UserEntity);
     const { id } = req.params;
@@ -41,35 +55,40 @@ export async function getUserById(req, res) {
     res.status(500).json({ message: "Error interno del servidor." });
   }
 }
-
 // Crear un nuevo usuario
 export async function createUser(req, res) {
+ 
+   // Validar que el usuario autenticado sea administrador
+    const usuarioAutenticado = req.user;
+    if (!usuarioAutenticado || usuarioAutenticado.rol?.toLowerCase() !== "administrador") {
+      return res.status(403).json({ message: "Acceso denegado. Solo los administradores pueden crear usuarios" });
+    }
+
   const { error } = registerValidation.validate(req.body);
   if (error) {
     return res.status(400).json({ message: error.details[0].message });
   }
+
   try {
     const userRepository = AppDataSource.getRepository(UserEntity);
     const { rut, nombre, apellido, rol , password, email, telefono } = req.body;
 
-    // Validación para ingresar rol como Guardia solamente
-    if (rol.toLowerCase() !== "guardia") {
-      return res.status(400).json({ message: "El rol solo puede ser 'estudiante', 'funcionario', 'académico' o 'guardia' al momento de crear un usuario." });
+    // Validación para ingresar rol permitido
+    const rolesPermitidos = ["estudiante", "funcionario", "académico", "guardia"];
+    if (!rolesPermitidos.includes(rol.toLowerCase())) {
+      return res.status(400).json({ message: `Rol inválido. Solo se permiten: ${rolesPermitidos.join(", ")}.` });
     }
-  
 
-    // Verificar si el RUT ya existe
     const existingUser = await userRepository.findOne({ where: { rut } });
     if (existingUser) {
       return res.status(400).json({ message: "Ya existe un usuario con este RUT." });
     }
-    // Verificar si el correo ya existe
+
     const existingEmail = await userRepository.findOne({ where: { email } });
     if (existingEmail) {
       return res.status(400).json({ message: "Ya existe un usuario con este correo electrónico." });
     }
 
-    // Verificar si el teléfono ya existe
     if (telefono) {
       const existingTelefono = await userRepository.findOne({ where: { telefono } });
       if (existingTelefono) {
@@ -77,7 +96,6 @@ export async function createUser(req, res) {
       }
     }
 
-    // Encriptar la contraseña antes de guardar
     const hashedPassword = await encryptPassword(password);
 
     const newUser = userRepository.create({
@@ -97,12 +115,19 @@ export async function createUser(req, res) {
     res.status(500).json({ message: "Error interno del servidor." });
   }
 }
+
 // Actualizar un usuario por ID
 export async function updateUserById(req, res) {
   try {
     const userRepository = AppDataSource.getRepository(UserEntity);
     const { id } = req.params;
     const { nombre, apellido, rol, email, telefono, rut } = req.body;
+
+    // Validar que el usuario autenticado sea administrador
+    const usuarioAutenticado = req.user;
+    if (!usuarioAutenticado || usuarioAutenticado.rol?.toLowerCase() !== "administrador") {
+      return res.status(403).json({ message: "Acceso denegado. Solo los administradores pueden editar usuarios por ID." });
+    }
 
     const idNum = parseInt(id, 10);
     if (Number.isNaN(idNum)) {
@@ -114,13 +139,11 @@ export async function updateUserById(req, res) {
       return res.status(404).json({ message: "Usuario no encontrado." });
     }
 
-    // Validar rol
     const rolesValidos = ["Estudiante", "Funcionario", "Académico", "Guardia", "Administrador"];
     if (rol && !rolesValidos.map(r => r.toLowerCase()).includes(rol.toLowerCase())) {
       return res.status(400).json({ message: `Rol inválido. Solo se permiten: ${rolesValidos.join(", ")}.` });
     }
 
-    // Validar que el nuevo RUT no esté ocupado por otro usuario
     if (rut && rut !== user.rut) {
       const existingRut = await userRepository.findOne({ where: { rut } });
       if (existingRut) {
@@ -129,7 +152,6 @@ export async function updateUserById(req, res) {
       user.rut = rut;
     }
 
-    // Validar que el nuevo email no esté ocupado por otro usuario
     if (email && email !== user.email) {
       const existingEmail = await userRepository.findOne({ where: { email } });
       if (existingEmail) {
@@ -138,7 +160,6 @@ export async function updateUserById(req, res) {
       user.email = email;
     }
 
-    // Validar que el nuevo teléfono no esté ocupado por otro usuario
     if (telefono && telefono !== user.telefono) {
       const existingTelefono = await userRepository.findOne({ where: { telefono } });
       if (existingTelefono) {
@@ -147,7 +168,6 @@ export async function updateUserById(req, res) {
       user.telefono = telefono;
     }
 
-    // Actualizar otros campos
     user.nombre = nombre ?? user.nombre;
     user.apellido = apellido ?? user.apellido;
     user.rol = rol ?? user.rol;
@@ -162,9 +182,15 @@ export async function updateUserById(req, res) {
 }
 
 
+
 // Eliminar un usuario por ID
 export async function deleteUserById(req, res) {
   try {
+    const usuarioAutenticado = req.user;
+    if (!usuarioAutenticado || usuarioAutenticado.rol?.toLowerCase() !== "administrador") {
+      return res.status(403).json({ message: "Acceso denegado. Solo los administradores pueden eliminar usuarios." });
+    }
+
     const userRepository = AppDataSource.getRepository(UserEntity);
     const { id } = req.params;
 
@@ -187,3 +213,4 @@ export async function deleteUserById(req, res) {
     res.status(500).json({ message: "Error interno del servidor." });
   }
 }
+
