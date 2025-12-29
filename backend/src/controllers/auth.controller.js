@@ -30,7 +30,7 @@ export async function register(req, res) {
     handleSuccess(res, 201, "Usuario registrado exitosamente", newUser);
   } catch (error) {
     if (error.code === '23505') {
-      // Use the actual error message from the service (can be email/rut/telefono)
+      
       handleErrorClient(res, 409, error.message || "Recurso duplicado");
     } else if (error.code === 'VALIDATION_ERROR') {
       handleErrorClient(res, 400, error.message);
