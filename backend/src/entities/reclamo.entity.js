@@ -17,11 +17,6 @@ const Reclamo = new EntitySchema({
             type: "timestamp",
             default: () => "CURRENT_TIMESTAMP",
         },
-        estado: {
-            type: "varchar",
-            length: 50,
-            default: "pendiente",
-        },
         rut_user: {  
             type: "varchar",
             length: 255,
@@ -31,7 +26,30 @@ const Reclamo = new EntitySchema({
             type: "varchar",
             length: 100,
             nullable: false,
-        }
+        },
+        estado: {
+            type: "varchar",
+            length: 50,
+            default: "pendiente",
+        },
+        respuesta: {
+          type: "text",
+          nullable: true,
+        },
+        fecha_contestado: {
+          type: "timestamp",
+          nullable: true,
+        },
+        contestado_por: {
+          type: "varchar",
+          length: 255,
+          nullable: true, // RUT del guardia/admin que contestó
+        },
+        fecha_actualizacion: {
+          type: "timestamp",
+          default: () => "CURRENT_TIMESTAMP",
+          onUpdate: () => "CURRENT_TIMESTAMP",
+        },
     },
     relations: {
         usuario: {

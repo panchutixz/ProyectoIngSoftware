@@ -16,6 +16,7 @@ import ConsultarBicicleteros from '@pages/ConsultarBicicleteros';
 import Reclamos from '@pages/Reclamos'; 
 import AsignarGuardias from '@pages/AsignarGuardias';
 import Historial from '@pages/Historial';
+import '@fortawesome/fontawesome-free/css/all.min.css';
 
 // Importa tu contexto global
 import { UserProvider } from '@context/UserContext';

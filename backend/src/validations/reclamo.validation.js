@@ -34,3 +34,17 @@ export const updateReclamoValidation = Joi.object({
             "string.pattern.base": "La descripción solo puede contener letras, números y signos de puntuación básicos."
         })
 });
+
+export const contestarReclamoValidation = Joi.object({
+  respuesta: Joi.string()
+    .min(10)
+    .max(1000)
+    .pattern(/^(?=.*[A-Za-zÁÉÍÓÚáéíóúÑñ])[A-Za-zÁÉÍÓÚáéíóúÑñ0-9.,;:()¡!¿?"' ]+$/)
+    .required()
+    .messages({
+      "string.min": "La respuesta debe tener al menos 10 caracteres.",
+      "string.max": "La respuesta no puede superar los 1000 caracteres.",
+      "string.pattern.base": "La respuesta solo puede contener letras, números y signos de puntuación básicos.",
+      "string.empty": "La respuesta es obligatoria."
+    }),
+});

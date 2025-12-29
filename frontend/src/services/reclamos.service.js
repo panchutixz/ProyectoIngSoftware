@@ -103,3 +103,41 @@ export async function eliminarReclamo(id) {
         throw error;
     }
 }
+
+
+export async function contestarReclamo(id, payload) {
+    try {
+        const response = await axios.put(`/reclamos/${id}/contestar`, payload);
+        return response.data;
+    } catch (error) {
+        console.error("Error al contestar el reclamo:", error);
+        throw error;
+    }
+}
+
+
+export async function cambiarEstadoReclamo(id, payload) {
+    try {
+        const response = await axios.put(`/reclamos/${id}/estado`, payload);
+        return response.data;
+    } catch (error) {
+        console.error("Error al cambiar estado del reclamo:", error);
+        throw error;
+    }
+}
+
+
+export async function buscarReclamosFiltrados(filtros) {
+    try {
+        const params = new URLSearchParams();
+        Object.entries(filtros).forEach(([key, value]) => {
+            if (value) params.append(key, value);
+        });
+        
+        const response = await axios.get(`/reclamos/buscar?${params.toString()}`);
+        return response.data;
+    } catch (error) {
+        console.error("Error al buscar reclamos filtrados:", error);
+        throw error;
+    }
+}
