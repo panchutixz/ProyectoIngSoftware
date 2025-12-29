@@ -1,10 +1,13 @@
 import { AppDataSource } from "../config/configDb.js";
 import { handleErrorClient, handleErrorServer, handleSuccess } from "../handlers/responseHandlers.js";
-import { createReclamoValidation, updateReclamoValidation } from "../validations/reclamo.validation.js";
+import { createReclamoValidation, updateReclamoValidation, contestarReclamoValidation } from "../validations/reclamo.validation.js";
 import Reclamo from "../entities/reclamo.entity.js";
 import Bicicleta from "../entities/bicicletas.entity.js";
 import User from "../entities/user.entity.js";
 import { In } from "typeorm";
+
+//validar que la bicicleta esté en estado "entregada" o "olvidada"
+const estadosBicicletaPermitidos = ["entregada", "olvidada"];
 
 //crear reclamo
 export async function crearReclamo(req, res) {
@@ -13,9 +16,14 @@ export async function crearReclamo(req, res) {
     const userRepository = AppDataSource.getRepository(User);
 
     try {
+        console.log("=== CREAR RECLAMO ===");
+        console.log("Body:", req.body);
+        console.log("User:", req.user);
+
         const { error } = createReclamoValidation.validate(req.body, { abortEarly: false });
         if (error) {
             const mensajes = error.details.map((err) => err.message);
+            console.error("Error validación:", mensajes);
             return handleErrorClient(res, 400, mensajes);
         }
 
@@ -23,8 +31,11 @@ export async function crearReclamo(req, res) {
         const { sub: userId, rol } = req.user; 
 
         //valida el rol autorizado
-        const rolesPermitidos = ["Estudiante", "Académico", "Funcionario"];
-        if (!rolesPermitidos.map(r => r.toLowerCase()).includes(rol.toLowerCase())) {
+        const rolesPermitidos = ["estudiante", "académico", "funcionario"];
+        const rolUsuario = rol?.toLowerCase() || "";
+
+        if (!rolesPermitidos.includes(rolUsuario)) {
+            console.error("Rol no autorizado:", rol);
             return handleErrorClient(res, 403, "Solo estudiantes, académicos o funcionarios pueden crear reclamos.");
         }
 
@@ -35,8 +46,11 @@ export async function crearReclamo(req, res) {
         });
         
         if (!usuario) {
+            console.error("Usuario no encontrado ID:", userId);
             return handleErrorClient(res, 404, "Usuario no encontrado.");
         }
+
+         console.log("Usuario:", usuario.rut);
 
         //verificar que la bicicleta exista y que pertenezca al usuario
         const bicicleta = await bicycleRepository.findOne({ 
@@ -44,10 +58,11 @@ export async function crearReclamo(req, res) {
                 numero_serie: numero_serie_bicicleta,
                 usuario: { rut: usuario.rut } //esto verifica que la bicicleta sea del usuario
             },
-            relations: ["usuario"]
         });
         
         if (!bicicleta) {
+            console.error("Bicicleta no encontrada o no pertenece al usuario");
+
             // distingue entre "bicicleta no existe" y "no es tuya"
             const bicicletaExiste = await bicycleRepository.findOne({ 
                 where: { numero_serie: numero_serie_bicicleta } 
@@ -60,16 +75,20 @@ export async function crearReclamo(req, res) {
             }
         }
 
+        console.log("Bicicleta:", bicicleta.numero_serie);
+
         // verificar que el usuario no tenga demasiados reclamos abiertos
         const reclamosAbiertos = await reclamoRepository.count({
             where: { 
                 rut_user: usuario.rut,
-                estado: 'abierto',
+                estado: 'pendiente',
             }
         });
 
+        console.log(`Reclamos abiertos: ${reclamosAbiertos}`);
+ 
         // limite opcional de reclamos por usuario
-        if (reclamosAbiertos >= 10) {
+        if (reclamosAbiertos >= 20) {
             return handleErrorClient(res, 400, "Has alcanzado el límite máximo de reclamos abiertos.");
         }
 
@@ -77,19 +96,34 @@ export async function crearReclamo(req, res) {
         const nuevoReclamo = reclamoRepository.create({
             descripcion,
             rut_user: usuario.rut,
-            numero_serie_bicicleta,
-            usuario,
-            bicicletas: bicicleta
+            numero_serie_bicicleta: bicicleta.numero_serie,
+            estado: 'pendiente',
         });
 
-        await reclamoRepository.save(nuevoReclamo);
+        console.log("Creando reclamo con:", nuevoReclamo);
 
-        console.log(`Nuevo reclamo creado por ${usuario.rut} para bicicleta ${numero_serie_bicicleta}`);
+        const reclamoCreado = reclamoRepository.create(nuevoReclamo);
+        const reclamoGuardado = await reclamoRepository.save(reclamoCreado);
 
-        return handleSuccess(res, 200, "Reclamo creado correctamente", nuevoReclamo);
+        console.log("=== RECLAMO CREADO EXITOSAMENTE ===");
+        console.log("ID:", reclamoGuardado.id);
+
+        return handleSuccess(res, 201, "Reclamo creado correctamente", reclamoGuardado);
+        
     } catch (error) {
-        console.error("Error al crear reclamo:", error);
-        return handleErrorServer(res, 500, "Error al crear reclamo");
+        console.error("=== ERROR DETALLADO ===");
+        console.error("Message:", error.message);
+        console.error("Stack:", error.stack);
+        
+        // errores específicos de TypeORM
+        if (error.code) {
+            console.error("Code:", error.code);
+            console.error("Detail:", error.detail);
+            console.error("Table:", error.table);
+            console.error("Constraint:", error.constraint);
+        }
+        
+        return handleErrorServer(res, 500, "Error al crear reclamo: " + error.message);
     }
 }
 
@@ -326,6 +360,11 @@ export async function eliminarReclamo(req, res) {
         const { sub: userId, rol } = req.user;
         const rolLowerCase = rol.toLowerCase();
 
+        //los guardias NO pueden eliminar reclamos
+        if (rolLowerCase === "guardia") {
+            return handleErrorClient(res, 403, "Los guardias no pueden eliminar reclamos.");
+        }
+
         // obtener usuario actual para saber su rut
         const usuarioActual = await userRepository.findOne({ 
             where: { id: userId },
@@ -346,8 +385,13 @@ export async function eliminarReclamo(req, res) {
             return handleErrorClient(res, 404, "Reclamo no encontrado.");
         }
 
+        //verificar que no esté contestado
+        if (reclamo.estado === "contestado") {
+            return handleErrorClient(res, 400, "No se puede eliminar un reclamo que ya ha sido contestado.");
+        }
+
         // roles que pueden eliminar cualquier reclamo
-        const rolesEliminarTodos = ["admin", "administrador", "guardia"];
+        const rolesEliminarTodos = ["admin", "administrador"];
         
         if (!rolesEliminarTodos.includes(rolLowerCase)) {
             // estudiantes, academicos y funcionarios solo pueden eliminar SUS reclamos
@@ -364,5 +408,210 @@ export async function eliminarReclamo(req, res) {
     } catch (error) {
         console.error("Error al eliminar reclamo:", error);
         return handleErrorServer(res, 500, "Error al eliminar reclamo.");
+    }
+}
+
+// Nueva función: Contestar reclamo
+export async function contestarReclamo(req, res) {
+    const reclamoRepository = AppDataSource.getRepository(Reclamo);
+    const userRepository = AppDataSource.getRepository(User);
+    const { id } = req.params;
+    const { respuesta } = req.body;
+    const { sub: userId, rol } = req.user;
+
+    try {
+        const { error } = contestarReclamoValidation.validate(req.body);
+        if (error) {
+            const mensajes = error.details.map((err) => err.message);
+            return handleErrorClient(res, 400, mensajes);
+        }
+
+        // Solo guardias y admin pueden contestar
+        const rolesPermitidos = ["guardia", "administrador", "admin"];
+        if (!rolesPermitidos.includes(rol.toLowerCase())) {
+            return handleErrorClient(res, 403, "Solo guardias y administradores pueden contestar reclamos.");
+        }
+
+        // Obtener información completa del usuario que contesta
+        const usuarioActual = await userRepository.findOne({
+            where: { id: userId },
+            select: ["id", "rut", "nombre", "apellido", "email"]
+        });
+
+        if (!usuarioActual) {
+            return handleErrorClient(res, 404, "Usuario no encontrado.");
+        }
+
+        const reclamo = await reclamoRepository.findOne({
+            where: { id },
+            relations: ["usuario"]
+        });
+
+        if (!reclamo) {
+            return handleErrorClient(res, 404, "Reclamo no encontrado.");
+        }
+
+        // Verificar que no esté ya contestado
+        if (reclamo.estado === "contestado") {
+            return handleErrorClient(res, 400, "Este reclamo ya ha sido contestado.");
+        }
+        
+        // Usar rut, nombre o email del usuario que contesta
+        const contestadoPor = usuarioActual.rut || 
+                             `${usuarioActual.nombre} ${usuarioActual.apellido}`.trim() || 
+                             usuarioActual.email || 
+                             "Usuario desconocido";
+
+        // Actualizar reclamo
+        reclamo.respuesta = respuesta;
+        reclamo.estado = "contestado";
+        reclamo.fecha_contestado = new Date();
+        reclamo.contestado_por = contestadoPor;
+        reclamo.fecha_actualizacion = new Date();
+
+        await reclamoRepository.save(reclamo);
+
+        console.log(`Reclamo ${id} contestado por ${contestadoPor}`);
+
+        return handleSuccess(res, 200, "Reclamo contestado correctamente", reclamo);
+    } catch (error) {
+        console.error("Error detallado al contestar reclamo:", error);
+        console.error("Stack:", error.stack);
+        return handleErrorServer(res, 500, "Error al contestar reclamo: " + error.message);
+    }
+}
+
+
+// funcion para cambiar estado del reclamo
+export async function cambiarEstadoReclamo(req, res) {
+    const reclamoRepository = AppDataSource.getRepository(Reclamo);
+    const { id } = req.params;
+    const { estado } = req.body; // "pendiente", "contestado", "resuelto", "cerrado"
+    const { rol } = req.user;
+
+    try {
+        const estadosPermitidos = ["pendiente", "contestado", "resuelto", "cerrado"];
+        
+        if (!estadosPermitidos.includes(estado)) {
+            return handleErrorClient(res, 400, `Estado no válido. Estados permitidos: ${estadosPermitidos.join(", ")}`);
+        }
+
+        // Solo admin puede cambiar a cualquier estado
+        if (rol.toLowerCase() !== "administrador" && estado === "cerrado") {
+            return handleErrorClient(res, 403, "Solo administradores pueden cerrar reclamos.");
+        }
+
+        const reclamo = await reclamoRepository.findOne({ where: { id } });
+
+        if (!reclamo) {
+            return handleErrorClient(res, 404, "Reclamo no encontrado.");
+        }
+
+        reclamo.estado = estado;
+        reclamo.fecha_actualizacion = new Date();
+
+        await reclamoRepository.save(reclamo);
+
+        return handleSuccess(res, 200, `Reclamo marcado como ${estado}`, reclamo);
+    } catch (error) {
+        console.error("Error al cambiar estado del reclamo:", error);
+        return handleErrorServer(res, 500, "Error al cambiar estado del reclamo");
+    }
+}
+
+
+// Nueva función: Buscar reclamos con filtros
+export async function buscarReclamos(req, res) {
+    const reclamoRepository = AppDataSource.getRepository(Reclamo);
+    const { rol } = req.user;
+
+    try {
+        const {
+            estado,
+            fecha_desde,
+            fecha_hasta,
+            numero_serie,
+            rut_usuario,
+            page = 1,
+            limit = 20
+        } = req.query;
+
+        const queryBuilder = reclamoRepository.createQueryBuilder("reclamo")
+            .leftJoinAndSelect("reclamo.usuario", "usuario")
+            .leftJoinAndSelect("reclamo.bicicletas", "bicicleta");
+
+        // Aplicar filtros
+        if (estado) {
+            queryBuilder.andWhere("reclamo.estado = :estado", { estado });
+        }
+
+        if (fecha_desde) {
+            queryBuilder.andWhere("reclamo.fecha_creacion >= :fecha_desde", { 
+                fecha_desde: new Date(fecha_desde) 
+            });
+        }
+
+        if (fecha_hasta) {
+            queryBuilder.andWhere("reclamo.fecha_creacion <= :fecha_hasta", { 
+                fecha_hasta: new Date(fecha_hasta) 
+            });
+        }
+
+        if (numero_serie) {
+            queryBuilder.andWhere("reclamo.numero_serie_bicicleta LIKE :numero_serie", { 
+                numero_serie: `%${numero_serie}%` 
+            });
+        }
+
+        if (rut_usuario && (rol === "administrador" || rol === "admin" || rol === "guardia")) {
+            queryBuilder.andWhere("reclamo.rut_user LIKE :rut_usuario", { 
+                rut_usuario: `%${rut_usuario}%` 
+            });
+        }
+
+        // Ordenar por fecha más reciente primero
+        queryBuilder.orderBy("reclamo.fecha_creacion", "DESC");
+
+        // Paginación
+        const skip = (page - 1) * limit;
+        queryBuilder.skip(skip).take(parseInt(limit));
+
+        const [reclamos, total] = await queryBuilder.getManyAndCount();
+
+        return handleSuccess(res, 200, "Reclamos encontrados", {
+            reclamos,
+            pagination: {
+                page: parseInt(page),
+                limit: parseInt(limit),
+                total,
+                totalPages: Math.ceil(total / limit)
+            }
+        });
+
+    } catch (error) {
+        console.error("Error al buscar reclamos:", error);
+        return handleErrorServer(res, 500, "Error al buscar reclamos");
+    }
+}
+
+// Nueva función: Obtener reclamo por ID
+export async function obtenerReclamoPorId(req, res) {
+    const reclamoRepository = AppDataSource.getRepository(Reclamo);
+    const { id } = req.params;
+
+    try {
+        const reclamo = await reclamoRepository.findOne({
+            where: { id },
+            relations: ["usuario", "bicicletas"]
+        });
+
+        if (!reclamo) {
+            return handleErrorClient(res, 404, "Reclamo no encontrado.");
+        }
+
+        return handleSuccess(res, 200, "Reclamo obtenido correctamente", reclamo);
+    } catch (error) {
+        console.error("Error al obtener reclamo:", error);
+        return handleErrorServer(res, 500, "Error al obtener reclamo");
     }
 }
