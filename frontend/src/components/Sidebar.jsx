@@ -23,10 +23,10 @@ const Sidebar = () => {
     const role = userRole?.toLowerCase();
 
     if (role === "administrador") {
-      navigate("/bicicleteros"); 
+      navigate("/bicicleteros");
     } else  {
       navigate("/consultarBicicleteros");
-    } 
+    }
   };
 
   return (
@@ -104,6 +104,18 @@ const Sidebar = () => {
                 className="w-full text-left hover:bg-gray-700 p-2 rounded"
               >
                 Asignar Guardias
+              </button>
+            </li>
+          )}
+
+          {/* Asignacion de guardias (Solo guardias) */}
+          {userRole?.toLowerCase() === "guardia" && (
+            <li>
+              <button
+                onClick={() => navigate("/asignacion")}
+                className="w-full text-left hover:bg-gray-700 p-2 rounded"
+              >
+                Ver asignación
               </button>
             </li>
           )}

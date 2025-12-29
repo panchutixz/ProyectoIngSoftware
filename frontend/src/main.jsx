@@ -13,8 +13,9 @@ import Bicicletas from '@pages/Bicicletas';
 import Bicicleteros from '@pages/Bicicleteros';
 import ConsultarBicicleteros from '@pages/ConsultarBicicleteros';
 //import RegistrarBicicletas from '@pages/RegistrarBicicletas';
-import Reclamos from '@pages/Reclamos'; 
+import Reclamos from '@pages/Reclamos';
 import AsignarGuardias from '@pages/AsignarGuardias';
+import VerGuardiasAsignados from '@pages/Asignacion';
 import Historial from '@pages/Historial';
 
 //  Importa tu contexto global
@@ -90,6 +91,12 @@ const router = createBrowserRouter([
         path: '/asignarGuardias',
         element: <ProtectedRoute allowedRoles={["admin", "guardia"]}
         ><AsignarGuardias/>
+        </ProtectedRoute>
+      },
+      {
+        path: '/asignacion',
+        element: <ProtectedRoute allowedRoles={["guardia"]}
+        ><VerGuardiasAsignados/>
         </ProtectedRoute>
       },
       {
