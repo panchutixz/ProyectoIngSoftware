@@ -55,14 +55,18 @@ export async function getUserById(req, res) {
     res.status(500).json({ message: "Error interno del servidor." });
   }
 }
+
 // Crear un nuevo usuario
 export async function createUser(req, res) {
- 
-   // Validar que el usuario autenticado sea administrador
-    const usuarioAutenticado = req.user;
-    if (!usuarioAutenticado || usuarioAutenticado.rol?.toLowerCase() !== "administrador") {
-      return res.status(403).json({ message: "Acceso denegado. Solo los administradores pueden crear usuarios" });
-    }
+  // Validar que el usuario autenticado sea administrador o guardia
+  const usuarioAutenticado = req.user;
+  const rolAutenticado = usuarioAutenticado?.rol?.toLowerCase();
+
+  if (rolAutenticado !== "administrador" && rolAutenticado !== "guardia") {
+    return res.status(403).json({ 
+      message: "Acceso denegado. Solo administradores y guardias pueden crear usuarios." 
+    });
+  }
 
   const { error } = registerValidation.validate(req.body);
   if (error) {
@@ -76,7 +80,9 @@ export async function createUser(req, res) {
     // Validación para ingresar rol permitido
     const rolesPermitidos = ["estudiante", "funcionario", "académico", "guardia"];
     if (!rolesPermitidos.includes(rol.toLowerCase())) {
-      return res.status(400).json({ message: `Rol inválido. Solo se permiten: ${rolesPermitidos.join(", ")}.` });
+      return res.status(400).json({ 
+        message: `Rol inválido. Solo se permiten: ${rolesPermitidos.join(", ")}.` 
+      });
     }
 
     const existingUser = await userRepository.findOne({ where: { rut } });
@@ -115,6 +121,7 @@ export async function createUser(req, res) {
     res.status(500).json({ message: "Error interno del servidor." });
   }
 }
+
 
 // Actualizar un usuario por ID
 export async function updateUserById(req, res) {
