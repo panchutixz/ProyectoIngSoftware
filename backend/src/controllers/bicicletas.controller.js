@@ -21,6 +21,9 @@ export async function registerBicycle(req, res){
     const { error } = registerValidation.validate(req.body);
     if(error) return handleErrorClient(res, 400, error.details[0].message);
 
+    if (req.user.rol !== "Guardia"){ 
+        return handleErrorClient(res, 403, "Solo los guardias pueden registrar bicicletas"); 
+    }
 
     if (req.user.rol === "Guardia"){
         const guardiaBicicleteroId = Number(req.user.bicicleteroId || req.user.bicicletero_id);
@@ -142,12 +145,26 @@ export async function reIngresoBicycle(req, res) {
 
     if (error) return handleErrorClient(res, 400, error.details[0].message);
 
+    if (req.user.rol !== "Guardia"){ 
+        return handleErrorClient(res, 403, "Solo los guardias pueden reingresar bicicletas"); 
+    }
+
+    const bicicleteroBusqueda = await bicicleteroRepository.findOne({ where: {id_bicicletero}});
+    if(!bicicleteroBusqueda){
+        return handleErrorClient(res, 400, "No existe el bicicletero");
+    }
+
     if (req.user.rol === "Guardia") {
         const guardiaBicicleteroId = Number(req.user.bicicleteroId || req.user.bicicletero_id);
         const bodyBicicleteroId = Number(id_bicicletero);
         if (!guardiaBicicleteroId || guardiaBicicleteroId !== bodyBicicleteroId) {
             return handleErrorClient(res, 403, "No puedes re-ingresar bicicletas en otro bicicletero");
         }
+    }
+
+    const usuario = await userRepository.findOne({ where: { rut } });
+    if (!usuario) {
+        return handleErrorClient(res, 404, "Usuario no encontrado");
     }
 
     const bicicleta = await bicycleRepository.findOne({
@@ -161,18 +178,6 @@ export async function reIngresoBicycle(req, res) {
 
     if (bicicleta.estado !== "entregada") {
         return handleErrorClient(res, 400, "La bicicleta no está en estado entregada");
-    }
-    if (bicicleta.estado === "guardada") {
-        return handleErrorClient(res, 400, "La bicicleta ya está guardada");
-    }
-    const usuario = await userRepository.findOne({ where: { rut } });
-    if (!usuario) {
-        return handleErrorClient(res, 404, "Usuario no encontrado");
-    }
-
-    const bicicleteroBusqueda = await bicicleteroRepository.findOne({ where: {id_bicicletero}});
-    if(!bicicleteroBusqueda){
-        return handleErrorClient(res, 400, "No existe el bicicletero");
     }
 
     const bicicletasEnBicicletero = await bicycleRepository.count({
@@ -231,7 +236,7 @@ export async function getBicycle(req, res) {
         const bicycleRepository = AppDataSource.getRepository(Bicicleta);
 
         if (!req.user) {
-            return handleErrorClient(res, 401, "Usuario no autenticado");
+            return handleErrorClient(res, 401, "Solo los administradores pueden ver todas las bicicletas");
         }
 
         const { rol, bicicleteroId } = req.user;
@@ -341,7 +346,7 @@ export async function retirarBicycle(req, res) {
 
         const guardiaRol = (guardia.rol || guardia.role || "").toString().toLowerCase();
         if (guardiaRol !== "guardia") {
-            return handleErrorClient(res, 403, "Solo los guardias pueden eliminar bicicletas");
+            return handleErrorClient(res, 403, "Solo los guardias pueden retirar bicicletas");
         }
 
         const { rut, codigo, id_bicicletero } = req.body;
@@ -575,7 +580,7 @@ export async function editarBicycle(req, res) {
 
         await bicycleRepository.save(bicicleta);
 
-        return handleSuccess(res,200,`Número de serie actualizado para la bicicleta con código ${codigo}.`,bicicleta);
+        return handleSuccess(res,200,`Número de serie y descripción actualizado para la bicicleta con código ${codigo}.`,bicicleta);
 
     } catch (error) {
         console.error("Error al editar bicicleta:", error);
@@ -634,7 +639,8 @@ async function marcarBicicletasOlvidadas() {
                     bicicleta: bici
                 });
 
-            console.log(`Bicicleta ${bici.codigo} marcada como olvidada.`);
+            console.log(`Bicicleta ${bici.codigo} marcada como olvidada.`); //para consola en frontend se hace refresh
+
             }
         }
     }   
