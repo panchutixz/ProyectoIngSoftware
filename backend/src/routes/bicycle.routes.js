@@ -4,8 +4,8 @@ import { authMiddleware } from "../middleware/auth.middleware.js";
 
 const router = Router();
 
-router.post("/bicicleta", registerBicycle);
-router.patch("/reingreso", reIngresoBicycle);
+router.post("/bicicleta", authMiddleware,registerBicycle);
+router.patch("/reingreso", authMiddleware,reIngresoBicycle);
 router.get("/obtener", authMiddleware, getBicycle);
 router.get("/usuario/:rut", getUserBicycles);
 router.delete("/retirar", authMiddleware, retirarBicycle);
