@@ -4,16 +4,20 @@ import cookies from 'js-cookie';
 export async function login(dataUser) {
   try {
     const { email, password } = dataUser;
-    const response = await axios.post('/auth/login', { email, password });
+    const response = await axios.post("/auth/login", { email, password });
 
+    // Ajusta según tu backend: si devuelve { data: { token, user } }
     const { token, user } = response.data.data || {};
 
-    if (token) cookies.set('jwt-auth', token, { path: '/' });
-    if (user) sessionStorage.setItem('usuario', JSON.stringify(user));
+    if (token) cookies.set("jwt-auth", token, { path: "/" });
+    if (user) sessionStorage.setItem("usuario", JSON.stringify(user));
 
     return { status: response.status, data: response.data };
   } catch (error) {
-    return { status: error.response?.status || 0, data: error.response?.data || { message: 'Error al conectar con el servidor' } };
+    return {
+      status: error.response?.status || 0,
+      data: error.response?.data || { message: "Error al conectar con el servidor" },
+    };
   }
 }
 

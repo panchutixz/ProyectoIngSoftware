@@ -1,6 +1,6 @@
 import { loginUser } from "../services/auth.service.js";
 import { createUser } from "../services/user.service.js";
-import { registerValidation, loginValidation } from "../validations/usuario.validation.js";
+import { registerValidation, loginValidation, validateRegister } from "../validations/usuario.validation.js";
 import { handleSuccess, handleErrorClient, handleErrorServer } from "../handlers/responseHandlers.js";
 
 export async function login(req, res) {
@@ -24,13 +24,13 @@ export async function register(req, res) {
     if (error) {
       return handleErrorClient(res, 400, error.details[0].message);
     }
-
+    await validateRegister(req.body);
     const newUser = await createUser(req.body);
     delete newUser.password;
     handleSuccess(res, 201, "Usuario registrado exitosamente", newUser);
   } catch (error) {
     if (error.code === '23505') {
-      // Use the actual error message from the service (can be email/rut/telefono)
+      
       handleErrorClient(res, 409, error.message || "Recurso duplicado");
     } else if (error.code === 'VALIDATION_ERROR') {
       handleErrorClient(res, 400, error.message);

@@ -7,7 +7,7 @@ import Root from '@pages/Root';
 import ProtectedRoute from '@components/ProtectedRoute';
 import '@styles/styles.css';
 import Register from '@pages/Register';
-import Profile from '@pages/Profile'
+import Profile from '@pages/Profile';
 import Usuarios from '@pages/Usuarios';
 import Bicicletas from '@pages/Bicicletas';
 import Bicicleteros from '@pages/Bicicleteros';
@@ -15,7 +15,10 @@ import ConsultarBicicleteros from '@pages/ConsultarBicicleteros';
 //import RegistrarBicicletas from '@pages/RegistrarBicicletas';
 import Reclamos from '@pages/Reclamos'; 
 import AsignarGuardias from '@pages/AsignarGuardias';
+import Historial from '@pages/Historial';
+import '@fortawesome/fontawesome-free/css/all.min.css';
 
+import { UserProvider } from '@context/UserContext';
 
 const router = createBrowserRouter([
   {
@@ -53,38 +56,56 @@ const router = createBrowserRouter([
       },
       {
         path: '/bicicletas',
-        element: <ProtectedRoute allowedRoles={["admin", "guardia"]}
-        ><Bicicletas />
-        </ProtectedRoute>
+        element: (
+          <ProtectedRoute allowedRoles={["admin", "guardia"]}>
+            <Bicicletas />
+          </ProtectedRoute>
+        ),
       },
       {
         path: '/bicicleteros',
-        element: <ProtectedRoute allowedRoles={["admin", "guardia"]}
-        ><Bicicleteros/>
-        </ProtectedRoute>
+        element: (
+          <ProtectedRoute allowedRoles={["admin", "guardia"]}>
+            <Bicicleteros />
+          </ProtectedRoute>
+        ),
       },
       {
         path: '/consultarBicicleteros',
-        element: <ProtectedRoute allowedRoles={["admin", "guardia"]}
-        ><ConsultarBicicleteros/>
-        </ProtectedRoute>
+        element: (
+          <ProtectedRoute allowedRoles={["admin", "guardia"]}>
+            <ConsultarBicicleteros />
+          </ProtectedRoute>
+        ),
       },
       {
         path: '/Misreclamos',
-        element: <ProtectedRoute allowedRoles={["estudiante", "academico", "funcionario"]}
-        ><Reclamos />
-        </ProtectedRoute>
+        element: (
+          <ProtectedRoute allowedRoles={["estudiante", "academico", "funcionario"]}>
+            <Reclamos />
+          </ProtectedRoute>
+        ),
       },
       {
         path: '/asignarGuardias',
         element: <ProtectedRoute allowedRoles={["admin", "guardia"]}
         ><AsignarGuardias/>
         </ProtectedRoute>
-      }
+      },
+      {
+      path: '/historial',
+        element: (
+          <ProtectedRoute>
+            <Historial />
+          </ProtectedRoute>
+        ),
+      },
     ]
   }
 ]);
 
 ReactDOM.createRoot(document.getElementById('root')).render(
-  <RouterProvider router={router} />
+  <UserProvider>
+    <RouterProvider router={router} />
+  </UserProvider>
 );

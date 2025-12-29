@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { getBicicletas, getUserBicycles} from '../services/bicicletas.service.js';
 import { reIngresoBicicleta} from '@hooks/bicicletas/useReIngresoBicicletas.jsx';
 import { registerBicicleta } from '@hooks/bicicletas/useRegisterBicicletas.jsx';
-import { retirarBicicletas } from '@hooks/bicicletas/useRetirarBicicletas.jsx';
+import { accionBicicletas } from '@hooks/bicicletas/useRetirarBicicletas.jsx';
 import { editarBicicleta } from '@hooks/bicicletas/useEditBicicletas.jsx';
 import { deleteBicicleta } from '@hooks/bicicletas/useDeleteBicicletas.jsx';
 import { useAuth } from "../context/AuthContext.jsx";
@@ -11,7 +11,7 @@ import { useAuth } from "../context/AuthContext.jsx";
 const estadoColors = {
     guardada: '#007bff',    
     entregada: '#28a745',   
-    olvidada: '#ff0000ff'   
+    olvidada: '#ff8000ff'   
 };
 
 function estadoStyle(estado) {
@@ -59,7 +59,7 @@ const Bicicletas = () => {
 
     const { handleReIngresoBicicleta } = reIngresoBicicleta(fetchBicicletas);
     const { handleRegisterBicicleta } = registerBicicleta(fetchBicicletas);
-    const { handleRetirarBicicleta } = retirarBicicletas(fetchBicicletas);
+    const { handleAccionBicicleta } = accionBicicletas(fetchBicicletas);
     const { handleEditarBicicleta } = editarBicicleta(fetchBicicletas);
     const { handleDeleteBicicleta} = deleteBicicleta(fetchBicicletas);
 
@@ -71,24 +71,25 @@ const Bicicletas = () => {
                     {user && user.rol === 'Guardia' && (user.bicicletero_id) &&(
                     <>
                         <button className="button-registrar-bicicleta" onClick={handleRegisterBicicleta}>Registrar Bicicleta</button>
-                        <button className="button-retirar-bicicleta" onClick={handleRetirarBicicleta}>Retirar Bicicleta</button>
+                        <button className="button-retirar-bicicleta" onClick={handleAccionBicicleta}>Retirar/Mover Bicicleta</button>
                     </>
                 )}
             </div>
-
+            
+            <div className="bicicleta-table-wrapper">
             <table className="bicicleta-table">
                 <thead>
                     <tr>
                         <th>Bicicletero</th>
                         <th>Marca</th>
                         <th>Color</th>
-                        <th>Número Serie</th>
+                        <th>Nro Serie</th>
                         <th>Código</th>
                         <th>Descripción</th>
                         <th>Estado</th>
                         <th>Rut Usuario</th>
                         {user && user.rol === 'Guardia' && <th>Re-Ingresar</th>}
-                        <th>Acciones</th>
+                        {user && user.rol === 'Guardia' && <th>Acciones</th>}
                     </tr>
                 </thead>
                     <tbody>
@@ -105,28 +106,30 @@ const Bicicletas = () => {
                     <td>{bici.usuario.rut}</td>
                     {user.rol === 'Guardia' && (
                     <td>
-                        <button className="btn-icon" onClick={handleReIngresoBicicleta}>
-                        <i className="fa-solid fa-arrow-right-to-bracket"></i>
-                        </button>
+                    <button className="btn-icon" onClick={handleReIngresoBicicleta}>
+                        <i className="fa-solid fa-arrow-right-to-bracket text-2xl"></i>
+                    </button>
                     </td>
+
                     )}
                     {user.rol === 'Guardia' && (
-                    <td>
-                        <button className="btn-editar-bici" onClick={handleEditarBicicleta}>Editar</button>
-                        <button className="btn-delete-bici" onClick={handleDeleteBicicleta}>Eliminar</button>
+                    <td className="boton-acciones">
+                    <button className="btn-editar-bici" onClick={handleEditarBicicleta}>Editar</button>
+                    <button className="btn-delete-bici" onClick={handleDeleteBicicleta}>Eliminar</button>
                     </td>
+
                     )}
 
                 </tr>
                 ))
             ) : (
                 <tr>
-                <td colSpan="10">
+                <td colSpan="8">
                     {user.rol === "Guardia" && !user.bicicletero_id && "No tiene biciclero asignado, contacte con el Administrador."}
                     {user.rol === "Guardia" && user.bicicletero_id && "No tiene bicicletas registradas."}
                     {user.rol === "Administrador" && "No hay bicicletas registradas"}
                     {user.rol === "estudiante" && "No tienes bicicletas registradas en tu cuenta."}
-                    {(user.rol === "Academico" || user.rol === "Funcionario") && "No se encontraron bicicletas."}
+                    {(user.rol === "academico" || user.rol === "funcionario") && "No se encontraron bicicletas."}
                 </td>
 
 
@@ -135,6 +138,7 @@ const Bicicletas = () => {
                 </tbody>
 
             </table>
+            </div>
 
             {error && <p className="error-message">{error}</p>}
         </div>

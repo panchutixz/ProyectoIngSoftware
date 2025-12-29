@@ -4,7 +4,6 @@ import { AppDataSource } from "../config/configDb.js";
 import { UserEntity } from "../entities/user.entity.js";
 import bcrypt from "bcrypt";
 
-const userRepository = AppDataSource.getRepository(UserEntity);
 
 
 export async function register(req, res) {
@@ -45,12 +44,12 @@ export async function register(req, res) {
   }
 }
 
-// Nueva función que devuelve el usuario creado (usada por auth.controller)
+
 export async function createUser(data) {
   const userRepository = AppDataSource.getRepository(UserEntity);
   const { email, password, nombre, rol, apellido, rut, telefono } = data;
 
-  // Validación (opcional si ya se valida antes)
+ 
   const { error } = registerValidation.validate(data);
   if (error) throw Object.assign(new Error(error.details ? error.details[0].message : error.message), { code: "VALIDATION_ERROR" });
 

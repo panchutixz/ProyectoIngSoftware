@@ -1,5 +1,5 @@
 import Swal from "sweetalert2";
-import { editUser } from "@services/usuarios.service.js"; // tu servicio axios.put
+import { editUser } from "@services/usuarios.service.js";
 
 
 async function editUserPopup(user) {
@@ -13,10 +13,6 @@ async function editUserPopup(user) {
       <div>
         <label for="swal2-apellido">Apellido</label>
         <input id="swal2-apellido" class="swal2-input" value="${user.apellido || ""}" placeholder="Apellido del usuario">
-      </div>
-      <div>
-        <label for="swal2-rut">Rut</label>
-        <input id="swal2-rut" class="swal2-input" value="${user.rut || ""}" placeholder="Rut del usuario">
       </div>
       <div>
         <label for="swal2-email">Email</label>
@@ -72,14 +68,13 @@ async function editUserPopup(user) {
       const email = document.getElementById("swal2-email").value.trim();
       const rol = document.getElementById("swal2-rol").value;
       const telefono = document.getElementById("swal2-telefono").value.trim();
-      const rut = document.getElementById("swal2-rut").value.trim();
 
-      if (!nombre || !apellido || !email || !rol || !telefono || !rut) {
+      if (!nombre || !apellido || !email || !rol || !telefono) {
         Swal.showValidationMessage("Por favor, complete todos los campos obligatorios");
         return false;
       }
 
-      return { nombre, apellido, email, rol, telefono, rut };
+      return { nombre, apellido, email, rol, telefono};
     },
   });
 
