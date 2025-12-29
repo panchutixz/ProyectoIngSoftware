@@ -3,7 +3,8 @@ import useGetUser from "@hooks/usuario/useGetUser.jsx";
 import useDeleteUser from "@hooks/usuario/useDeleteUser.jsx";
 import useCreateUser from "@hooks/usuario/useCreateUser.jsx";       // Hook para Administrador
 import useCreateUserGuard from "@hooks/usuario/useCreateUserGuard.jsx"; // Hook para Guardia
-import useEditUser from "@hooks/usuario/useEditUser.jsx";
+import useEditUser from "@hooks/usuario/useEditUser.jsx";           // Hook para Administrador
+import useEditUserGuard from "@hooks/usuario/useEditUserGuard.jsx"; // Hook para Guardia
 import { useEffect } from "react";
 import { useAuth } from "../context/AuthContext.jsx";
 
@@ -34,7 +35,8 @@ const Users = () => {
   const { handleDeleteUser } = useDeleteUser(fetchUsers);
   const { handleCreateUser } = useCreateUser(fetchUsers);          // Admin
   const { handleCreateUserGuard } = useCreateUserGuard(fetchUsers); // Guardia
-  const { handleEditUser } = useEditUser(fetchUsers);
+  const { handleEditUser } = useEditUser(fetchUsers);              // Admin
+  const { handleEditUserGuard } = useEditUserGuard(fetchUsers);    // Guardia
 
   useEffect(() => {
     fetchUsers();
@@ -62,10 +64,10 @@ const Users = () => {
             <th>Rut</th>
             <th>Nombre</th>
             <th>Apellido</th>
-            {authUser?.rol === 'Administrador' && <th>Email</th>}
+            <th>Email</th>
             <th>Rol</th>
             <th>Teléfono</th>
-            {authUser?.rol === 'Administrador' && <th>Acciones</th>}
+            <th>Acciones</th>
           </tr>
         </thead>
         <tbody>
@@ -75,26 +77,39 @@ const Users = () => {
                 <td>{u.rut}</td>
                 <td>{u.nombre}</td>
                 <td>{u.apellido}</td>
-                {authUser?.rol === 'Administrador' && <td>{u.email}</td>}
+                <td>{u.email}</td>
                 <td>
                   <span style={rolStyle(u.rol)}>
                     {u.rol}
                   </span>
                 </td>
                 <td>{u.telefono}</td>
-                {authUser?.rol === 'Administrador' && (
-                  <td>
-                    <button className="delete" onClick={() => handleDeleteUser(u.id)}>Eliminar</button>
-                    <button className="edit" style={{ marginLeft: "8px" }} onClick={() => handleEditUser(u.id, u)}>Editar</button>
-                  </td>
-                )}
+                <td>
+                  <button className="delete" onClick={() => handleDeleteUser(u.id)}>Eliminar</button>
+                  {authUser?.rol === 'Administrador' && (
+                    <button
+                      className="edit"
+                      style={{ marginLeft: "8px" }}
+                      onClick={() => handleEditUser(u.id, u)}
+                    >
+                      Editar
+                    </button>
+                  )}
+                  {authUser?.rol === 'Guardia' && (
+                    <button
+                      className="edit"
+                      style={{ marginLeft: "8px" }}
+                      onClick={() => handleEditUserGuard(u.id, u)}
+                    >
+                      Editar
+                    </button>
+                  )}
+                </td>
               </tr>
             ))
           ) : (
             <tr>
-              <td colSpan={authUser?.rol === 'Administrador' ? "7" : "5"}>
-                No hay usuarios disponibles
-              </td>
+              <td colSpan="7">No hay usuarios disponibles</td>
             </tr>
           )}
         </tbody>

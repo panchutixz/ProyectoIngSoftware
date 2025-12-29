@@ -2,9 +2,8 @@
 
 import { AppDataSource } from "../config/configDb.js";
 import { UserEntity } from "../entities/user.entity.js";
-import { registerValidation} from "../validations/usuario.validation.js";
+import { registerValidation } from "../validations/usuario.validation.js";
 import { encryptPassword } from "../helpers/bcrypt.helper.js";
-
 
 // Obtener todos los usuarios
 export async function getUsers(req, res) {
@@ -58,7 +57,6 @@ export async function getUserById(req, res) {
 
 // Crear un nuevo usuario
 export async function createUser(req, res) {
-  // Validar que el usuario autenticado sea administrador o guardia
   const usuarioAutenticado = req.user;
   const rolAutenticado = usuarioAutenticado?.rol?.toLowerCase();
 
@@ -77,7 +75,6 @@ export async function createUser(req, res) {
     const userRepository = AppDataSource.getRepository(UserEntity);
     const { rut, nombre, apellido, rol , password, email, telefono } = req.body;
 
-    // Validación para ingresar rol permitido
     const rolesPermitidos = ["estudiante", "funcionario", "académico", "guardia"];
     if (!rolesPermitidos.includes(rol.toLowerCase())) {
       return res.status(400).json({ 
@@ -122,7 +119,6 @@ export async function createUser(req, res) {
   }
 }
 
-
 // Actualizar un usuario por ID
 export async function updateUserById(req, res) {
   try {
@@ -130,10 +126,10 @@ export async function updateUserById(req, res) {
     const { id } = req.params;
     const { nombre, apellido, rol, email, telefono, rut } = req.body;
 
-    // Validar que el usuario autenticado sea administrador
     const usuarioAutenticado = req.user;
-    if (!usuarioAutenticado || usuarioAutenticado.rol?.toLowerCase() !== "administrador") {
-      return res.status(403).json({ message: "Acceso denegado. Solo los administradores pueden editar usuarios por ID." });
+    const rolAutenticado = usuarioAutenticado?.rol?.toLowerCase();
+    if (!usuarioAutenticado || (rolAutenticado !== "administrador" && rolAutenticado !== "guardia")) {
+      return res.status(403).json({ message: "Acceso denegado. Solo administradores y guardias pueden editar usuarios." });
     }
 
     const idNum = parseInt(id, 10);
@@ -151,6 +147,22 @@ export async function updateUserById(req, res) {
       return res.status(400).json({ message: `Rol inválido. Solo se permiten: ${rolesValidos.join(", ")}.` });
     }
 
+    // Un guardia no puede cambiar el rol de un usuario que ya sea administrador
+    if (rolAutenticado === "guardia" && user.rol?.toLowerCase() === "administrador" && rol && rol.toLowerCase() !== "administrador") {
+      return res.status(403).json({ message: "Acceso denegado. Un guardia no puede modificar el rol de un administrador." });
+    }
+
+    // Un administrador no puede cambiar su propio rol
+    if (rolAutenticado === "administrador" && user.rol?.toLowerCase() === "administrador" && rol && rol.toLowerCase() !== "administrador") {
+      return res.status(403).json({ message: "Acceso denegado. Un administrador no puede modificar su propio rol." });
+    }
+    // Un guardia no puede cambiar otro rol de guardia
+    if (rolAutenticado === "guardia" && user.rol?.toLowerCase() === "guardia" && rol && rol.toLowerCase() !== "guardia") {
+      return res.status(403).json({ message: "Acceso denegado. Un guardia no puede modificar el rol de otro guardia." });
+    }
+    
+
+    // Validaciones de duplicados
     if (rut && rut !== user.rut) {
       const existingRut = await userRepository.findOne({ where: { rut } });
       if (existingRut) {
@@ -175,9 +187,14 @@ export async function updateUserById(req, res) {
       user.telefono = telefono;
     }
 
+    // Actualizar solo los campos permitidos
     user.nombre = nombre ?? user.nombre;
     user.apellido = apellido ?? user.apellido;
-    user.rol = rol ?? user.rol;
+
+    // El rol solo se actualiza si no es el propio administrador
+    if (!(rolAutenticado === "administrador" && usuarioAutenticado.id === user.id)) {
+      user.rol = rol ?? user.rol;
+    }
 
     await userRepository.save(user);
 
@@ -188,14 +205,13 @@ export async function updateUserById(req, res) {
   }
 }
 
-
-
 // Eliminar un usuario por ID
 export async function deleteUserById(req, res) {
   try {
     const usuarioAutenticado = req.user;
-    if (!usuarioAutenticado || usuarioAutenticado.rol?.toLowerCase() !== "administrador") {
-      return res.status(403).json({ message: "Acceso denegado. Solo los administradores pueden eliminar usuarios." });
+    const rolAutenticado = usuarioAutenticado?.rol?.toLowerCase();
+    if (!usuarioAutenticado || (rolAutenticado !== "administrador" && rolAutenticado !== "guardia")) {
+      return res.status(403).json({ message: "Acceso denegado. Solo administradores y guardias pueden eliminar usuarios." });
     }
 
     const userRepository = AppDataSource.getRepository(UserEntity);
