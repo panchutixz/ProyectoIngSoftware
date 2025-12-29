@@ -66,16 +66,21 @@ async function accionBicicletaPopup(bicicleteros) {
 export const accionBicicletas = (fetchAccionBicicletas) => {
     const handleAccionBicicleta = async () => {
     try {
-        const bicicleteros = await getAllBikeRacks();
-        const value = await accionBicicletaPopup(bicicleteros);
+            const bicicleteros = await getAllBikeRacks();
+            const value = await accionBicicletaPopup(bicicleteros);
         if (!value) return;
-
-        let response;
+        
+        let response = null;
+        
         if (value.accion === "retirar") {
-        response = await retirarBicicleta(value);
-        } else if (value.accion === "mover") {
-        response = await moverBicycle(value);
+            const { rut, codigo, id_bicicletero } = value;
+            response = await retirarBicicleta({ rut, codigo, id_bicicletero });
         }
+            if (value.accion === "mover") {
+                const { rut, codigo, id_bicicletero_destino } = value;
+                response = await moverBicycle({ rut, codigo, id_bicicletero_destino });
+            }
+
 
         if (response) {
         await Swal.fire({
