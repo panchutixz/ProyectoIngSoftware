@@ -78,3 +78,14 @@ export async function editarBicycle(data){
         throw new Error(backendMessage);
     }
 }
+
+export async function moverBicycle(data){
+    try{
+        const response = await axios.put('/auth/mover/bicicleta',data);
+        return response.data;
+    }catch(error){
+        const backendMessage = error.response?.data?.message || 
+        "Error en el servidor. Revisa los datos e inténtalo nuevamente.";
+        throw new Error(backendMessage);
+    }
+}

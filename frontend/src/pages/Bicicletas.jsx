@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { getBicicletas, getUserBicycles} from '../services/bicicletas.service.js';
 import { reIngresoBicicleta} from '@hooks/bicicletas/useReIngresoBicicletas.jsx';
 import { registerBicicleta } from '@hooks/bicicletas/useRegisterBicicletas.jsx';
-import { retirarBicicletas } from '@hooks/bicicletas/useRetirarBicicletas.jsx';
+import { accionBicicletas } from '@hooks/bicicletas/useRetirarBicicletas.jsx';
 import { editarBicicleta } from '@hooks/bicicletas/useEditBicicletas.jsx';
 import { deleteBicicleta } from '@hooks/bicicletas/useDeleteBicicletas.jsx';
 import { useAuth } from "../context/AuthContext.jsx";
@@ -59,7 +59,7 @@ const Bicicletas = () => {
 
     const { handleReIngresoBicicleta } = reIngresoBicicleta(fetchBicicletas);
     const { handleRegisterBicicleta } = registerBicicleta(fetchBicicletas);
-    const { handleRetirarBicicleta } = retirarBicicletas(fetchBicicletas);
+    const { handleAccionBicicleta } = accionBicicletas(fetchBicicletas);
     const { handleEditarBicicleta } = editarBicicleta(fetchBicicletas);
     const { handleDeleteBicicleta} = deleteBicicleta(fetchBicicletas);
 
@@ -71,7 +71,7 @@ const Bicicletas = () => {
                     {user && user.rol === 'Guardia' && (user.bicicletero_id) &&(
                     <>
                         <button className="button-registrar-bicicleta" onClick={handleRegisterBicicleta}>Registrar Bicicleta</button>
-                        <button className="button-retirar-bicicleta" onClick={handleRetirarBicicleta}>Retirar Bicicleta</button>
+                        <button className="button-retirar-bicicleta" onClick={handleAccionBicicleta}>Retirar/Mover Bicicleta</button>
                     </>
                 )}
             </div>
