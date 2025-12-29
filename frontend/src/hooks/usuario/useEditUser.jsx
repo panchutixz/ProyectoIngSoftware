@@ -1,5 +1,5 @@
 import Swal from "sweetalert2";
-import { editUser } from "@services/usuarios.service.js"; // tu servicio axios.put
+import { editUser } from "@services/usuarios.service.js";
 
 
 async function editUserPopup(user) {
